@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  date-annotator:
+    image: nlpsandbox/date-annotator-example
+    container_name: date-annotator
+    restart: always
+    ports:
+      - 9090:8080
+
+  # person-name-annotator:
+  #   image: nlpsandbox/person-name-annotator-example
+  #   container_name: person-name-annotator
+  #   restart: always
+  #   ports:
+  #     - 9091:8080
+
+  # physical-address-annotator:
+  #   image: nlpsandbox/person-name-annotator-example
+  #   container_name: physical-address-annotator
+  #   restart: always
+  #   ports:
+  #     - 9092:8080
