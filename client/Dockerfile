@@ -25,8 +25,9 @@ COPY /shiny-app/renv.lock ./renv.lock
 COPY /shiny-app ./app
 
 # Install renv & restore packages
-RUN Rscript -e 'install.packages("renv")'
-RUN Rscript -e 'renv::restore()'
+RUN Rscript -e 'install.packages("renv")' \
+    && Rscript -e 'renv::consent(TRUE)' \
+    && Rscript -e 'renv::restore()'
 
 EXPOSE 3838
 
