@@ -8,3 +8,12 @@
 NLP Sandbox de-identification client and server
 
 ## Specification
+
+## Usage
+
+The command below starts the Deidentifier stack locally.
+
+    docker-compose up
+
+When running, the Deidentifier stacks provides a web interface (http://localhost:3838)
+that you can use to deidentify single or multiple clinical notes.
