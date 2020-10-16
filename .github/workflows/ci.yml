@@ -30,7 +30,7 @@ jobs:
     - name: Validate docker-compose.yml
       run: docker-compose -f docker-compose.yml config >/dev/null
 
-  docker:
+  docker-client:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
@@ -38,7 +38,7 @@ jobs:
     - name: Prepare
       id: prep
       run: |
-        DOCKER_IMAGE=nlpsandbox/deidentifier-shiny-app
+        DOCKER_IMAGE=nlpsandbox/deidentifier-service
         VERSION=noop
         PUSH=false
         if [ "${{ github.event_name }}" = "schedule" ]; then
