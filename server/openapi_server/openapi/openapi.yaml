@@ -1,0 +1,197 @@
+openapi: 3.0.2
+info:
+  contact:
+    email: thomas.schaffter@sagebionetworks.org
+    name: The NLP Sandbox Team
+    url: https://Sage-Bionetworks.github.io/nlp-sandbox-schemas
+  description: |
+    The OpenAPI specification implemented by NLP Sandbox PHI Deidentifiers.
+    # Overview
+    TBA
+  license:
+    name: Apache 2.0
+    url: https://github.com/Sage-Bionetworks/nlp-sandbox/blob/main/LICENSE
+  title: NLP Sandbox PHI Deidentifier API
+  version: 0.1.2
+  x-logo:
+    url: https://Sage-Bionetworks.github.io/nlp-sandbox-schemas/logo.png
+servers:
+- url: http://example.com/api/v1
+- url: https://example.com/api/v1
+tags:
+- description: Operations about deidentified notes
+  name: Deidentified Notes
+- description: Operations about API health
+  name: Health
+paths:
+  /deidentified-notes:
+    get:
+      description: Returns the deidentified notes
+      operationId: deidentified_notes_read_all
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/Note'
+              type: array
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Note'
+                type: array
+          description: Success
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+      summary: Get deidentified notes
+      tags:
+      - Deidentified Notes
+      x-openapi-router-controller: openapi_server.controllers.deidentified_notes_controller
+  /health:
+    get:
+      description: Get the health of the API
+      operationId: health
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          description: Success
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found
+      summary: Get Health
+      tags:
+      - Health
+      x-openapi-router-controller: openapi_server.controllers.health_controller
+components:
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Unauthorized
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The specified resource was not found
+  schemas:
+    Email:
+      description: User email address
+      example: john.smith@example.com
+      format: test
+      type: string
+    User:
+      properties:
+        username:
+          example: John78
+          minLength: 4
+          type: string
+        firstName:
+          example: John
+          type: string
+        lastName:
+          example: Smith
+          type: string
+        email:
+          description: User email address
+          example: john.smith@example.com
+          format: test
+          type: string
+      required:
+      - email
+      - firstName
+      - lastName
+      - username
+      type: object
+    Entity:
+      properties:
+        id:
+          description: ID
+          type: integer
+        createdBy:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          description: When the entity has been created
+          format: date-time
+          type: string
+        updatedBy:
+          $ref: '#/components/schemas/User'
+        updatedAt:
+          description: When the entity has been updated
+          format: date-time
+          type: string
+      required:
+      - id
+      type: object
+    PatientPublicId:
+      description: The patient public ID
+      example: 4f6cf35x-2c4y-483z-a0a9-158621f77a21
+      maxLength: 50
+      type: string
+    Note:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      description: A clinical note
+      example:
+        text: On March 11, Ms Chloe Price met with her family.
+        type: pathology
+        patientPublicId: ""
+      properties:
+        text:
+          description: The content of the note
+          example: On March 11, Ms Chloe Price met with her family.
+          type: string
+        patientPublicId:
+          allOf:
+          - $ref: '#/components/schemas/PatientPublicId'
+        type:
+          description: The note type
+          enum:
+          - pathology
+          - phone_call
+          type: string
+      required:
+      - text
+      type: object
+    Error:
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    Health:
+      example:
+        status: pass
+      properties:
+        status:
+          description: Health status
+          enum:
+          - pass
+          - warn
+          type: string
+      type: object
