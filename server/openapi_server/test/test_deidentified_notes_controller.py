@@ -19,11 +19,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         Get deidentified notes
         """
-        note = {
-  "text" : "On March 11, Ms Chloe Price met with her family.",
-  "type" : "pathology",
-  "patientPublicId" : ""
-}
+        note = null
         headers = { 
             'Accept': 'application/json',
             'Content-Type': 'application/json',
