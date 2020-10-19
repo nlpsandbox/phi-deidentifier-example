@@ -15,27 +15,27 @@ services:
     ports:
       - 9001:8080
 
-  # deidentifier-server:
-  #   # image: nlpsandbox/deidentifier-shiny-app
-  #   build:
-  #     context: server
-  #     dockerfile: Dockerfile
-  #   container_name: deidentifier-server
-  #   restart: always
-  #   ports:
-  #     - 9002:8080
-  #   depends_on:
-  #     - date-annotator
-  #     - person-name-annotator
+  deidentifier-server:
+    # image: nlpsandbox/deidentifier
+    build:
+      context: server
+      dockerfile: Dockerfile
+    container_name: deidentifier
+    restart: always
+    ports:
+      - 9002:8080
+    depends_on:
+      - date-annotator
+      - person-name-annotator
 
-  # deidentifier-client:
-  #   # image: nlpsandbox/deidentifier-shiny-app
-  #   build:
-  #     context: client
-  #     dockerfile: Dockerfile
-  #   container_name: deidentifier-client
-  #   restart: always
-  #   ports:
-  #     - 8080:3838
-  #   depends_on:
-  #     - deidentifier-server
+  deidentifier-client:
+    # image: nlpsandbox/deidentifier-shiny-app
+    build:
+      context: client
+      dockerfile: Dockerfile
+    container_name: deidentifier-client
+    restart: always
+    ports:
+      - 8080:3838
+    depends_on:
+      - deidentifier-server
