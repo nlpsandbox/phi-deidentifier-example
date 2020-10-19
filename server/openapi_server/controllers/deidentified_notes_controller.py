@@ -20,9 +20,9 @@ def deidentified_notes_read_all(note=None):  # noqa: E501
     """
     res = []
 
-    # for testing
-    dates_url = "http://localhost:9000/api/v1/dates"
-    person_names_url = "http://localhost:9001/api/v1/person-names"
+    # for testing when annotator are running as containers
+    dates_url = "http://date-annotator:8080/api/v1/dates"
+    person_names_url = "http://person-name-annotator:8080/api/v1/person-names"
 
     requests_session = requests.session()
     requests_session.headers.update({'Content-Type': 'application/json'})
