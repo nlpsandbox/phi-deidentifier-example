@@ -2,40 +2,40 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:0.1.6
+    image: nlpsandbox/date-annotator-example:edge
     container_name: date-annotator
     restart: always
     ports:
       - 9000:8080
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:0.1.6
+    image: nlpsandbox/person-name-annotator-example:edge
     container_name: person-name-annotator
     restart: always
     ports:
       - 9001:8080
 
-  deidentifier-server:
-    # image: nlpsandbox/deidentifier:0.1.6
+  phi-deidentifier:
+    image: nlpsandbox/phi-deidentifier:edge
     build:
       context: server
       dockerfile: Dockerfile
-    container_name: deidentifier
+    container_name: phi-deidentifier
     restart: always
     ports:
-      - 9002:8080
+      - 8080:8080
     depends_on:
       - date-annotator
       - person-name-annotator
 
-  deidentifier-client:
-    image: nlpsandbox/deidentifier-shiny-app:0.1.6
-    build:
-      context: client
-      dockerfile: Dockerfile
-    container_name: deidentifier-client
-    restart: always
-    ports:
-      - 8080:3838
-    depends_on:
-      - deidentifier-server
+  # deidentifier-client:
+  #   image: nlpsandbox/deidentifier-shiny-app:0.1.6
+  #   build:
+  #     context: client
+  #     dockerfile: Dockerfile
+  #   container_name: deidentifier-client
+  #   restart: always
+  #   ports:
+  #     - 8080:3838
+  #   depends_on:
+  #     - deidentifier-server
