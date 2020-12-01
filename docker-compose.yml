@@ -2,18 +2,25 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:0.1.6
+    image: nlpsandbox/date-annotator-example:latest
     container_name: date-annotator
     restart: always
     ports:
       - 9000:8080
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:0.1.6
+    image: nlpsandbox/person-name-annotator-example:latest
     container_name: person-name-annotator
     restart: always
     ports:
       - 9001:8080
+
+  physical-address-annotator:
+    image: nlpsandbox/physical-address-annotator-example:latest
+    container_name: physical-address-annotator
+    restart: always
+    ports:
+      - 9002:8080
 
   deidentifier-server:
     # image: nlpsandbox/deidentifier:0.1.6
@@ -23,10 +30,11 @@ services:
     container_name: deidentifier
     restart: always
     ports:
-      - 9002:8080
+      - 9003:8080
     depends_on:
       - date-annotator
       - person-name-annotator
+      - physical-address-annotator
 
   deidentifier-client:
     image: nlpsandbox/deidentifier-shiny-app:0.1.6
