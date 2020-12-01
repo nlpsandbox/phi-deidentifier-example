@@ -22,10 +22,10 @@ REQUIRES = [
 setup(
     name=NAME,
     version=VERSION,
-    description="NLP Sandbox PHI Deidentifier API",
+    description="NLP Sandbox Deidentifier API",
     author_email="thomas.schaffter@sagebionetworks.org",
     url="",
-    keywords=["OpenAPI", "NLP Sandbox PHI Deidentifier API"],
+    keywords=["OpenAPI", "NLP Sandbox Deidentifier API"],
     install_requires=REQUIRES,
     packages=find_packages(),
     package_data={'': ['openapi/openapi.yaml']},
