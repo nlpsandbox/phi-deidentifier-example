@@ -10,7 +10,7 @@ from openapi_server.models.note import Note  # noqa: E501
 from openapi_server import util
 
 
-def create_deidentified_notes(deidentify_request=None):  # noqa: E501
+def create_deidentified_notes():  # noqa: E501
     """Deidentify a clinical note
 
     Returns the deidentified note # noqa: E501
@@ -33,59 +33,77 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
     requests_session.headers.update({'charset':'utf-8'})
 
     if connexion.request.is_json:
-        deidentification_request: DeidentifyRequest = connexion.request.get_json()
-        note = deidentification_request['note']
+        deidentify_request = connexion.request.get_json()
+        note = deidentify_request['note']
 
-        """
-        dates = []
-        person_names = []
-        physical_addresses = []
-        """
+        annotations = {}
 
         # Get date annotations
         response = requests_session.post(url=dates_url, json={'note': note})
         if response.status_code == 200:
-            dates = response.json()['textDateAnnotations']
-        else:
-            return "failed on date-annotator"
+            annotations['text_date'] = response.json()['textDateAnnotations']
 
         # Get person name annotations
         response = requests_session.post(url=person_names_url, json={'note': note})
         if response.status_code == 200:
-            person_names = response.json()['textPersonNameAnnotations']
-        else:
-            return "failed on name-annotator: %s" % (repr(response),)
+            annotations['text_person_name'] = response.json()['textPersonNameAnnotations']
 
         # Get physical address annotations
         response = requests_session.post(url=physical_addresses_url, json={'note': note})
         if response.status_code == 200:
-            physical_addresses = response.json()['textPhysicalAddressAnnotations']
-        else:
-            return "failed on address-annotator"
+            annotations['text_physical_address'] = response.json()['textPhysicalAddressAnnotations']
 
         # De-identify note
-        deid_text = apply_masking_char(note, dates, person_names, physical_addresses)
+        deidentified_note = note.copy()
+        deidentified_annotations = annotations.copy()
+        for deid_config in deidentify_request['deidentificationConfigurations']:
+            if 'maskingCharConfig' in deid_config['deidentificationStrategy']:
+                masking_char = deid_config['deidentificationStrategy']['maskingCharConfig']['maskingChar']
+                deidentified_note, deidentified_annotations = apply_masking_char(
+                    deidentified_note,
+                    deidentified_annotations,
+                    deid_config['annotationTypes'],
+                    masking_char
+                )
+            else:
+                # Handle other deid methods in elif's
+                pass
 
-        return deid_text
+        return {
+            'note': deidentified_note,
+            'originalAnnotations': {
+                'textDateAnnotations': annotations['text_date'],
+                'textPersonNameAnnotations': annotations['text_person_name'],
+                'textPhysicalAddressAnnotations': annotations['text_physical_address']
+            },
+            'deidentifiedAnnotations': {
+                'textDateAnnotations': deidentified_annotations['text_date'],
+                'textPersonNameAnnotations': deidentified_annotations['text_person_name'],
+                'textPhysicalAddressAnnotations': deidentified_annotations['text_physical_address']
+            },
+        }
 
 
-def apply_masking_char(note, dates, person_names, physical_addresses):
+def apply_masking_char(note, annotations, annotation_types, masking_char='*'):
     """
-    Returns the deidentified clinical note where annotations are masked with '*'.
+    Apply a masking character de-identification to a note for the given annotation types
+
+    :param note: note to be de-identified
+    :param annotations: (dict: annotation_type -> [annotation])
+    :param masking_char: the character used to mask PII
+    :return (deidentified_note, deidentified_annotations): note with de-identified text, and annotations now pointing to
+            corrected character addresses (in case of redaction or annotation type de-identification).
     """
-    mask_character = '*'
-    text = note['text']
+    deidentified_note = note.copy()
+    deidentified_annotations = annotations.copy()  # Masking char doesn't change any character addresses
 
-    for annotation in dates:
-        mask = mask_character * annotation['length']
-        text = text[:annotation['start']] + mask + text[annotation['start'] + annotation['length']:]
+    for annotation_type in annotation_types:
+        annotation_set = annotations[annotation_type]
+        for annotation in annotation_set:
+            mask = masking_char * annotation['length']
+            deidentified_note['text'] = \
+                deidentified_note['text'][:annotation['start']] + \
+                mask + \
+                deidentified_note['text'][annotation['start'] + annotation['length']:]
 
-    for annotation in person_names:
-        mask = mask_character * annotation['length']
-        text = text[:annotation['start']] + mask + text[annotation['start'] + annotation['length']:]
-
-    for annotation in physical_addresses:
-        mask = mask_character * annotation['length']
-        text = text[:annotation['start']] + mask + text[annotation['start'] + annotation['length']:]
-
-    return text
+    return deidentified_note, deidentified_annotations
