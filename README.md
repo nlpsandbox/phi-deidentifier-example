@@ -16,7 +16,7 @@ TBA
 
 The command below starts the Deidentifier stack locally.
 
-    docker-compose up --build deidentifier-server
+    docker-compose up --build phi-deidentifier
 
 When running, the Deidentifier stacks provides a web interface (http://localhost:3838)
 that you can use to deidentify single or multiple clinical notes.
