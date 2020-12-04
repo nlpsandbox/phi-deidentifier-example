@@ -20,7 +20,7 @@ def create_deidentified_notes():  # noqa: E501
     :type deidentify_request: dict | bytes
 
     :rtype: DeidentifyResponse
-    FIXME: Currently just does a masking character de-identify on all annotation types
+    FIXME: Currently can only do masking character and redact de-identifications
     """
     res = []
 
