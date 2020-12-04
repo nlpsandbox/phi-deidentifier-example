@@ -50,7 +50,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             'Content-Type': 'application/json',
         }
         response = requests.post(
-            'http://127.0.0.1:9003/api/v1/deidentifiedNotes',
+            'http://127.0.0.1:8080/api/v1/deidentifiedNotes',
             headers=headers,
             data=json.dumps(masking_char_request),
         )
@@ -83,7 +83,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             'Content-Type': 'application/json',
         }
         response = requests.post(
-            'http://127.0.0.1:9003/api/v1/deidentifiedNotes',
+            'http://127.0.0.1:8080/api/v1/deidentifiedNotes',
             headers=headers,
             data=json.dumps(redact_request),
         )
