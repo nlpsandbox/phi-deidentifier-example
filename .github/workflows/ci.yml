@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Lint Dockerfiles
-      uses: docker://hadolint/hadolint:latest
-      with:
-        entrypoint: hadolint
-        args: server/Dockerfile client/Dockerfile
+    # - name: Lint Dockerfiles
+    #   uses: docker://hadolint/hadolint:latest
+    #   with:
+    #     entrypoint: hadolint
+    #     args: server/Dockerfile client/Dockerfile
 
   test:
     needs: [lint]
