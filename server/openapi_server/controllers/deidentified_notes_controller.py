@@ -1,14 +1,18 @@
+from typing import List
+
 import connexion
 import six
 from flask import jsonify
 import requests
 import sys
 
+from openapi_server.models import DeidentificationConfig
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models.deidentify_response import DeidentifyResponse  # noqa: E501
 from openapi_server.models.error import Error  # noqa: E501
 from openapi_server.models.note import Note  # noqa: E501
 from openapi_server import util
+from openapi_server.utils import annotator_client
 
 
 def create_deidentified_notes():  # noqa: E501
@@ -22,62 +26,42 @@ def create_deidentified_notes():  # noqa: E501
     :rtype: DeidentifyResponse
     FIXME: Currently can only do masking character and redact de-identifications
     """
-    res = []
-
-    # for testing when annotator are running as containers
-    dates_url = "http://date-annotator:8080/api/v1/textDateAnnotations"
-    person_names_url = "http://person-name-annotator:8080/api/v1/textPersonNameAnnotations"
-    physical_addresses_url = "http://physical-address-annotator:8080/api/v1/textPhysicalAddressAnnotations"
-
-    requests_session = requests.session()
-    requests_session.headers.update({'Content-Type': 'application/json'})
-    requests_session.headers.update({'charset':'utf-8'})
 
     if connexion.request.is_json:
-        deidentify_request = connexion.request.get_json()
-        note = deidentify_request['note']
+        deid_request = DeidentifyRequest.from_dict(connexion.request.get_json())
+        note = deid_request.note
 
         annotations = {}
 
-        # Get date annotations
-        response = requests_session.post(url=dates_url, json={'note': note})
-        if response.status_code == 200:
-            annotations['text_date'] = response.json()['textDateAnnotations']
-
-        # Get person name annotations
-        response = requests_session.post(url=person_names_url, json={'note': note})
-        if response.status_code == 200:
-            annotations['text_person_name'] = response.json()['textPersonNameAnnotations']
-
-        # Get physical address annotations
-        response = requests_session.post(url=physical_addresses_url, json={'note': note})
-        if response.status_code == 200:
-            annotations['text_physical_address'] = response.json()['textPhysicalAddressAnnotations']
+        for annotation_type in ['text_date', 'text_person_name', 'text_physical_address']:
+            annotations[annotation_type] = annotator_client.get_annotations(note, annotation_type)
 
         # De-identify note
-        deidentified_note = note.copy()
+        deidentified_note = Note.from_dict(note.to_dict())
         # FIXME: Following should be deep copy
         deidentified_annotations = annotations.copy()
-        for deid_config in deidentify_request['deidentificationConfigurations']:
-            if 'maskingCharConfig' in deid_config['deidentificationStrategy']:
-                masking_char = deid_config['deidentificationStrategy']['maskingCharConfig']['maskingChar']
+
+        deid_config: DeidentificationConfig
+        for deid_config in deid_request.deidentification_configurations:
+            if deid_config.deidentification_strategy.masking_char_config is not None:
+                masking_char = deid_config.deidentification_strategy.masking_char_config.masking_char
                 deidentified_note, deidentified_annotations = apply_masking_char(
                     deidentified_note,
                     deidentified_annotations,
-                    deid_config['annotationTypes'],
+                    deid_config.annotation_types,
                     masking_char
                 )
-            elif 'redactConfig' in deid_config['deidentificationStrategy']:
+            elif deid_config.deidentification_strategy.redact_config is not None:
                 deidentified_note, deidentified_annotations = apply_redaction(
                     deidentified_note,
                     deidentified_annotations,
-                    deid_config['annotationTypes']
+                    deid_config.annotation_types
                 )
-            elif 'annotationTypeConfig' in deid_config['deidentificationStrategy']:
+            elif deid_config.deidentification_strategy.annotation_type_config is not None:
                 deidentified_note, deidentified_annotations = apply_annotation_type(
                     deidentified_note,
                     deidentified_annotations,
-                    deid_config['annotationTypes']
+                    deid_config.annotation_types
                 )
             else:
                 # Handle other deid methods in elif's
@@ -98,7 +82,7 @@ def create_deidentified_notes():  # noqa: E501
         }
 
 
-def apply_masking_char(note, annotations, annotation_types, masking_char='*'):
+def apply_masking_char(note: Note, annotations, annotation_types: List[str], masking_char='*'):
     """
     Apply a masking character de-identification to a note for the given annotation types
 
@@ -106,35 +90,33 @@ def apply_masking_char(note, annotations, annotation_types, masking_char='*'):
     :param annotations: (dict: annotation_type -> [annotation])
     :param annotation_types: list of types of annotations to be masked
     :param masking_char: the character used to mask PII
-    :return: (deidentified_note, deidentified_annotations) note with de-identified text, and annotations.
+    :return: (note, deidentified_annotations) note with de-identified text, and annotations.
     """
-    deidentified_note = note.copy()
     deidentified_annotations = annotations.copy()  # Masking char doesn't change any character addresses
 
     for annotation_type in annotation_types:
         annotation_set = annotations[annotation_type]
         for annotation in annotation_set:
             mask = masking_char * annotation['length']
-            deidentified_note['text'] = \
-                deidentified_note['text'][:annotation['start']] + \
+            note.text = \
+                note.text[:annotation['start']] + \
                 mask + \
-                deidentified_note['text'][annotation['start'] + annotation['length']:]
+                note.text[annotation['start'] + annotation['length']:]
 
-    return deidentified_note, deidentified_annotations
+    return note, deidentified_annotations
 
 
-def apply_redaction(note, annotations, annotation_types):
+def apply_redaction(note: Note, annotations, annotation_types: List[str]):
     """
     Apply redaction to a note for the given annotation types
 
     :param note: note to be de-identified
     :param annotations: (dict: annotation_type -> [annotation])
     :param annotation_types: list of types of annotations to be redacted
-    :return: (deidentified_note, deidentified_annotations) note with de-identified text, and annotations now pointing to
+    :return: (note, deidentified_annotations) note with de-identified text, and annotations now pointing to
             corrected character addresses.
     """
-    deidentified_note = note.copy()
-    left_shifts = [0] * len(note['text'])
+    left_shifts = [0] * len(note.text)
 
     for annotation_type in annotation_types:
         for annotation in annotations[annotation_type]:
@@ -144,9 +126,9 @@ def apply_redaction(note, annotations, annotation_types):
             length = end - start
 
             # Redact each annotation in note
-            deidentified_note['text'] = \
-                deidentified_note['text'][:start] + \
-                deidentified_note['text'][start + length:]
+            note.text = \
+                note.text[:start] + \
+                note.text[start + length:]
 
             # Record left shift introduced by redaction
             for i in range(annotation['start'], len(left_shifts)):
@@ -168,21 +150,20 @@ def apply_redaction(note, annotations, annotation_types):
 
             deidentified_annotations[annotation_type].append(deidentified_annotation)
 
-    return deidentified_note, deidentified_annotations
+    return note, deidentified_annotations
 
 
-def apply_annotation_type(note, annotations, annotation_types):
+def apply_annotation_type(note: Note, annotations, annotation_types: List[str]):
     """
     Apply annotation-type de-identification to a note for the given annotation types
 
     :param note: note to be de-identified
     :param annotations: (dict: annotation_type -> [annotation])
     :param annotation_types: list of types of annotations to be redacted
-    :return: (deidentified_note, deidentified_annotations) note with de-identified text, and annotations now pointing to
+    :return: (note, deidentified_annotations) note with de-identified text, and annotations now pointing to
             corrected character addresses.
     """
-    deidentified_note = note.copy()
-    left_shifts = [0] * len(note['text'])
+    left_shifts = [0] * len(note.text)
 
     for annotation_type in annotation_types:
         for annotation in annotations[annotation_type]:
@@ -195,9 +176,9 @@ def apply_annotation_type(note, annotations, annotation_types):
             filler = "[%s]" % (annotation_type.upper(),)
 
             # Replace each annotation in note with "[ANNOTATION_TYPE_HERE]"
-            deidentified_note['text'] = \
-                deidentified_note['text'][:start] + filler +\
-                deidentified_note['text'][start + length:]
+            note.text = \
+                note.text[:start] + filler +\
+                note.text[start + length:]
 
             # Record left shift introduced by replacement
             # for i in range(annotation['start']+1, len(left_shifts)):
@@ -220,4 +201,4 @@ def apply_annotation_type(note, annotations, annotation_types):
 
             deidentified_annotations[annotation_type].append(deidentified_annotation)
 
-    return deidentified_note, deidentified_annotations
+    return note, deidentified_annotations
