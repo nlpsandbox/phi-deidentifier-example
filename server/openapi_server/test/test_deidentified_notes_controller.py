@@ -2,14 +2,11 @@
 
 from __future__ import absolute_import
 import unittest
+from flask import json
+from openapi_server.test import BaseTestCase
+from openapi_server.test.utils import SAMPLE_NOTE, mock_get_annotations
 from unittest.mock import patch
 
-from flask import json
-
-from openapi_server.test import BaseTestCase
-from openapi_server.test.utils import SAMPLE_NOTE
-
-from .utils import mock_get_annotations
 
 DEIDENTIFIER_ENDPOINT_URL = 'http://127.0.0.1:8080/api/v1/deidentifiedNotes'
 
