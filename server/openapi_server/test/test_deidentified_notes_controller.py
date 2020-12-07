@@ -2,28 +2,22 @@
 
 from __future__ import absolute_import
 import unittest
+from unittest.mock import patch
 
-import requests
 from flask import json
-from six import BytesIO
 
-from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
-from openapi_server.models.deidentify_response import DeidentifyResponse  # noqa: E501
-from openapi_server.models.error import Error  # noqa: E501
 from openapi_server.test import BaseTestCase
+from openapi_server.test.utils import SAMPLE_NOTE
 
+from .utils import mock_get_annotations
 
 DEIDENTIFIER_ENDPOINT_URL = 'http://127.0.0.1:8080/api/v1/deidentifiedNotes'
-SAMPLE_NOTE = {
-    "noteType": "loinc:LP29684-5",
-    "patientId": "patientId",
-    "text": "Mary Williamson came back from Seattle yesterday, 12 December 2013."
-}
 
 
 class TestDeidentifiedNotesController(BaseTestCase):
     """DeidentifiedNotesController integration test stubs"""
 
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
     def test_masking_char(self):
         """Test case for de-identification with masking character
         """
@@ -48,24 +42,26 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         headers = {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
         }
-        response = requests.post(
+        response = self.client.open(
             DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
             headers=headers,
             data=json.dumps(masking_char_request),
+            content_type='application/json'
         )
-        self.assert200(response, 'Response body is : ' + response.content.decode('utf-8'))
-        response_data = response.json()
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
-        expected_deidentified_text = "____ __________ came back from ******* yesterday, 12 -------- ----."
+        expected_deidentified_text = "____ __________ came back from ******* yesterday, -- -------- ----."
         assert response_data['note']['text'] == expected_deidentified_text,\
             "De-identified text: '%s', should be: '%s'" % (response_data['note']['text'], expected_deidentified_text)
 
         # Masking char de-identification doesn't change any annotation character addresses
         assert response_data['deidentifiedAnnotations'] == response_data['originalAnnotations']
 
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
     def test_redact(self):
         """Test case for de-identification with redaction
         """
@@ -81,18 +77,19 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         headers = {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
         }
-        response = requests.post(
+        response = self.client.open(
             DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
             headers=headers,
             data=json.dumps(redact_request),
+            content_type='application/json'
         )
-        self.assert200(response, 'Response body is : ' + response.content.decode('utf-8'))
-        response_data = response.json()
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
-        expected_deidentified_text = "  came back from  yesterday, 12  ."
+        expected_deidentified_text = "  came back from  yesterday,   ."
         assert response_data['note']['text'] == expected_deidentified_text, \
             "De-identified text: '%s', should be: '%s'" % (response_data['note']['text'], expected_deidentified_text)
 
@@ -112,6 +109,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
                 assert 0 <= annotation['start'] < len(response_data['note']['text']), \
                     "deidentified annotation outside of bounds of deidentified note: '%s'" % (annotation,)
 
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
     def test_annotation_type(self):
         """Test case for de-identification by replacing annotation with "[ANNOTATION_TYPE]"
         """
@@ -125,19 +123,20 @@ class TestDeidentifiedNotesController(BaseTestCase):
             }]
         }
         headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         }
-        response = requests.post(
+        response = self.client.open(
             DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
             headers=headers,
             data=json.dumps(annotation_type_request),
+            content_type='application/json'
         )
-        self.assert200(response, 'Response body is : ' + response.content.decode('utf-8'))
-        response_data = response.json()
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
 
         # Manually written based on known behavior of annotators
-        expected_deidentified_text = "[TEXT_PERSON_NAME] [TEXT_PERSON_NAME] came back from [TEXT_PHYSICAL_ADDRESS] yesterday, 12 [TEXT_DATE] [TEXT_DATE]."
+        expected_deidentified_text = "[TEXT_PERSON_NAME] [TEXT_PERSON_NAME] came back from [TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
         assert response_data['note']['text'] == expected_deidentified_text
 
         # Get expected character address ranges of de-identified annotations
