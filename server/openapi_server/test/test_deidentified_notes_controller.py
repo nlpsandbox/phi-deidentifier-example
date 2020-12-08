@@ -47,13 +47,13 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(masking_char_request),
             content_type='application/json'
         )
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
         expected_deidentified_text = "____ __________ came back from ******* yesterday, -- -------- ----."
-        assert response_data['note']['text'] == expected_deidentified_text,\
-            "De-identified text: '%s', should be: '%s'" % (response_data['note']['text'], expected_deidentified_text)
+        assert response_data['deidentified_note']['text'] == expected_deidentified_text,\
+            "De-identified text: '%s', should be: '%s'" % (response_data['deidentified_note']['text'], expected_deidentified_text)
 
         # Masking char de-identification doesn't change any annotation character addresses
         assert response_data['deidentifiedAnnotations'] == response_data['originalAnnotations']
@@ -82,13 +82,13 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(redact_request),
             content_type='application/json'
         )
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
         expected_deidentified_text = "  came back from  yesterday,   ."
-        assert response_data['note']['text'] == expected_deidentified_text, \
-            "De-identified text: '%s', should be: '%s'" % (response_data['note']['text'], expected_deidentified_text)
+        assert response_data['deidentified_note']['text'] == expected_deidentified_text, \
+            "De-identified text: '%s', should be: '%s'" % (response_data['deidentified_note']['text'], expected_deidentified_text)
 
         # Redaction should reduce all annotation lengths to 0
         for annotation_type in ('textPersonNameAnnotations', 'textPhysicalAddressAnnotations', 'textDateAnnotations'):
@@ -103,7 +103,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
                 assert annotation['start'] not in all_starts, \
                     "more than one annotation should not have the same start address: '%s'" % (annotation,)
                 all_starts.add(annotation['start'])
-                assert 0 <= annotation['start'] < len(response_data['note']['text']), \
+                assert 0 <= annotation['start'] < len(response_data['deidentified_note']['text']), \
                     "deidentified annotation outside of bounds of deidentified note: '%s'" % (annotation,)
 
     @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
@@ -129,12 +129,12 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(annotation_type_request),
             content_type='application/json'
         )
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # Manually written based on known behavior of annotators
         expected_deidentified_text = "[TEXT_PERSON_NAME] [TEXT_PERSON_NAME] came back from [TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
-        assert response_data['note']['text'] == expected_deidentified_text
+        assert response_data['deidentified_note']['text'] == expected_deidentified_text
 
         # Get expected character address ranges of de-identified annotations
         expected_starts = [i for i in range(len(expected_deidentified_text)) if expected_deidentified_text[i] == '[']

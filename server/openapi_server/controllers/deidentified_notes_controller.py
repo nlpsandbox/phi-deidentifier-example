@@ -1,6 +1,6 @@
 import connexion
 
-from openapi_server.models import DeidentificationConfig
+from openapi_server.models import DeidentificationConfig, DeidentifyResponse
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models.note import Note  # noqa: E501
 from openapi_server.utils import annotator_client
@@ -58,8 +58,8 @@ def create_deidentified_notes():  # noqa: E501
                 # Handle other deid methods in elif's
                 pass
 
-        return {
-            'note': deidentified_note,
+        return DeidentifyResponse.from_dict({
+            'deidentified_note': deidentified_note,
             'originalAnnotations': {
                 'textDateAnnotations': annotations['text_date'],
                 'textPersonNameAnnotations': annotations['text_person_name'],
@@ -69,5 +69,5 @@ def create_deidentified_notes():  # noqa: E501
                 'textDateAnnotations': deidentified_annotations['text_date'],
                 'textPersonNameAnnotations': deidentified_annotations['text_person_name'],
                 'textPhysicalAddressAnnotations': deidentified_annotations['text_physical_address']
-            },
-        }
+            }
+        }), 201
