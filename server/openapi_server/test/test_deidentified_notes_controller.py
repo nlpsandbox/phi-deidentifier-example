@@ -37,13 +37,10 @@ class TestDeidentifiedNotesController(BaseTestCase):
             ]
         }
 
-        headers = {
-            'Accept': 'application/json',
-        }
         response = self.client.open(
             DEIDENTIFIER_ENDPOINT_URL,
             method='POST',
-            headers=headers,
+            headers={'Accept': 'application/json'},
             data=json.dumps(masking_char_request),
             content_type='application/json'
         )
@@ -72,13 +69,10 @@ class TestDeidentifiedNotesController(BaseTestCase):
             }]
         }
 
-        headers = {
-            'Accept': 'application/json',
-        }
         response = self.client.open(
             DEIDENTIFIER_ENDPOINT_URL,
             method='POST',
-            headers=headers,
+            headers={'Accept': 'application/json'},
             data=json.dumps(redact_request),
             content_type='application/json'
         )
@@ -119,13 +113,10 @@ class TestDeidentifiedNotesController(BaseTestCase):
                 "annotationTypes": ["text_physical_address", "text_person_name", "text_date"]
             }]
         }
-        headers = {
-            'Accept': 'application/json'
-        }
         response = self.client.open(
             DEIDENTIFIER_ENDPOINT_URL,
             method='POST',
-            headers=headers,
+            headers={'Accept': 'application/json'},
             data=json.dumps(annotation_type_request),
             content_type='application/json'
         )
@@ -161,13 +152,10 @@ class TestDeidentifiedNotesController(BaseTestCase):
                 "annotationTypes": ["text_physical_address", "text_person_name", "text_date"]
             }]
         }
-        headers = {
-            'Accept': 'application/json'
-        }
         response = self.client.open(
             DEIDENTIFIER_ENDPOINT_URL,
             method='POST',
-            headers=headers,
+            headers={'Accept': 'application/json'},
             data=json.dumps(no_method_request),
             content_type='application/json'
         )
