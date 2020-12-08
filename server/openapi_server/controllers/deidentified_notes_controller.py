@@ -12,9 +12,6 @@ def create_deidentified_notes():  # noqa: E501
 
     Returns the deidentified note # noqa: E501
 
-    :param deidentify_request: 
-    :type deidentify_request: dict | bytes
-
     :rtype: DeidentifyResponse
     """
 
@@ -22,6 +19,7 @@ def create_deidentified_notes():  # noqa: E501
         deid_request = DeidentifyRequest.from_dict(connexion.request.get_json())
         note = deid_request.note
 
+        # Annotations is a dict[key: list[str]]
         annotations = {}
 
         for annotation_type in ['text_date', 'text_person_name', 'text_physical_address']:
@@ -29,8 +27,7 @@ def create_deidentified_notes():  # noqa: E501
 
         # De-identify note
         deidentified_note = Note.from_dict(note.to_dict())
-        # FIXME: Following should be deep copy
-        deidentified_annotations = annotations.copy()
+        deidentified_annotations = {key: value.copy() for key, value in annotations.items()}
 
         deid_config: DeidentificationConfig
         for deid_config in deid_request.deidentification_configurations:
