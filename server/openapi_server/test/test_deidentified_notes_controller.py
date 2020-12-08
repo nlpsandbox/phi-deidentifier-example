@@ -49,11 +49,10 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
         expected_deidentified_text = "____ __________ came back from ******* yesterday, -- -------- ----."
-        assert response_data['deidentifiedNote']['text'] == expected_deidentified_text,\
-            "De-identified text: '%s', should be: '%s'" % (response_data['deidentifiedNote']['text'], expected_deidentified_text)
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
         # Masking char de-identification doesn't change any annotation character addresses
-        assert response_data['deidentifiedAnnotations'] == response_data['originalAnnotations']
+        self.assertEqual(response_data['deidentifiedAnnotations'], response_data['originalAnnotations'])
 
     @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
     def test_redact(self):
@@ -81,24 +80,21 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
         expected_deidentified_text = "  came back from  yesterday,   ."
-        assert response_data['deidentifiedNote']['text'] == expected_deidentified_text, \
-            "De-identified text: '%s', should be: '%s'" % (response_data['deidentifiedNote']['text'], expected_deidentified_text)
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
         # Redaction should reduce all annotation lengths to 0
         for annotation_type in ('textPersonNameAnnotations', 'textPhysicalAddressAnnotations', 'textDateAnnotations'):
             for annotation in response_data['deidentifiedAnnotations'][annotation_type]:
-                assert annotation['length'] == 0, "redaction should reduce annotation length to 0, not '%s'" \
-                                              % (repr(annotation),)
+                self.assertEqual(annotation['length'], 0, "bad annotation: '%s'" % (repr(annotation),))
 
         all_starts = set()
         for annotation_type in ('textPersonNameAnnotations', 'textPhysicalAddressAnnotations', 'textDateAnnotations'):
             for annotation in response_data['deidentifiedAnnotations'][annotation_type]:
                 # It happens to be true for the sample note that no two PHI share the same start address
-                assert annotation['start'] not in all_starts, \
-                    "more than one annotation should not have the same start address: '%s'" % (annotation,)
+                self.assertNotIn(annotation['start'], all_starts)
                 all_starts.add(annotation['start'])
-                assert 0 <= annotation['start'] < len(response_data['deidentifiedNote']['text']), \
-                    "deidentified annotation outside of bounds of deidentified note: '%s'" % (annotation,)
+                self.assertLessEqual(0, annotation['start'])
+                self.assertLess(annotation['start'], len(response_data['deidentifiedNote']['text']))
 
     @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
     def test_annotation_type(self):
@@ -125,7 +121,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # Manually written based on known behavior of annotators
         expected_deidentified_text = "[TEXT_PERSON_NAME] [TEXT_PERSON_NAME] came back from [TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
-        assert response_data['deidentifiedNote']['text'] == expected_deidentified_text
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
         # Get expected character address ranges of de-identified annotations
         expected_starts = [i for i in range(len(expected_deidentified_text)) if expected_deidentified_text[i] == '[']
@@ -135,11 +131,11 @@ class TestDeidentifiedNotesController(BaseTestCase):
         # Check that de-identified annotations line up
         all_annotation_lists = [response_data['deidentifiedAnnotations'][annotation_type] for annotation_type in response_data['deidentifiedAnnotations']]
         all_annotations = [item for sublist in all_annotation_lists for item in sublist]
-        assert len(expected_deidentified_annotations)
+        self.assertEqual(len(expected_deidentified_annotations), len(all_annotations))
         for start, end in expected_deidentified_annotations:
             length = end - start
             # Check that there is an observed annotation with matching
-            assert any(annotation['start'] == start and annotation['length'] == length for annotation in all_annotations)
+            self.assertTrue(any(annotation['start'] == start and annotation['length'] == length for annotation in all_annotations))
 
     @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
     def test_no_deid_method(self):
