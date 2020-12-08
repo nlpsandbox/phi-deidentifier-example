@@ -32,6 +32,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Validate docker-compose.yml
       run: docker-compose -f docker-compose.yml config >/dev/null
+    - name: Run unit tests
+      run: python -m unittest discover --verbose
 
   # docker-client:
   #   needs: [test]
