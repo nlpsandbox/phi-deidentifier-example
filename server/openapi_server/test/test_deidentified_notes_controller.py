@@ -52,8 +52,8 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
         expected_deidentified_text = "____ __________ came back from ******* yesterday, -- -------- ----."
-        assert response_data['deidentified_note']['text'] == expected_deidentified_text,\
-            "De-identified text: '%s', should be: '%s'" % (response_data['deidentified_note']['text'], expected_deidentified_text)
+        assert response_data['deidentifiedNote']['text'] == expected_deidentified_text,\
+            "De-identified text: '%s', should be: '%s'" % (response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
         # Masking char de-identification doesn't change any annotation character addresses
         assert response_data['deidentifiedAnnotations'] == response_data['originalAnnotations']
@@ -87,8 +87,8 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
         expected_deidentified_text = "  came back from  yesterday,   ."
-        assert response_data['deidentified_note']['text'] == expected_deidentified_text, \
-            "De-identified text: '%s', should be: '%s'" % (response_data['deidentified_note']['text'], expected_deidentified_text)
+        assert response_data['deidentifiedNote']['text'] == expected_deidentified_text, \
+            "De-identified text: '%s', should be: '%s'" % (response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
         # Redaction should reduce all annotation lengths to 0
         for annotation_type in ('textPersonNameAnnotations', 'textPhysicalAddressAnnotations', 'textDateAnnotations'):
@@ -103,7 +103,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
                 assert annotation['start'] not in all_starts, \
                     "more than one annotation should not have the same start address: '%s'" % (annotation,)
                 all_starts.add(annotation['start'])
-                assert 0 <= annotation['start'] < len(response_data['deidentified_note']['text']), \
+                assert 0 <= annotation['start'] < len(response_data['deidentifiedNote']['text']), \
                     "deidentified annotation outside of bounds of deidentified note: '%s'" % (annotation,)
 
     @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
@@ -134,7 +134,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # Manually written based on known behavior of annotators
         expected_deidentified_text = "[TEXT_PERSON_NAME] [TEXT_PERSON_NAME] came back from [TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
-        assert response_data['deidentified_note']['text'] == expected_deidentified_text
+        assert response_data['deidentifiedNote']['text'] == expected_deidentified_text
 
         # Get expected character address ranges of de-identified annotations
         expected_starts = [i for i in range(len(expected_deidentified_text)) if expected_deidentified_text[i] == '[']
@@ -149,6 +149,30 @@ class TestDeidentifiedNotesController(BaseTestCase):
             length = end - start
             # Check that there is an observed annotation with matching
             assert any(annotation['start'] == start and annotation['length'] == length for annotation in all_annotations)
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_no_deid_method(self):
+        """Test case for de-identification configuration with no de-identification strategy (should fail).
+        """
+        no_method_request = {
+            "note": SAMPLE_NOTE,
+            "deidentificationConfigurations": [{
+                "deidentificationStrategy": {},
+                "annotationTypes": ["text_physical_address", "text_person_name", "text_date"]
+            }]
+        }
+        headers = {
+            'Accept': 'application/json'
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers=headers,
+            data=json.dumps(no_method_request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 400, 'Response body is : ' + response.data.decode('utf-8'))
+        pass
 
 
 if __name__ == '__main__':

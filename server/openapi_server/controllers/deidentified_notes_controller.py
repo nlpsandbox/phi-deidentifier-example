@@ -1,6 +1,6 @@
 import connexion
 
-from openapi_server.models import DeidentificationConfig, DeidentifyResponse
+from openapi_server.models import DeidentificationConfig, DeidentifyResponse, Annotation
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models.note import Note  # noqa: E501
 from openapi_server.utils import annotator_client
@@ -55,19 +55,19 @@ def create_deidentified_notes():  # noqa: E501
                     deid_config.annotation_types
                 )
             else:
-                # Handle other deid methods in elif's
-                pass
+                return "No supported de-identification method supported in request: '%s'" % (str(deid_config.to_dict()),), 400
 
-        return DeidentifyResponse.from_dict({
-            'deidentified_note': deidentified_note,
-            'originalAnnotations': {
-                'textDateAnnotations': annotations['text_date'],
-                'textPersonNameAnnotations': annotations['text_person_name'],
-                'textPhysicalAddressAnnotations': annotations['text_physical_address']
-            },
-            'deidentifiedAnnotations': {
-                'textDateAnnotations': deidentified_annotations['text_date'],
-                'textPersonNameAnnotations': deidentified_annotations['text_person_name'],
-                'textPhysicalAddressAnnotations': deidentified_annotations['text_physical_address']
-            }
-        }), 201
+        deidentify_response = DeidentifyResponse(
+            deidentified_note=deidentified_note,
+            original_annotations=Annotation(
+                text_date_annotations=annotations['text_date'],
+                text_person_name_annotations=annotations['text_person_name'],
+                text_physical_address_annotations=annotations['text_physical_address']
+            ),
+            deidentified_annotations=Annotation(
+                text_date_annotations=deidentified_annotations['text_date'],
+                text_person_name_annotations=deidentified_annotations['text_person_name'],
+                text_physical_address_annotations=deidentified_annotations['text_physical_address']
+            )
+        )
+        return deidentify_response, 201
