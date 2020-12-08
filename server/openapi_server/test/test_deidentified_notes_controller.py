@@ -160,7 +160,58 @@ class TestDeidentifiedNotesController(BaseTestCase):
             content_type='application/json'
         )
         self.assertStatus(response, 400, 'Response body is : ' + response.data.decode('utf-8'))
-        pass
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_multiple_strategies(self):
+        """Test multiple de-identification strategies on one note.
+        """
+        # Note that later configurations over-ride earlier configurations
+        multiple_strategies_request = {
+            "note": SAMPLE_NOTE,
+            "deidentificationConfigurations": [
+                {
+                    "deidentificationStrategy": {
+                        "redactConfig": {},
+                    },
+                    "annotationTypes": ["text_physical_address"]
+                },
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "*"
+                        }
+                    },
+                    "annotationTypes": ["text_physical_address", "text_person_name", "text_date"]
+                },
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "-"
+                        }
+                    },
+                    "annotationTypes": ["text_person_name"]
+                },
+                {
+                    "deidentificationStrategy": {
+                        "annotationTypeConfig": {}
+                    },
+                    "annotationTypes": ["text_date"]
+                }
+            ]
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(multiple_strategies_request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        deidentified_text = response_data['deidentifiedNote']['text']
+        expected_deidentified_text = "---- ---------- came back from  yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
+        self.assertEqual(expected_deidentified_text, deidentified_text)
 
 
 if __name__ == '__main__':
