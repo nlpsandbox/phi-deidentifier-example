@@ -1,5 +1,4 @@
-from typing import List
-
+from typing import List, Dict
 from openapi_server.models import Note
 
 
@@ -13,18 +12,23 @@ def apply_masking_char(note: Note, annotations, annotation_types: List[str], mas
     :param masking_char: the character used to mask PII
     :return: (note, deidentified_annotations) note with de-identified text, and annotations.
     """
-    deidentified_annotations = annotations.copy()  # Masking char doesn't change any character addresses
-
+    deidentified_annotations = {annotation_type: annotation_set.copy() for annotation_type, annotation_set in annotations.items()}
+    deidentified_note = Note(
+        note_type=note.note_type,
+        text=note.text,
+        patient_id=note.patient_id,
+        id=note.id
+    )
     for annotation_type in annotation_types:
         annotation_set = annotations[annotation_type]
         for annotation in annotation_set:
             mask = masking_char * annotation['length']
-            note.text = \
-                note.text[:annotation['start']] + \
+            deidentified_note.text = \
+                deidentified_note.text[:annotation['start']] + \
                 mask + \
-                note.text[annotation['start'] + annotation['length']:]
+                deidentified_note.text[annotation['start'] + annotation['length']:]
 
-    return note, deidentified_annotations
+    return deidentified_note, deidentified_annotations
 
 
 def apply_redaction(note: Note, annotations, annotation_types: List[str]):
@@ -39,6 +43,12 @@ def apply_redaction(note: Note, annotations, annotation_types: List[str]):
     """
     left_shifts = [0] * len(note.text)
 
+    deidentified_note = Note(
+        note_type=note.note_type,
+        text=note.text,
+        patient_id=note.patient_id,
+        id=note.id
+    )
     for annotation_type in annotation_types:
         for annotation in annotations[annotation_type]:
             # Account for shift caused by redaction
@@ -47,9 +57,9 @@ def apply_redaction(note: Note, annotations, annotation_types: List[str]):
             length = end - start
 
             # Redact each annotation in note
-            note.text = \
-                note.text[:start] + \
-                note.text[start + length:]
+            deidentified_note.text = \
+                deidentified_note.text[:start] + \
+                deidentified_note.text[start + length:]
 
             # Record left shift introduced by redaction
             for i in range(annotation['start'], len(left_shifts)):
@@ -71,7 +81,7 @@ def apply_redaction(note: Note, annotations, annotation_types: List[str]):
 
             deidentified_annotations[annotation_type].append(deidentified_annotation)
 
-    return note, deidentified_annotations
+    return deidentified_note, deidentified_annotations
 
 
 def apply_annotation_type(note: Note, annotations, annotation_types: List[str]):
@@ -84,6 +94,13 @@ def apply_annotation_type(note: Note, annotations, annotation_types: List[str]):
     :return: (note, deidentified_annotations) note with de-identified text, and annotations now pointing to
             corrected character addresses.
     """
+    deidentified_note = Note(
+        note_type=note.note_type,
+        text=note.text,
+        patient_id=note.patient_id,
+        id=note.id
+    )
+
     left_shifts = [0] * len(note.text)
 
     for annotation_type in annotation_types:
@@ -97,9 +114,9 @@ def apply_annotation_type(note: Note, annotations, annotation_types: List[str]):
             filler = "[%s]" % (annotation_type.upper(),)
 
             # Replace each annotation in note with "[ANNOTATION_TYPE_HERE]"
-            note.text = \
-                note.text[:start] + filler +\
-                note.text[start + length:]
+            deidentified_note.text = \
+                deidentified_note.text[:start] + filler +\
+                deidentified_note.text[start + length:]
 
             # Record left shift introduced by replacement
             # for i in range(annotation['start']+1, len(left_shifts)):
@@ -122,4 +139,4 @@ def apply_annotation_type(note: Note, annotations, annotation_types: List[str]):
 
             deidentified_annotations[annotation_type].append(deidentified_annotation)
 
-    return note, deidentified_annotations
+    return deidentified_note, deidentified_annotations
