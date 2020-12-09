@@ -15,6 +15,13 @@ services:
     ports:
       - 9001:8080
 
+  physical-address-annotator:
+    image: nlpsandbox/physical-address-annotator-example:latest
+    container_name: physical-address-annotator
+    restart: always
+    ports:
+      - 9002:8080
+
   phi-deidentifier:
     image: nlpsandbox/phi-deidentifier:edge
     build:
@@ -27,6 +34,7 @@ services:
     depends_on:
       - date-annotator
       - person-name-annotator
+      - physical-address-annotator
 
   # deidentifier-client:
   #   image: nlpsandbox/deidentifier-shiny-app:0.1.6

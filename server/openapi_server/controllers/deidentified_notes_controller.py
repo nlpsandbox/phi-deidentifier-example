@@ -1,72 +1,70 @@
 import connexion
-import six
-from flask import jsonify
-import requests
 
-from openapi_server.models.error import Error  # noqa: E501
+from openapi_server.models import DeidentificationConfig, DeidentifyResponse, Annotation
+from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models.note import Note  # noqa: E501
-from openapi_server import util
+from openapi_server.utils import annotator_client
+from openapi_server.utils.deidentifiers import apply_masking_char, apply_redaction, apply_annotation_type
 
 
-def deidentified_notes_read_all(note=None):  # noqa: E501
-    """Get deidentified notes
+def create_deidentified_notes():  # noqa: E501
+    """Deidentify a clinical note
 
-    Returns the deidentified notes # noqa: E501
+    Returns the deidentified note # noqa: E501
 
-    :param note:
-    :type note: list | bytes
-
-    :rtype: List[Note]
+    :rtype: DeidentifyResponse
     """
-    res = []
-
-    # for testing when annotator are running as containers
-    dates_url = "http://date-annotator:8080/api/v1/dates"
-    person_names_url = "http://person-name-annotator:8080/api/v1/person-names"
-
-    requests_session = requests.session()
-    requests_session.headers.update({'Content-Type': 'application/json'})
-    requests_session.headers.update({'charset':'utf-8'})
 
     if connexion.request.is_json:
-        dates = []
-        person_names = []
-        notes = connexion.request.get_json()
+        deid_request = DeidentifyRequest.from_dict(connexion.request.get_json())
+        note = deid_request.note
 
-        # Get date annotations
-        response = requests_session.post(url=dates_url, json=notes)
-        if response.status_code == 200:
-            dates = response.json()
+        # Annotations is a dict[key: list[str]]
+        annotations = {}
 
-        # Get person name annotations
-        response = requests_session.post(url=person_names_url, json=notes)
-        if response.status_code == 200:
-            person_names = response.json()
+        for annotation_type in ['text_date', 'text_person_name', 'text_physical_address']:
+            annotations[annotation_type] = annotator_client.get_annotations(note, annotation_type)
 
-        # Create deidentified notes
-        for note in notes:
-            note_id = note['id']
-            res.append(deidentify_note(note,
-                [d for d in dates if d['noteId'] == note_id],
-                [d for d in person_names if d['noteId'] == note_id]))
+        # De-identify note
+        deidentified_note = Note.from_dict(note.to_dict())
+        deidentified_annotations = {key: value.copy() for key, value in annotations.items()}
 
-    return jsonify(res)
+        deid_config: DeidentificationConfig
+        for deid_config in deid_request.deidentification_configurations:
+            if deid_config.deidentification_strategy.masking_char_config is not None:
+                masking_char = deid_config.deidentification_strategy.masking_char_config.masking_char
+                deidentified_note, deidentified_annotations = apply_masking_char(
+                    deidentified_note,
+                    deidentified_annotations,
+                    deid_config.annotation_types,
+                    masking_char
+                )
+            elif deid_config.deidentification_strategy.redact_config is not None:
+                deidentified_note, deidentified_annotations = apply_redaction(
+                    deidentified_note,
+                    deidentified_annotations,
+                    deid_config.annotation_types
+                )
+            elif deid_config.deidentification_strategy.annotation_type_config is not None:
+                deidentified_note, deidentified_annotations = apply_annotation_type(
+                    deidentified_note,
+                    deidentified_annotations,
+                    deid_config.annotation_types
+                )
+            else:
+                return "No supported de-identification method supported in request: '%s'" % (str(deid_config.to_dict()),), 400
 
-
-def deidentify_note(note, dates, person_names):
-    """
-    Returns the deidentified clinical note where annotations are masked with '*'.
-    """
-    mask_character = '*'
-    text = note['text']
-
-    for annotation in dates:
-        mask = mask_character * annotation['length']
-        text = text[:annotation['start']] + mask + text[annotation['start'] + annotation['length']:]
-
-    for annotation in person_names:
-        mask = mask_character * annotation['length']
-        text = text[:annotation['start']] + mask + text[annotation['start'] + annotation['length']:]
-
-    note['text'] = text
-    return note
+        deidentify_response = DeidentifyResponse(
+            deidentified_note=deidentified_note,
+            original_annotations=Annotation(
+                text_date_annotations=annotations['text_date'],
+                text_person_name_annotations=annotations['text_person_name'],
+                text_physical_address_annotations=annotations['text_physical_address']
+            ),
+            deidentified_annotations=Annotation(
+                text_date_annotations=deidentified_annotations['text_date'],
+                text_person_name_annotations=deidentified_annotations['text_person_name'],
+                text_physical_address_annotations=deidentified_annotations['text_physical_address']
+            )
+        )
+        return deidentify_response, 201

@@ -16,7 +16,33 @@ TBA
 
 The command below starts the Deidentifier stack locally.
 
-    docker-compose up
+    docker-compose up --build phi-deidentifier
 
 When running, the Deidentifier stacks provides a web interface (http://localhost:3838)
 that you can use to deidentify single or multiple clinical notes.
+
+## Development
+
+The endpoints for this server are based on the phi-deidentifier OpenAPI schema using
+[openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli). To re-generate the server skeleton from
+the latest API specification, first download the latest version of the API specification:
+
+```
+$ curl -O https://sage-bionetworks.github.io/nlp-sandbox-schemas/phi-deidentifier/edge/openapi.yaml
+```
+
+Then generate a skeleton server (follow the [installation
+instructions](https://github.com/OpenAPITools/openapi-generator-cli#installation) for openapi-generator-cli if it is not
+already installed in your local environment):
+
+```
+$ npx openapi-generator-cli generate -g python-flask -i openapi.yaml -o server
+```
+
+From there, you can install and run the generated flask server:
+
+```
+$ cd server
+$ pip install -e .
+$ python -m openapi_server
+```

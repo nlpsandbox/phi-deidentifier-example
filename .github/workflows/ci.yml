@@ -32,6 +32,14 @@ jobs:
     - uses: actions/checkout@v2
     - name: Validate docker-compose.yml
       run: docker-compose -f docker-compose.yml config >/dev/null
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install server testing dependencies
+      run: pip install -r server/test-requirements.txt -r server/requirements.txt
+    - name: Run server unit tests
+      run: python -m unittest discover --verbose server/
 
   # docker-client:
   #   needs: [test]
