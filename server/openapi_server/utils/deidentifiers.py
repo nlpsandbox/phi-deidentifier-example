@@ -2,12 +2,13 @@ from typing import List, Dict
 from openapi_server.models import Note
 
 
-def apply_masking_char(note: Note, annotations, annotation_types: List[str], masking_char='*'):
+def apply_masking_char(note: Note, annotations, confidence_threshold, annotation_types: List[str], masking_char='*'):
     """
     Apply a masking character de-identification to a note for the given annotation types
 
     :param note: note to be de-identified
     :param annotations: (dict: annotation_type -> [annotation])
+    :param confidence_threshold: (float, 0 <= confidence_threshold <= 100) minimum confidence level required to apply an annotation
     :param annotation_types: list of types of annotations to be masked
     :param masking_char: the character used to mask PII
     :return: (note, deidentified_annotations) note with de-identified text, and annotations.
@@ -20,7 +21,8 @@ def apply_masking_char(note: Note, annotations, annotation_types: List[str], mas
         id=note.id
     )
     for annotation_type in annotation_types:
-        annotation_set = annotations[annotation_type]
+        # Only de-identify notes with sufficient confidence level
+        annotation_set = [annotation for annotation in annotations[annotation_type] if annotation['confidence'] >= confidence_threshold]
         for annotation in annotation_set:
             mask = masking_char * annotation['length']
             deidentified_note.text = \
@@ -31,12 +33,13 @@ def apply_masking_char(note: Note, annotations, annotation_types: List[str], mas
     return deidentified_note, deidentified_annotations
 
 
-def apply_redaction(note: Note, annotations, annotation_types: List[str]):
+def apply_redaction(note: Note, annotations, confidence_threshold, annotation_types: List[str]):
     """
     Apply redaction to a note for the given annotation types
 
     :param note: note to be de-identified
     :param annotations: (dict: annotation_type -> [annotation])
+    :param confidence_threshold: (float, 0 <= confidence_threshold <= 100) minimum confidence level required to apply an annotation
     :param annotation_types: list of types of annotations to be redacted
     :return: (note, deidentified_annotations) note with de-identified text, and annotations now pointing to
             corrected character addresses.
@@ -50,7 +53,9 @@ def apply_redaction(note: Note, annotations, annotation_types: List[str]):
         id=note.id
     )
     for annotation_type in annotation_types:
-        for annotation in annotations[annotation_type]:
+        # Only de-identify notes with sufficient confidence level
+        annotation_set = [annotation for annotation in annotations[annotation_type] if annotation['confidence'] >= confidence_threshold]
+        for annotation in annotation_set:
             # Account for shift caused by redaction
             start = annotation['start'] - left_shifts[annotation['start']]
             end = annotation['start'] + annotation['length'] - left_shifts[annotation['start'] + annotation['length']]
@@ -84,12 +89,13 @@ def apply_redaction(note: Note, annotations, annotation_types: List[str]):
     return deidentified_note, deidentified_annotations
 
 
-def apply_annotation_type(note: Note, annotations, annotation_types: List[str]):
+def apply_annotation_type(note: Note, annotations, confidence_threshold, annotation_types: List[str]):
     """
     Apply annotation-type de-identification to a note for the given annotation types
 
     :param note: note to be de-identified
     :param annotations: (dict: annotation_type -> [annotation])
+    :param confidence_threshold: (float, 0 <= confidence_threshold <= 100) minimum confidence level required to apply an annotation
     :param annotation_types: list of types of annotations to be redacted
     :return: (note, deidentified_annotations) note with de-identified text, and annotations now pointing to
             corrected character addresses.
@@ -104,7 +110,9 @@ def apply_annotation_type(note: Note, annotations, annotation_types: List[str]):
     left_shifts = [0] * len(note.text)
 
     for annotation_type in annotation_types:
-        for annotation in annotations[annotation_type]:
+        # Only de-identify notes with sufficient confidence level
+        annotation_set = [annotation for annotation in annotations[annotation_type] if annotation['confidence'] >= confidence_threshold]
+        for annotation in annotation_set:
             # Account for shift caused by replacement
             start = annotation['start'] - left_shifts[annotation['start']]
             end = annotation['start'] + annotation['length'] - left_shifts[annotation['start'] + annotation['length']]

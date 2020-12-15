@@ -19,7 +19,7 @@ SAMPLE_NOTE_ANNOTATIONS = {
         {'confidence': 95, 'length': 10, 'start': 5, 'text': 'Williamson'}
     ],
     'text_physical_address': [
-        {'addressType': 'city', 'length': 7, 'start': 31, 'text': 'Seattle'}
+        {'addressType': 'city', 'confidence': 95, 'length': 7, 'start': 31, 'text': 'Seattle'}
     ]
 }
 

@@ -36,6 +36,7 @@ def create_deidentified_notes():  # noqa: E501
                 deidentified_note, deidentified_annotations = apply_masking_char(
                     deidentified_note,
                     deidentified_annotations,
+                    deid_config.confidence_threshold,
                     deid_config.annotation_types,
                     masking_char
                 )
@@ -43,12 +44,14 @@ def create_deidentified_notes():  # noqa: E501
                 deidentified_note, deidentified_annotations = apply_redaction(
                     deidentified_note,
                     deidentified_annotations,
+                    deid_config.confidence_threshold,
                     deid_config.annotation_types
                 )
             elif deid_config.deidentification_strategy.annotation_type_config is not None:
                 deidentified_note, deidentified_annotations = apply_annotation_type(
                     deidentified_note,
                     deidentified_annotations,
+                    deid_config.confidence_threshold,
                     deid_config.annotation_types
                 )
             else:
