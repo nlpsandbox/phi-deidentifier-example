@@ -13,6 +13,7 @@ from openapi_server.models.deidentify_request import DeidentifyRequest
 from openapi_server.models.deidentify_response import DeidentifyResponse
 from openapi_server.models.error import Error
 from openapi_server.models.note import Note
+from openapi_server.models.resource_source import ResourceSource
 from openapi_server.models.service import Service
 from openapi_server.models.text_annotation import TextAnnotation
 from openapi_server.models.text_date_annotation import TextDateAnnotation
