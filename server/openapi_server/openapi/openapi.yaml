@@ -3,18 +3,18 @@ info:
   contact:
     email: thomas.schaffter@sagebionetworks.org
     name: The NLP Sandbox Team
-    url: https://Sage-Bionetworks.github.io/nlp-sandbox-schemas
+    url: https://nlpsandbox.github.io/nlpsandbox-schemas
   description: |
     The OpenAPI specification implemented by NLP Sandbox PHI Deidentifiers.
     # Overview
     TBA
   license:
     name: Apache 2.0
-    url: https://github.com/Sage-Bionetworks/nlp-sandbox/blob/main/LICENSE
+    url: https://nlpsandbox.github.io/nlpsandbox-schemas/blob/develop/LICENSE
   title: NLP Sandbox Deidentifier API
-  version: 0.2.0
+  version: 0.2.2
   x-logo:
-    url: https://Sage-Bionetworks.github.io/nlp-sandbox-schemas/logo.png
+    url: https://nlpsandbox.github.io/nlpsandbox-schemas/logo.png
 servers:
 - url: http://example.com/api/v1
 - url: https://example.com/api/v1
@@ -34,7 +34,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DeidentifyRequest'
       responses:
-        "201":
+        "200":
           content:
             application/json:
               schema:
@@ -96,6 +96,7 @@ components:
       description: Configuration of one deidentification strategy and a list of annotation
         types to apply it to.
       example:
+        confidenceThreshold: 42.4
         deidentificationStrategy:
           redactConfig: '{}'
           annotationTypeConfig: '{}'
@@ -107,6 +108,14 @@ components:
         - text_physical_address
         - text_physical_address
       properties:
+        confidenceThreshold:
+          default: 0
+          description: The minimum confidence level for a given annotation to be de-identified
+          example: 42.4
+          format: float
+          maximum: 100
+          minimum: 0
+          type: number
         deidentificationStrategy:
           $ref: '#/components/schemas/DeidentificationConfig_deidentificationStrategy'
         annotationTypes:
@@ -124,17 +133,17 @@ components:
       description: A clinical note
       example:
         noteType: loinc:LP29684-5
-        patientId: patientId
+        patientId: 507f1f77bcf86cd799439011
         id: id
-        text: This is a text.
+        text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
       properties:
         id:
           description: The ID of the note
           readOnly: true
           type: string
         text:
-          description: A text
-          example: This is a text.
+          description: The content of the clinical note
+          example: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
           type: string
         noteType:
           description: The note type (LOINC concept)
@@ -142,18 +151,23 @@ components:
           type: string
         patientId:
           description: The patient ID
+          example: 507f1f77bcf86cd799439011
           type: string
+      required:
+      - noteType
+      - text
       type: object
     DeidentifyRequest:
       description: A request to de-identify a note
       example:
         note:
           noteType: loinc:LP29684-5
-          patientId: patientId
+          patientId: 507f1f77bcf86cd799439011
           id: id
-          text: This is a text.
+          text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
         deidentificationConfigurations:
-        - deidentificationStrategy:
+        - confidenceThreshold: 42.4
+          deidentificationStrategy:
             redactConfig: '{}'
             annotationTypeConfig: '{}'
             maskingCharConfig:
@@ -163,7 +177,8 @@ components:
           annotationTypes:
           - text_physical_address
           - text_physical_address
-        - deidentificationStrategy:
+        - confidenceThreshold: 42.4
+          deidentificationStrategy:
             redactConfig: '{}'
             annotationTypeConfig: '{}'
             maskingCharConfig:
@@ -187,27 +202,48 @@ components:
       required:
       - note
       type: object
-    AnnotationSource:
-      description: The source of an annotation record
+    ResourceSource:
+      description: An API resource source
       example:
         name: name
       properties:
         name:
-          description: The source of the annotation record
+          description: Full path of an API resource
           type: string
+      type: object
+    AnnotationSource:
+      description: The source of an annotation record
+      example:
+        resourceSource:
+          name: name
+      properties:
+        resourceSource:
+          $ref: '#/components/schemas/ResourceSource'
       type: object
     TextAnnotation:
       description: An annotation in a text
       properties:
         start:
           description: The position of the first character
+          example: 42
           type: integer
         length:
           description: The length of the annotation
+          example: 10
           type: integer
         text:
           description: The string annotated
           type: string
+        confidence:
+          description: The confidence in the accuracy of the annotation
+          example: 95
+          format: float
+          maximum: 100
+          minimum: 0
+          type: number
+      required:
+      - length
+      - start
       type: object
     TextDateAnnotation:
       allOf:
@@ -269,7 +305,8 @@ components:
           text: Seattle
           addressType: city
         annotationSource:
-          name: name
+          resourceSource:
+            name: name
         name: name
       properties:
         name:
@@ -324,13 +361,14 @@ components:
             text: Seattle
             addressType: city
           annotationSource:
-            name: name
+            resourceSource:
+              name: name
           name: name
         deidentifiedNote:
           noteType: loinc:LP29684-5
-          patientId: patientId
+          patientId: 507f1f77bcf86cd799439011
           id: id
-          text: This is a text.
+          text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
         originalAnnotations:
           textDateAnnotations:
           - start: 42
@@ -358,7 +396,8 @@ components:
             text: Seattle
             addressType: city
           annotationSource:
-            name: name
+            resourceSource:
+              name: name
           name: name
       properties:
         originalAnnotations:
@@ -391,7 +430,7 @@ components:
     Service:
       description: Information about an NLP service
       example:
-        license: Apache-2.0
+        license: apache-2.0
         authorEmail: author@example.com
         author: Example Author
         name: awesome-date-annotator
@@ -415,7 +454,42 @@ components:
           type: string
         license:
           description: The license of this service (spdx.org/licenses Identifier)
-          example: Apache-2.0
+          enum:
+          - afl-3.0
+          - apache-2.0
+          - artistic-2.0
+          - bsl-1.0
+          - bsd-2-clause
+          - bsd-3-clause
+          - bsd-3-clause-clear
+          - cc
+          - cc0-1.0
+          - cc-by-4.0
+          - cc-by-sa-4.0
+          - wtfpl
+          - ecl-2.0
+          - epl-1.0
+          - epl-2.0
+          - eupl-1.1
+          - agpl-3.0
+          - gpl
+          - gpl-2.0
+          - gpl-3.0
+          - lgpl
+          - lgpl-2.1
+          - lgpl-3.0
+          - isc
+          - lppl-1.3c
+          - ms-pl
+          - mit
+          - mpl-2.0
+          - osl-3.0
+          - postgresql
+          - ofl-1.1
+          - ncsa
+          - unlicense
+          - zlib
+          example: apache-2.0
           type: string
         repository:
           description: The place where the code lives
@@ -489,6 +563,7 @@ components:
       properties:
         dateFormat:
           description: Date format (ISO 8601)
+          example: MM/DD/YYYY
           type: string
     TextPhysicalAddressAnnotation_allOf:
       properties:
