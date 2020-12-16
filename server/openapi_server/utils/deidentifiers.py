@@ -153,11 +153,11 @@ def apply_annotation_type(note: Note, annotations, confidence_threshold, annotat
 
             # Replace each annotation in note with "[ANNOTATION_TYPE_HERE]"
             deidentified_note.text = \
-                deidentified_note.text[:start] + filler +\
-                deidentified_note.text[start + length:]
+                deidentified_note.text[:start] + \
+                filler + \
+                deidentified_note.text[end:]
 
             # Record left shift introduced by replacement
-            # for i in range(annotation['start']+1, len(left_shifts)):
             for i in range(annotation['start']+1, len(left_shifts)):
                 left_shifts[i] += min(i - annotation['start'] - len(filler), length - len(filler))
 
