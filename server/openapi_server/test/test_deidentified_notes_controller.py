@@ -207,7 +207,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         response_data = response.json
 
         deidentified_text = response_data['deidentifiedNote']['text']
-        expected_deidentified_text = "---- ---------- came back from  yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
+        expected_deidentified_text = "---- ---------- came back from ******* yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
         self.assertEqual(expected_deidentified_text, deidentified_text)
 
     @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
@@ -247,6 +247,45 @@ class TestDeidentifiedNotesController(BaseTestCase):
         # Manually written based on known behavior of annotators
         expected_deidentified_text = "*** [TEXT_PERSON_NAME] came back from ******, [TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_mask_or_redact(self):
+        """Test an example multi-strategy de-identification request. Mask if the confidence is above 90.0%,
+        otherwise just redact it.
+        """
+        type_or_mask_request = {
+            "note": OVERLAPPING_NOTE,
+            "deidentificationConfigurations": [
+                {
+                    "deidentificationStrategy": {
+                        "redactConfig": {}
+                    },
+                    "annotationTypes": ["text_physical_address", "text_person_name", "text_date"],
+                    "confidenceThreshold": 10.0
+                },
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {}
+                    },
+                    "annotationTypes": ["text_physical_address", "text_person_name", "text_date"],
+                    "confidenceThreshold": 90.0
+                }
+            ]
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(type_or_mask_request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # Manually written based on known behavior of annotators
+        expected_deidentified_text = " ********** came back from , ** yesterday, ** **** ****."
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
+
 
 if __name__ == '__main__':
     unittest.main()
