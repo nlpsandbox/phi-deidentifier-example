@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import unittest
 from flask import json
 from openapi_server.test import BaseTestCase
-from openapi_server.test.utils import SAMPLE_NOTE, mock_get_annotations, OVERLAPPING_NOTE
+from openapi_server.test.utils import SAMPLE_NOTE, mock_get_annotations, OVERLAPPING_NOTE, CONFLICTING_NOTE
 from unittest.mock import patch
 
 
@@ -133,6 +133,9 @@ class TestDeidentifiedNotesController(BaseTestCase):
         all_annotation_lists = [response_data['deidentifiedAnnotations'][annotation_type] for annotation_type in response_data['deidentifiedAnnotations']]
         all_annotations = [item for sublist in all_annotation_lists for item in sublist]
         self.assertEqual(len(expected_deidentified_annotations), len(all_annotations))
+        print(expected_deidentified_annotations)
+        print(response_data['deidentifiedNote']['text'])
+        print(response_data['deidentifiedAnnotations'])
         for start, end in expected_deidentified_annotations:
             length = end - start
             # Check that there is an observed annotation with matching
@@ -284,6 +287,190 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # Manually written based on known behavior of annotators
         expected_deidentified_text = " ********** came back from , ** yesterday, ** **** ****."
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_redact_over_confidence(self):
+        type_or_mask_request = {
+            "note": OVERLAPPING_NOTE,
+            "deidentificationConfigurations": [
+                {
+                    "deidentificationStrategy": {
+                        "redactConfig": {}
+                    },
+                    "annotationTypes": ["text_physical_address", "text_person_name", "text_date"],
+                    "confidenceThreshold": 90.0
+                },
+            ]
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(type_or_mask_request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # Manually written based on known behavior of annotators
+        expected_deidentified_text = "May  came back from Austin,  yesterday,   ."
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_conflicting_masks(self):
+        """Test for the weird edge behavior that happens when annotations of different types partially overlap
+        """
+        request = {
+            "note": CONFLICTING_NOTE,
+            "deidentificationConfigurations": [
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "*"
+                        }
+                    },
+                    "annotationTypes": ["text_date"],
+                    "confidenceThreshold": 90.0
+                },
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "-"
+                        }
+                    },
+                    "annotationTypes": ["text_person_name"],
+                    "confidenceThreshold": 90.0
+                },
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "_"
+                        }
+                    },
+                    "annotationTypes": ["text_physical_address"],
+                    "confidenceThreshold": 90.0
+                },
+            ]
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # Manually written based on known behavior of annotators
+        expected_deidentified_text = "_____FG"
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_conflicting_masks_reverse(self):
+        """Reverse order of masking by annotation type as test_conflicting_masks()
+        """
+        request = {
+            "note": CONFLICTING_NOTE,
+            "deidentificationConfigurations": [
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "_"
+                        }
+                    },
+                    "annotationTypes": ["text_physical_address"],
+                    "confidenceThreshold": 90.0
+                },
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "-"
+                        }
+                    },
+                    "annotationTypes": ["text_person_name"],
+                    "confidenceThreshold": 90.0
+                },
+                {
+                    "deidentificationStrategy": {
+                        "maskingCharConfig": {
+                            "maskingChar": "*"
+                        }
+                    },
+                    "annotationTypes": ["text_date"],
+                    "confidenceThreshold": 90.0
+                },
+            ]
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # Manually written based on known behavior of annotators
+        expected_deidentified_text = "***FG"
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_conflicting_annotation_types(self):
+        request = {
+            "note": CONFLICTING_NOTE,
+            "deidentificationConfigurations": [
+                {
+                    "deidentificationStrategy": {
+                        "annotationTypeConfig": {}
+                    },
+                    "annotationTypes": ["text_date", "text_person_name", "text_physical_address"],
+                    "confidenceThreshold": 90.0
+                },
+            ]
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # Manually written based on known behavior of annotators
+        expected_deidentified_text = "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]FG"
+        self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
+
+    @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
+    def test_conflicting_annotation_types_reverse(self):
+        request = {
+            "note": CONFLICTING_NOTE,
+            "deidentificationConfigurations": [
+                {
+                    "deidentificationStrategy": {
+                        "annotationTypeConfig": {}
+                    },
+                    "annotationTypes": ["text_physical_address", "text_person_name", "text_date"],
+                    "confidenceThreshold": 90.0
+                },
+            ]
+        }
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # Manually written based on known behavior of annotators
+        expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS][TEXT_PERSON_NAME][TEXT_DATE]FG"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
 

@@ -158,7 +158,7 @@ def apply_annotation_type(note: Note, annotations, confidence_threshold, annotat
                 deidentified_note.text[end:]
 
             # Record left shift introduced by replacement
-            for i in range(annotation['start']+1, len(left_shifts)):
+            for i in range(annotation['start'], len(left_shifts)):
                 left_shifts[i] += min(i - annotation['start'] - len(filler), length - len(filler))
 
     # Update deidentified annotations with appropriate left shifts

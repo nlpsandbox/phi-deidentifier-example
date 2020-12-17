@@ -51,10 +51,33 @@ OVERLAPPING_ANNOTATIONS = {
 }
 
 
+# A note with more ambiguous PII
+CONFLICTING_NOTE = Note.from_dict({
+    "noteType": "loinc:LP29684-5",
+    "patientId": "patientId",
+    "text": "ABCDEFG"
+})
+
+
+CONFLICTING_ANNOTATIONS = {
+    'text_date': [
+        {'confidence': 97, 'dateFormat': 'MM', 'length': 3, 'start': 0, 'text': 'ABC'}
+    ],
+    'text_person_name': [
+        {'confidence': 97, 'length': 4, 'start': 0, 'text': 'ABCD'}
+    ],
+    'text_physical_address': [
+        {'addressType': 'state', 'confidence': 97, 'length': 5, 'start': 0, 'text': 'ABCDE'}
+    ]
+}
+
+
 def mock_get_annotations(note, annotation_type):
     if note == SAMPLE_NOTE:
         return SAMPLE_NOTE_ANNOTATIONS[annotation_type]
     elif note == OVERLAPPING_NOTE:
         return OVERLAPPING_ANNOTATIONS[annotation_type]
+    elif note == CONFLICTING_NOTE:
+        return CONFLICTING_ANNOTATIONS[annotation_type]
     else:
         raise ValueError("Could not retrieve mock annotations for note: '%s'" % (note,))
