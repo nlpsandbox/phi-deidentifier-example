@@ -8,7 +8,6 @@ def apply_mask(deidentified_note, annotation, left_shifts, mask):
     end = annotation['start'] + annotation['length'] - left_shifts[annotation['start'] + annotation['length']]
     length = end - start
 
-
     # Replace each annotation in note with "[ANNOTATION_TYPE_HERE]"
     deidentified_note.text = \
         deidentified_note.text[:start] + \
@@ -38,6 +37,28 @@ def update_annotations(annotations, left_shifts):
     return deidentified_annotations
 
 
+def apply_deidentification(annotation_types, annotations, confidence_threshold, note, masker):
+    left_shifts = [0] * (len(note.text) + 1)
+    deidentified_note = Note(
+        note_type=note.note_type,
+        text=note.text,
+        patient_id=note.patient_id,
+        id=note.id
+    )
+    for annotation_type in annotation_types:
+        # Only de-identify notes with sufficient confidence level
+        annotation_set = [annotation for annotation in annotations[annotation_type] if
+                          annotation['confidence'] >= confidence_threshold]
+        for annotation in annotation_set:
+            annotation['type'] = annotation_type
+            mask = masker(annotation)
+            # Record left shift introduced by redaction
+            apply_mask(deidentified_note, annotation, left_shifts, mask)
+    # Update deidentified annotations with appropriate left shifts
+    deidentified_annotations = update_annotations(annotations, left_shifts)
+    return deidentified_annotations, deidentified_note
+
+
 def apply_masking_char(note: Note, annotations, confidence_threshold, annotation_types: List[str], masking_char='*'):
     """
     Apply a masking character de-identification to a note for the given annotation types
@@ -49,27 +70,13 @@ def apply_masking_char(note: Note, annotations, confidence_threshold, annotation
     :param masking_char: the character used to mask PII
     :return: (note, deidentified_annotations) note with de-identified text, and annotations.
     """
-    deidentified_note = Note(
-        note_type=note.note_type,
-        text=note.text,
-        patient_id=note.patient_id,
-        id=note.id
+    deidentified_annotations, deidentified_note = apply_deidentification(
+        annotation_types,
+        annotations,
+        confidence_threshold,
+        note,
+        masker=lambda annotation: len(annotation['text']) * masking_char
     )
-
-    left_shifts = [0] * (len(note.text) + 1)
-
-    for annotation_type in annotation_types:
-        # Only de-identify notes with sufficient confidence level
-        annotation_set = [annotation for annotation in annotations[annotation_type] if annotation['confidence'] >= confidence_threshold]
-        for annotation in annotation_set:
-            # = "*****" * length of original text
-            mask = masking_char * len(annotation['text'])
-
-            # Apply mask and record left shift introduced by replacement
-            apply_mask(deidentified_note, annotation, left_shifts, mask)
-
-    deidentified_annotations = update_annotations(annotations, left_shifts)
-
     return deidentified_note, deidentified_annotations
 
 
@@ -84,25 +91,9 @@ def apply_redaction(note: Note, annotations, confidence_threshold, annotation_ty
     :return: (note, deidentified_annotations) note with de-identified text, and annotations now pointing to
             corrected character addresses.
     """
-    left_shifts = [0] * (len(note.text) + 1)
-
-    deidentified_note = Note(
-        note_type=note.note_type,
-        text=note.text,
-        patient_id=note.patient_id,
-        id=note.id
-    )
-    for annotation_type in annotation_types:
-        # Only de-identify notes with sufficient confidence level
-        annotation_set = [annotation for annotation in annotations[annotation_type] if annotation['confidence'] >= confidence_threshold]
-        for annotation in annotation_set:
-            mask = ''
-            # Record left shift introduced by redaction
-            apply_mask(deidentified_note, annotation, left_shifts, mask)
-
-    # Update deidentified annotations with appropriate left shifts
-    deidentified_annotations = update_annotations(annotations, left_shifts)
-
+    deidentified_annotations, deidentified_note = apply_deidentification(annotation_types, annotations,
+                                                                         confidence_threshold, note,
+                                                                         masker=lambda annotation: '')
     return deidentified_note, deidentified_annotations
 
 
@@ -117,25 +108,11 @@ def apply_annotation_type(note: Note, annotations, confidence_threshold, annotat
     :return: (note, deidentified_annotations) note with de-identified text, and annotations now pointing to
             corrected character addresses.
     """
-    deidentified_note = Note(
-        note_type=note.note_type,
-        text=note.text,
-        patient_id=note.patient_id,
-        id=note.id
+    deidentified_annotations, deidentified_note = apply_deidentification(
+        annotation_types,
+        annotations,
+        confidence_threshold,
+        note,
+        masker=lambda annotation: '[%s]' % (annotation['type'].upper(),)
     )
-
-    left_shifts = [0] * (len(note.text) + 1)
-
-    for annotation_type in annotation_types:
-        # Only de-identify notes with sufficient confidence level
-        annotation_set = [annotation for annotation in annotations[annotation_type] if annotation['confidence'] >= confidence_threshold]
-        for annotation in annotation_set:
-            # = "[ANNOTATION_TYPE_HERE]"
-            mask = "[%s]" % (annotation_type.upper(),)
-            # Record left shift introduced by replacement
-            apply_mask(deidentified_note, annotation, left_shifts, mask)
-
-    # Update deidentified annotations with appropriate left shifts
-    deidentified_annotations = update_annotations(annotations, left_shifts)
-
     return deidentified_note, deidentified_annotations
