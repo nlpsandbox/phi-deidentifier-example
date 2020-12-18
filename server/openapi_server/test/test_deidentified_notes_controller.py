@@ -525,6 +525,8 @@ class TestDeidentifiedNotesController(BaseTestCase):
         self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
+        # FIXME: The behavior being tested for here is arguably a bug due to the fact that it is erasing certain
+        #        annotations that partially overlap with one another.
         expected_deidentified_text = "***"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
@@ -573,6 +575,8 @@ class TestDeidentifiedNotesController(BaseTestCase):
         self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
+        # FIXME: This is another (arguable, see FIXME in test_partial_overlap_mask_reverse) bug from handling
+        #        partially-overlapping annotations
         expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS]"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 

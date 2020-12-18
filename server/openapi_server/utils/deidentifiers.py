@@ -8,7 +8,7 @@ def apply_mask(deidentified_note, annotation, left_shifts, mask):
     end = annotation['start'] + annotation['length'] - left_shifts[annotation['start'] + annotation['length']]
     length = end - start
 
-    # Replace each annotation in note with "[ANNOTATION_TYPE_HERE]"
+    # Replace annotated section with mask
     deidentified_note.text = \
         deidentified_note.text[:start] + \
         mask + \
@@ -53,8 +53,11 @@ def apply_deidentification(annotation_types, annotations, confidence_threshold, 
         annotation_set = [annotation for annotation in annotations[annotation_type] if
                           annotation['confidence'] >= confidence_threshold]
         for annotation in annotation_set:
+            # Smuggle in the annotation type in case the selected de-identify method is annotation type
             annotation['type'] = annotation_type
             mask = masker(annotation)
+            del annotation['type']
+
             # Record left shift introduced by redaction
             apply_mask(deidentified_note, annotation, left_shifts, mask)
     # Update deidentified annotations with appropriate left shifts
