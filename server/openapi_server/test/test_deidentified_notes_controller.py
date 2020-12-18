@@ -442,7 +442,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         response_data = response.json
 
         # Manually written based on known behavior of annotators
-        expected_deidentified_text = "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]FG"
+        expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS]FG"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
     @patch('openapi_server.utils.annotator_client.get_annotations', new=mock_get_annotations)
@@ -470,7 +470,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         response_data = response.json
 
         # Manually written based on known behavior of annotators
-        expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS][TEXT_PERSON_NAME][TEXT_DATE]FG"
+        expected_deidentified_text = "[TEXT_DATE]FG"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
 
