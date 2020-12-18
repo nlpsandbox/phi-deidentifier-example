@@ -14,10 +14,9 @@ def apply_mask(deidentified_note, annotation, left_shifts, mask):
         mask + \
         deidentified_note.text[end:]
 
-    new_end = start + len(mask)
     for i in range(annotation['start'] + 1, len(left_shifts)):
         if i < annotation['start'] + annotation['length']:
-            left_shifts[i] = i - new_end
+            left_shifts[i] = i - start
         else:
             left_shifts[i] -= (len(mask) - length)
 
@@ -49,9 +48,6 @@ def apply_deidentification(annotation_types, annotations, confidence_threshold, 
         patient_id=note.patient_id,
         id=note.id
     )
-    #print(deidentified_note.text)
-    #print('\t'.join(str(l) for l in left_shifts))
-    #print('\t'.join(deidentified_note.text))
     for annotation_type in annotation_types:
         # Only de-identify notes with sufficient confidence level
         annotation_set = [annotation for annotation in annotations[annotation_type] if
@@ -61,9 +57,6 @@ def apply_deidentification(annotation_types, annotations, confidence_threshold, 
             mask = masker(annotation)
             # Record left shift introduced by redaction
             apply_mask(deidentified_note, annotation, left_shifts, mask)
-            # print("Applying annotation: %s" % (annotation,))
-            # print('\t'.join(str(l) for l in left_shifts))
-            # print('\t'.join(deidentified_note.text))
     # Update deidentified annotations with appropriate left shifts
     deidentified_annotations = update_annotations(annotations, left_shifts)
     return deidentified_annotations, deidentified_note

@@ -72,6 +72,26 @@ CONFLICTING_ANNOTATIONS = {
 }
 
 
+PARTIAL_OVERLAP_NOTE = Note.from_dict({
+    "noteType": "loinc:LP29684-5",
+    "patientId": "patientId",
+    "text": "TUVWXYZ"
+})
+
+
+PARTIAL_OVERLAP_ANNOTATIONS = {
+    'text_date': [
+        {'confidence': 97, 'dateFormat': 'MM', 'length': 3, 'start': 0, 'text': 'TUV'}
+    ],
+    'text_person_name': [
+        {'confidence': 97, 'length': 4, 'start': 1, 'text': 'UVWX'}
+    ],
+    'text_physical_address': [
+        {'addressType': 'state', 'confidence': 97, 'length': 3, 'start': 4, 'text': 'XYZ'}
+    ]
+}
+
+
 def mock_get_annotations(note, annotation_type):
     if note == SAMPLE_NOTE:
         return SAMPLE_NOTE_ANNOTATIONS[annotation_type]
@@ -79,5 +99,7 @@ def mock_get_annotations(note, annotation_type):
         return OVERLAPPING_ANNOTATIONS[annotation_type]
     elif note == CONFLICTING_NOTE:
         return CONFLICTING_ANNOTATIONS[annotation_type]
+    elif note == PARTIAL_OVERLAP_NOTE:
+        return PARTIAL_OVERLAP_ANNOTATIONS[annotation_type]
     else:
         raise ValueError("Could not retrieve mock annotations for note: '%s'" % (note,))
