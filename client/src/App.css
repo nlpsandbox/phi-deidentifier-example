@@ -1,0 +1,9 @@
+html * {
+  font-family: Arial;
+}
+div.App {
+  display: flex;
+}
+div.column {
+  flex: 50%;
+}
