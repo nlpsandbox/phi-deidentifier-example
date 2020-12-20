@@ -21,7 +21,9 @@ The command below starts the Deidentifier stack locally.
 When running, the Deidentifier stacks provides a web interface (http://localhost:3838)
 that you can use to deidentify single or multiple clinical notes.
 
-## Development
+## Server
+
+### Development
 
 The endpoints for this server are based on the phi-deidentifier OpenAPI schema using
 [openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli). To re-generate the server skeleton from
@@ -45,4 +47,20 @@ From there, you can install and run the generated flask server:
 $ cd server
 $ pip install -e .
 $ python -m openapi_server
+```
+
+
+## Client
+
+### Development
+
+The models and API hooks for the client are based on the phi-deidentifier
+OpenAPI schema using
+[openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli).
+To re-generate or update these models/hooks, first download the latest
+version of the API specification, then run the generator script:
+
+```
+$ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml
+$ npx openapi-generator-cli generate -g typescript-fetch -i openapi.yaml -o client
 ```
