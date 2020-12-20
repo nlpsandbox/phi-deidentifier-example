@@ -61,6 +61,6 @@ To re-generate or update these models/hooks, first download the latest
 version of the API specification, then run the generator script:
 
 ```
-$ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml
+$ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml --additional-properties=typescriptThreePlus=true
 $ npx openapi-generator-cli generate -g typescript-fetch -i openapi.yaml -o client
 ```
