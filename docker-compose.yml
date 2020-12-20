@@ -16,7 +16,7 @@ services:
       - 9001:8080
 
   physical-address-annotator:
-    image: nlpsandbox/physical-address-annotator-example:latest
+    image: nlpsandbox/physical-address-annotator-example:edge
     container_name: physical-address-annotator
     restart: always
     ports:
