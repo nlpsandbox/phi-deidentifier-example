@@ -9,18 +9,19 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      originalNoteText: "",
       deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})),
-      deidentifiedNote: null
+      deidentifiedNoteText: "none"
     };
   }
 
-  componentDidMount() {
+  deidentifyNote() {
     let deidentifyRequest = new DeidentifyRequestFromJSON({
       note: {
-        text: "Hello, world, my name is May Johnson, and I was born 12 December 1956",
-        noteType: "ASDF"
+        text: this.state.originalNoteText,
+        noteType: "ASDF"  // FIXME: figure out whether and how to get this
       },
-      deidentificationConfigurations: [
+      deidentificationConfigurations: [  // FIXME: Allow this to be changed
         {
           confidenceThreshold: 20,
           deidentificationStrategy: {maskingCharConfig: {}},
@@ -29,7 +30,12 @@ class App extends React.Component {
       ]
     });
     this.state.deidentifedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
-      .then((result) => {alert(JSON.stringify(result))});
+      .then((deidentifyResponse) => {
+        alert(JSON.stringify(deidentifyResponse));
+        this.setState({
+          deidentifiedNoteText: deidentifyResponse.deidentifiedNote.text
+        })
+      });
   }
 
   render() {
@@ -37,12 +43,11 @@ class App extends React.Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <p>
-            {this.state.serviceInfo}
-          </p>
+          <p>Input your note here:</p>
+          <textarea onChange={(e) => {this.setState({originalNoteText: e.target.value})}} />
+          <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
+          <p>Deidentied note:</p>
+          <p>{this.state.deidentifiedNoteText}</p>
           <a
             className="App-link"
             href="https://reactjs.org"
