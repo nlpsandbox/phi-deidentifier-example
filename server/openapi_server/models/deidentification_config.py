@@ -6,7 +6,6 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model_ import Model
-from openapi_server.models.deidentification_config_deidentification_strategy import DeidentificationConfigDeidentificationStrategy
 from openapi_server import util
 
 from openapi_server.models.deidentification_config_deidentification_strategy import DeidentificationConfigDeidentificationStrategy  # noqa: E501
@@ -17,24 +16,29 @@ class DeidentificationConfig(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, deidentification_strategy=None, annotation_types=None):  # noqa: E501
+    def __init__(self, confidence_threshold=0, deidentification_strategy=None, annotation_types=None):  # noqa: E501
         """DeidentificationConfig - a model defined in OpenAPI
 
+        :param confidence_threshold: The confidence_threshold of this DeidentificationConfig.  # noqa: E501
+        :type confidence_threshold: float
         :param deidentification_strategy: The deidentification_strategy of this DeidentificationConfig.  # noqa: E501
         :type deidentification_strategy: DeidentificationConfigDeidentificationStrategy
         :param annotation_types: The annotation_types of this DeidentificationConfig.  # noqa: E501
         :type annotation_types: List[str]
         """
         self.openapi_types = {
+            'confidence_threshold': float,
             'deidentification_strategy': DeidentificationConfigDeidentificationStrategy,
             'annotation_types': List[str]
         }
 
         self.attribute_map = {
+            'confidence_threshold': 'confidenceThreshold',
             'deidentification_strategy': 'deidentificationStrategy',
             'annotation_types': 'annotationTypes'
         }
 
+        self._confidence_threshold = confidence_threshold
         self._deidentification_strategy = deidentification_strategy
         self._annotation_types = annotation_types
 
@@ -48,6 +52,33 @@ class DeidentificationConfig(Model):
         :rtype: DeidentificationConfig
         """
         return util.deserialize_model(dikt, cls)
+
+    @property
+    def confidence_threshold(self):
+        """Gets the confidence_threshold of this DeidentificationConfig.
+
+        The minimum confidence level for a given annotation to be de-identified  # noqa: E501
+
+        :return: The confidence_threshold of this DeidentificationConfig.
+        :rtype: float
+        """
+        return self._confidence_threshold
+
+    @confidence_threshold.setter
+    def confidence_threshold(self, confidence_threshold):
+        """Sets the confidence_threshold of this DeidentificationConfig.
+
+        The minimum confidence level for a given annotation to be de-identified  # noqa: E501
+
+        :param confidence_threshold: The confidence_threshold of this DeidentificationConfig.
+        :type confidence_threshold: float
+        """
+        if confidence_threshold is not None and confidence_threshold > 100:  # noqa: E501
+            raise ValueError("Invalid value for `confidence_threshold`, must be a value less than or equal to `100`")  # noqa: E501
+        if confidence_threshold is not None and confidence_threshold < 0:  # noqa: E501
+            raise ValueError("Invalid value for `confidence_threshold`, must be a value greater than or equal to `0`")  # noqa: E501
+
+        self._confidence_threshold = confidence_threshold
 
     @property
     def deidentification_strategy(self):

@@ -17,7 +17,7 @@ class TextPhysicalAddressAnnotation(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, start=None, length=None, text=None, address_type=None):  # noqa: E501
+    def __init__(self, start=None, length=None, text=None, confidence=None, address_type=None):  # noqa: E501
         """TextPhysicalAddressAnnotation - a model defined in OpenAPI
 
         :param start: The start of this TextPhysicalAddressAnnotation.  # noqa: E501
@@ -26,6 +26,8 @@ class TextPhysicalAddressAnnotation(Model):
         :type length: int
         :param text: The text of this TextPhysicalAddressAnnotation.  # noqa: E501
         :type text: str
+        :param confidence: The confidence of this TextPhysicalAddressAnnotation.  # noqa: E501
+        :type confidence: float
         :param address_type: The address_type of this TextPhysicalAddressAnnotation.  # noqa: E501
         :type address_type: str
         """
@@ -33,6 +35,7 @@ class TextPhysicalAddressAnnotation(Model):
             'start': int,
             'length': int,
             'text': str,
+            'confidence': float,
             'address_type': str
         }
 
@@ -40,12 +43,14 @@ class TextPhysicalAddressAnnotation(Model):
             'start': 'start',
             'length': 'length',
             'text': 'text',
+            'confidence': 'confidence',
             'address_type': 'addressType'
         }
 
         self._start = start
         self._length = length
         self._text = text
+        self._confidence = confidence
         self._address_type = address_type
 
     @classmethod
@@ -79,6 +84,8 @@ class TextPhysicalAddressAnnotation(Model):
         :param start: The start of this TextPhysicalAddressAnnotation.
         :type start: int
         """
+        if start is None:
+            raise ValueError("Invalid value for `start`, must not be `None`")  # noqa: E501
 
         self._start = start
 
@@ -102,6 +109,8 @@ class TextPhysicalAddressAnnotation(Model):
         :param length: The length of this TextPhysicalAddressAnnotation.
         :type length: int
         """
+        if length is None:
+            raise ValueError("Invalid value for `length`, must not be `None`")  # noqa: E501
 
         self._length = length
 
@@ -127,6 +136,33 @@ class TextPhysicalAddressAnnotation(Model):
         """
 
         self._text = text
+
+    @property
+    def confidence(self):
+        """Gets the confidence of this TextPhysicalAddressAnnotation.
+
+        The confidence in the accuracy of the annotation  # noqa: E501
+
+        :return: The confidence of this TextPhysicalAddressAnnotation.
+        :rtype: float
+        """
+        return self._confidence
+
+    @confidence.setter
+    def confidence(self, confidence):
+        """Sets the confidence of this TextPhysicalAddressAnnotation.
+
+        The confidence in the accuracy of the annotation  # noqa: E501
+
+        :param confidence: The confidence of this TextPhysicalAddressAnnotation.
+        :type confidence: float
+        """
+        if confidence is not None and confidence > 100:  # noqa: E501
+            raise ValueError("Invalid value for `confidence`, must be a value less than or equal to `100`")  # noqa: E501
+        if confidence is not None and confidence < 0:  # noqa: E501
+            raise ValueError("Invalid value for `confidence`, must be a value greater than or equal to `0`")  # noqa: E501
+
+        self._confidence = confidence
 
     @property
     def address_type(self):

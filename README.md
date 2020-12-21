@@ -28,7 +28,7 @@ The endpoints for this server are based on the phi-deidentifier OpenAPI schema u
 the latest API specification, first download the latest version of the API specification:
 
 ```
-$ curl -O https://sage-bionetworks.github.io/nlp-sandbox-schemas/phi-deidentifier/edge/openapi.yaml
+$ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml
 ```
 
 Then generate a skeleton server (follow the [installation
