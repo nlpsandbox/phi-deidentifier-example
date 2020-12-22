@@ -3,6 +3,8 @@ import { DeidentifiedNotesApi } from '../apis';
 import { DeidentifyRequestFromJSON } from '../models';
 import React from 'react';
 import { Configuration } from '../runtime';
+import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
+
 
 class App extends React.Component {
   constructor(props) {
@@ -10,11 +12,12 @@ class App extends React.Component {
     this.state = {
       originalNoteText: "",
       deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})), // FIXME: Figure out how to handle hostname
-      deidentifiedNoteText: "none"
+      deidentifiedNoteText: deidentificationStates.EMPTY
     };
   }
 
   deidentifyNote() {
+    this.setState({deidentifiedNoteText: deidentificationStates.LOADING})
     let deidentifyRequest = new DeidentifyRequestFromJSON({
       note: {
         text: this.state.originalNoteText,
@@ -37,6 +40,7 @@ class App extends React.Component {
   }
 
   render() {
+    let deidentifiedText;
     return (
     <div className="App">
       <div className="left">
@@ -47,7 +51,7 @@ class App extends React.Component {
       </div>
       <div className="right">
         <p>Deidentified note:</p>
-        <div className="deidentified-text">{this.state.deidentifiedNoteText}</div>
+        <DeidentifiedText text={this.state.deidentifiedNoteText} />
       </div>
     </div>
     );
