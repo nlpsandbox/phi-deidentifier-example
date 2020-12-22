@@ -1,16 +1,15 @@
-import logo from './logo.svg';
 import './App.css';
-import { DeidentifiedNotesApi } from './apis';
-import { DeidentifyRequestFromJSON } from './models';
+import { DeidentifiedNotesApi } from '../apis';
+import { DeidentifyRequestFromJSON } from '../models';
 import React from 'react';
-import { Configuration } from './runtime';
+import { Configuration } from '../runtime';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       originalNoteText: "",
-      deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})),
+      deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})), // FIXME: Figure out how to handle hostname
       deidentifiedNoteText: "none"
     };
   }
@@ -40,24 +39,18 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>Input your note here:</p>
-          <textarea onChange={(e) => {this.setState({originalNoteText: e.target.value})}} />
-          <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
-          <p>Deidentied note:</p>
-          <p>{this.state.deidentifiedNoteText}</p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+    <div className="App">
+      <div className="left">
+        <p>Input note:</p>
+        <textarea onChange={(e) => {this.setState({originalNoteText: e.target.value})}} />
+        <br />
+        <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
       </div>
+      <div className="right">
+        <p>Deidentified note:</p>
+        <p>{this.state.deidentifiedNoteText}</p>
+      </div>
+    </div>
     );
   }
 }
