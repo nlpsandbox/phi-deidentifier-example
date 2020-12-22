@@ -30,7 +30,6 @@ class App extends React.Component {
     });
     this.state.deidentifedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
       .then((deidentifyResponse) => {
-        alert(JSON.stringify(deidentifyResponse));
         this.setState({
           deidentifiedNoteText: deidentifyResponse.deidentifiedNote.text
         })
@@ -48,7 +47,7 @@ class App extends React.Component {
       </div>
       <div className="right">
         <p>Deidentified note:</p>
-        <p>{this.state.deidentifiedNoteText}</p>
+        <div className="deidentified-text">{this.state.deidentifiedNoteText}</div>
       </div>
     </div>
     );
