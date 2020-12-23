@@ -14,11 +14,14 @@ class App extends React.Component {
       originalNoteText: "",
       deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})), // FIXME: Figure out how to handle hostname
       deidentifiedNoteText: deidentificationStates.EMPTY,
-      deidentificationStrategy: "maskingCharConfig"
+      deidentificationConfig: {
+        confidenceThreshold: 20,
+        deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
+        annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
+      }
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
-    this.handleDeidFormChange = this.handleDeidFormChange.bind(this);
   }
 
   deidentifyNote() {
@@ -33,13 +36,7 @@ class App extends React.Component {
         text: this.state.originalNoteText,
         noteType: "ASDF"  // FIXME: figure out whether and how to get this
       },
-      deidentificationConfigurations: [  // FIXME: Allow this to be changed
-        {
-          confidenceThreshold: 20,
-          deidentificationStrategy: deidentificationStrategy,
-          annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
-        }
-      ]
+      deidentificationConfigurations: [this.state.deidentificationConfig]
     });
 
     // Make de-identification request
@@ -56,9 +53,12 @@ class App extends React.Component {
       });
   }
 
-  handleDeidFormChange(deidStrategy) {
+  updateDeidentificationConfig = (newSettings) => {
     this.setState({
-      deidentificationStrategy: deidStrategy
+      deidentificationConfig: {
+        ...this.state.deidentificationConfig,
+        ...newSettings
+      }
     });
   }
 
@@ -75,7 +75,7 @@ class App extends React.Component {
         <p>Input note:</p>
         <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
         <br />
-        <DeidentificationConfigForm updateDeidStrategy={this.handleDeidFormChange} deidConfig={this.deidConfig} />
+        <DeidentificationConfigForm updateDeidConfig={this.updateDeidentificationConfig} deidConfig={this.state.deidentificationConfig} />
         <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
       </div>
       <div className="right">
