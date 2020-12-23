@@ -52,6 +52,31 @@ $ python -m openapi_server
 
 ## Client
 
+### Run
+
+The client can be run locally by navigating to the `client/` directory and running `npm start`. The client depends on
+the de-identifier server being run in the background. Assuming that Node and Docker are installed, the following
+commands can start up the full stack (backend & frontend) for development/testing purposes using the following commands:
+
+```bash
+$ docker-compose up --build phi-deidentifier
+```
+(you may have to run this command as root or prepend the command with `sudo`).
+
+Then, in another shell, run the following:
+
+```bash
+$ cd client/
+$ npm start
+```
+
+The frontend can be accessed at `http://localhost:3000`. The API calls currently require the browser to be running with
+CORS enforcement disabled. This can be done with Google Chrome by, for example, running the following command:
+
+```bash
+$ google-chrome --disable-web-security --user-data-dir=~/TEMP/
+```
+
 ### Development
 
 The models and API hooks for the client are based on the phi-deidentifier
@@ -60,7 +85,8 @@ OpenAPI schema using
 To re-generate or update these models/hooks, first download the latest
 version of the API specification, then run the generator script:
 
-```
+```bash
 $ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml
 $ npx openapi-generator-cli generate -g typescript-fetch -i openapi.yaml -o client/src --additional-properties=typescriptThreePlus=true
 ```
+
