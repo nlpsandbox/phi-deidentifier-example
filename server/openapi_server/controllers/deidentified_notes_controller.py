@@ -70,4 +70,4 @@ def create_deidentified_notes():  # noqa: E501
                 text_physical_address_annotations=deidentified_annotations['text_physical_address']
             )
         )
-        return deidentify_response, 201
+        return deidentify_response, 200

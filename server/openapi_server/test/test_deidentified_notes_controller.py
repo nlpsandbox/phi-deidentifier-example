@@ -46,7 +46,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(masking_char_request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
@@ -77,7 +77,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(redact_request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # This is what the deidentified note *should* look like (based on how we know the annotators will annotate)
@@ -118,7 +118,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(annotation_type_request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # Manually written based on known behavior of annotators
@@ -204,7 +204,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(multiple_strategies_request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         deidentified_text = response_data['deidentifiedNote']['text']
@@ -242,7 +242,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(type_or_mask_request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "*** [TEXT_PERSON_NAME] came back from ******, [TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
@@ -279,7 +279,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(type_or_mask_request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = " ********** came back from , ** yesterday, ** **** ****."
@@ -306,7 +306,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(type_or_mask_request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "May  came back from Austin,  yesterday,   ."
@@ -355,7 +355,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "_____FG"
@@ -404,7 +404,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "***----_____FG"
@@ -431,7 +431,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS]FG"
@@ -458,7 +458,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]FG"
@@ -490,7 +490,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "---____***"
@@ -522,7 +522,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # FIXME: The behavior being tested for here is arguably a bug due to the fact that it is erasing certain
@@ -548,7 +548,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         expected_deidentified_text = "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]"
@@ -572,7 +572,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             data=json.dumps(request),
             content_type='application/json'
         )
-        self.assertStatus(response, 201, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assertStatus(response, 200, 'Response body is : ' + response.data.decode('utf-8'))
         response_data = response.json
 
         # FIXME: This is another (arguable, see FIXME in test_partial_overlap_mask_reverse) bug from handling
