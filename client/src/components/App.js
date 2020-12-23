@@ -47,7 +47,12 @@ class App extends React.Component {
       .then((deidentifyResponse) => {
         this.setState({
           deidentifiedNoteText: deidentifyResponse.deidentifiedNote.text
-        })
+        });
+      })
+      .catch(() => {
+        this.setState({
+          deidentifiedNoteText: deidentificationStates.ERROR
+        });
       });
   }
 
