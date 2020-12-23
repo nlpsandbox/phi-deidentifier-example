@@ -17,6 +17,7 @@ class App extends React.Component {
       deidentificationStrategy: "maskingCharConfig"
     };
 
+    this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
     this.handleDeidFormChange = this.handleDeidFormChange.bind(this);
   }
 
@@ -41,8 +42,6 @@ class App extends React.Component {
       ]
     });
 
-    alert(JSON.stringify(deidentifyRequest));
-
     // Make de-identification request
     this.state.deidentifedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
       .then((deidentifyResponse) => {
@@ -55,7 +54,13 @@ class App extends React.Component {
   handleDeidFormChange(deidStrategy) {
     this.setState({
       deidentificationStrategy: deidStrategy
-    })
+    });
+  }
+
+  handleTextAreaChange(event) {
+    this.setState({
+      originalNoteText: event.target.value
+    });
   }
 
   render() {
@@ -63,7 +68,7 @@ class App extends React.Component {
     <div className="App">
       <div className="left">
         <p>Input note:</p>
-        <textarea onChange={(e) => {this.setState({originalNoteText: e.target.value})}} value={this.state.originalNoteText} />
+        <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
         <br />
         <DeidentificationConfigForm updateDeidStrategy={this.handleDeidFormChange} deidConfig={this.deidConfig} />
         <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
