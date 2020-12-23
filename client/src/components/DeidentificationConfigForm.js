@@ -18,15 +18,30 @@ export class DeidentificationConfigForm extends React.Component {
     });
   }
 
+  handleConfidenceThresholdChange = (event) => {
+    this.updateDeidConfig({
+      confidenceThreshold: parseFloat(event.target.value)
+    });
+  }
+
+  handleGenericChange = (event) => {
+    const newDeidConfig = {};
+    newDeidConfig[event.target.name] = event.target.value;
+    this.updateDeidConfig(newDeidConfig);
+  }
+
   render = () => {
     return (
       <div className="deid-config-form">
-        De-identification strategy: 
+        De-identification strategy: &nbsp;
         <select onChange={this.handleStrategyChange}>
           <option value="maskingCharConfig">Masking Character</option>
           <option value="redactConfig">Redact</option>
           <option value="annotationTypeConfig">Annotation Type</option>
         </select>
+        <br />
+        Confidence threshold: &nbsp;
+        <input type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" />
       </div>
     );
   }
