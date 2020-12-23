@@ -4,6 +4,7 @@ import { DeidentifyRequestFromJSON } from '../models';
 import React from 'react';
 import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
+import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 
 
 class App extends React.Component {
@@ -12,12 +13,20 @@ class App extends React.Component {
     this.state = {
       originalNoteText: "",
       deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})), // FIXME: Figure out how to handle hostname
-      deidentifiedNoteText: deidentificationStates.EMPTY
+      deidentifiedNoteText: deidentificationStates.EMPTY,
+      deidentificationStrategy: "maskingCharConfig"
     };
+
+    this.handleDeidFormChange = this.handleDeidFormChange.bind(this);
   }
 
   deidentifyNote() {
+    // Mark de-identified text as loading
     this.setState({deidentifiedNoteText: deidentificationStates.LOADING})
+
+    // Build de-identification request
+    let deidentificationStrategy = {};
+    deidentificationStrategy[this.state.deidentificationStrategy] = {};
     let deidentifyRequest = new DeidentifyRequestFromJSON({
       note: {
         text: this.state.originalNoteText,
@@ -26,11 +35,15 @@ class App extends React.Component {
       deidentificationConfigurations: [  // FIXME: Allow this to be changed
         {
           confidenceThreshold: 20,
-          deidentificationStrategy: {maskingCharConfig: {}},
+          deidentificationStrategy: deidentificationStrategy,
           annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
         }
       ]
     });
+
+    alert(JSON.stringify(deidentifyRequest));
+
+    // Make de-identification request
     this.state.deidentifedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
       .then((deidentifyResponse) => {
         this.setState({
@@ -39,14 +52,20 @@ class App extends React.Component {
       });
   }
 
+  handleDeidFormChange(deidStrategy) {
+    this.setState({
+      deidentificationStrategy: deidStrategy
+    })
+  }
+
   render() {
-    let deidentifiedText;
     return (
     <div className="App">
       <div className="left">
         <p>Input note:</p>
-        <textarea onChange={(e) => {this.setState({originalNoteText: e.target.value})}} />
+        <textarea onChange={(e) => {this.setState({originalNoteText: e.target.value})}} value={this.state.originalNoteText} />
         <br />
+        <DeidentificationConfigForm updateDeidStrategy={this.handleDeidFormChange} deidConfig={this.deidConfig} />
         <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
       </div>
       <div className="right">
