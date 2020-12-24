@@ -30,6 +30,16 @@ export class DeidentificationConfigForm extends React.Component {
     this.updateDeidConfig(newDeidConfig);
   }
 
+  handleAnnotationTypeDelete = (event, index) => {
+    alert("handleAnnotationTypeDelete called!");
+    const annotationTypes = this.props.deidConfig.annotationTypes
+    alert(annotationTypes.slice(index))
+    const newAnnotationTypes = annotationTypes.slice(0, index).concat(annotationTypes.slice(index+1));
+    this.updateDeidConfig({
+      annotationTypes: newAnnotationTypes
+    });
+  }
+
   render = () => {
     return (
       <div className="deid-config-form">
@@ -42,6 +52,15 @@ export class DeidentificationConfigForm extends React.Component {
         <br />
         Confidence threshold: &nbsp;
         <input type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" />
+        <br />
+        Annotation types: &nbsp;
+        <div>
+          {this.props.deidConfig.annotationTypes.map((annotationType, index) => {
+            return (
+              <div>{annotationType} <button onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}}> - </button></div>
+            );
+          })}
+        </div>
       </div>
     );
   }
