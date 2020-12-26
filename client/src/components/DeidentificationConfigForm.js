@@ -1,5 +1,6 @@
 import './DeidentificationConfigForm.css'
 import React from 'react';
+import { DeidentificationConfigAnnotationTypesEnum } from '../models';
 
 export class DeidentificationConfigForm extends React.Component {
   updateDeidConfig = (newSettings) => {
@@ -31,16 +32,22 @@ export class DeidentificationConfigForm extends React.Component {
   }
 
   handleAnnotationTypeDelete = (event, index) => {
-    alert("handleAnnotationTypeDelete called!");
     const annotationTypes = this.props.deidConfig.annotationTypes
-    alert(annotationTypes.slice(index))
     const newAnnotationTypes = annotationTypes.slice(0, index).concat(annotationTypes.slice(index+1));
     this.updateDeidConfig({
       annotationTypes: newAnnotationTypes
     });
   }
 
+  handleAnnotationTypeAdd = (event) => {
+    const annotationType = event.target.value;
+    this.updateDeidConfig({
+      annotationTypes: this.props.deidConfig.annotationTypes.concat(annotationType)
+    });
+  }
+
   render = () => {
+    const allAnnotationTypes = Object.values(DeidentificationConfigAnnotationTypesEnum)
     return (
       <div className="deid-config-form">
         De-identification strategy: &nbsp;
@@ -60,6 +67,16 @@ export class DeidentificationConfigForm extends React.Component {
               <div>{annotationType} <button onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}}> - </button></div>
             );
           })}
+          {this.props.deidConfig.annotationTypes.length < allAnnotationTypes.length &&
+            <select value="" onChange={this.handleAnnotationTypeAdd}>
+              <option value="">...</option>
+              {allAnnotationTypes.filter(annotationType => !this.props.deidConfig.annotationTypes.includes(annotationType)).map((annotationType) => {
+                return (
+                  <option value={annotationType}>{annotationType}</option>
+                );
+              })}
+            </select>
+          }
         </div>
       </div>
     );
