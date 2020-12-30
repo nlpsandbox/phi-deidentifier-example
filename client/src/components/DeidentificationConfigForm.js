@@ -32,7 +32,7 @@ export class DeidentificationConfigForm extends React.Component {
   }
 
   handleAnnotationTypeDelete = (event, index) => {
-    const annotationTypes = this.props.deidConfig.annotationTypes
+    const annotationTypes = this.props.annotationTypes
     const newAnnotationTypes = annotationTypes.slice(0, index).concat(annotationTypes.slice(index+1));
     this.updateDeidConfig({
       annotationTypes: newAnnotationTypes
@@ -42,7 +42,7 @@ export class DeidentificationConfigForm extends React.Component {
   handleAnnotationTypeAdd = (event) => {
     const annotationType = event.target.value;
     this.updateDeidConfig({
-      annotationTypes: this.props.deidConfig.annotationTypes.concat(annotationType)
+      annotationTypes: this.props.annotationTypes.concat(annotationType)
     });
   }
 
@@ -62,15 +62,15 @@ export class DeidentificationConfigForm extends React.Component {
         <br />
         Annotation types: &nbsp;
         <div>
-          {this.props.deidConfig.annotationTypes.map((annotationType, index) => {
+          {this.props.annotationTypes.map((annotationType, index) => {
             return (
               <div>{annotationType} <button onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}}> - </button></div>
             );
           })}
-          {this.props.deidConfig.annotationTypes.length < allAnnotationTypes.length &&
+          {this.props.annotationTypes.length < allAnnotationTypes.length &&
             <select value="" onChange={this.handleAnnotationTypeAdd}>
               <option value="">...</option>
-              {allAnnotationTypes.filter(annotationType => !this.props.deidConfig.annotationTypes.includes(annotationType)).map((annotationType) => {
+              {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
                 return (
                   <option value={annotationType}>{annotationType}</option>
                 );

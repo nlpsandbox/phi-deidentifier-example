@@ -75,7 +75,7 @@ class App extends React.Component {
         <p>Input note:</p>
         <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
         <br />
-        <DeidentificationConfigForm updateDeidConfig={this.updateDeidentificationConfig} deidConfig={this.state.deidentificationConfig} />
+        <DeidentificationConfigForm updateDeidConfig={this.updateDeidentificationConfig} {...this.state.deidentificationConfig} />
         <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
       </div>
       <div className="right">
