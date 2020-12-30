@@ -25,12 +25,6 @@ export class DeidentificationConfigForm extends React.Component {
     });
   }
 
-  handleGenericChange = (event) => {
-    const newDeidConfig = {};
-    newDeidConfig[event.target.name] = event.target.value;
-    this.updateDeidConfig(newDeidConfig);
-  }
-
   handleAnnotationTypeDelete = (event, index) => {
     const annotationTypes = this.props.annotationTypes
     const newAnnotationTypes = annotationTypes.slice(0, index).concat(annotationTypes.slice(index+1));
