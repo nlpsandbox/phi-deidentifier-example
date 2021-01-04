@@ -14,11 +14,11 @@ class App extends React.Component {
       originalNoteText: "",
       deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})), // FIXME: Figure out how to handle hostname
       deidentifiedNoteText: deidentificationStates.EMPTY,
-      deidentificationConfig: {
+      deidentificationConfigs: [{
         confidenceThreshold: 20,
         deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
         annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
-      }
+      }]
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
@@ -36,7 +36,7 @@ class App extends React.Component {
         text: this.state.originalNoteText,
         noteType: "ASDF"  // FIXME: figure out whether and how to get this
       },
-      deidentificationConfigurations: [this.state.deidentificationConfig]
+      deidentificationConfigurations: this.state.deidentificationConfigs
     });
 
     // Make de-identification request
@@ -53,18 +53,34 @@ class App extends React.Component {
       });
   }
 
-  updateDeidentificationConfig = (newSettings) => {
+  updateDeidentificationConfig = (index, newSettings) => {
+    let deidentificationConfigs = [...this.state.deidentificationConfigs];
+    let oldDeidentificationConfig = {...this.state.deidentificationConfigs[index]}
+    deidentificationConfigs[index] = {
+      ...oldDeidentificationConfig,
+      ...newSettings
+    };
     this.setState({
-      deidentificationConfig: {
-        ...this.state.deidentificationConfig,
-        ...newSettings
-      }
+      deidentificationConfigs: deidentificationConfigs
     });
   }
 
   handleTextAreaChange(event) {
     this.setState({
       originalNoteText: event.target.value
+    });
+  }
+
+  addDeidConfig = (event) => {
+    let deidentificationConfigs = [...this.state.deidentificationConfigs];
+    const newDeidConfig = {
+      confidenceThreshold: 20,
+      deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
+      annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
+    };
+    deidentificationConfigs.push(newDeidConfig);
+    this.setState({
+      deidentificationConfigs: deidentificationConfigs
     });
   }
 
@@ -75,7 +91,12 @@ class App extends React.Component {
         <p>Input note:</p>
         <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
         <br />
-        <DeidentificationConfigForm updateDeidConfig={this.updateDeidentificationConfig} {...this.state.deidentificationConfig} />
+        {
+          this.state.deidentificationConfigs.map((deidConfig, index) => 
+            <DeidentificationConfigForm updateDeidConfig={this.updateDeidentificationConfig} key={index} index={index} {...deidConfig} />
+          )
+        }
+        <button onClick={this.addDeidConfig}>Add Deidentification Config</button>
         <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
       </div>
       <div className="right">

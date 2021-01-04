@@ -4,7 +4,7 @@ import { DeidentificationConfigAnnotationTypesEnum } from '../models';
 
 export class DeidentificationConfigForm extends React.Component {
   updateDeidConfig = (newSettings) => {
-    this.props.updateDeidConfig(newSettings);
+    this.props.updateDeidConfig(this.props.index, newSettings);
   }
 
   handleStrategyChange = (event) => {
