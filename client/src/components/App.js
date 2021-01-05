@@ -6,13 +6,13 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 
+const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       originalNoteText: "",
-      deidentifedNotesApi: new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})), // FIXME: Figure out how to handle hostname
       deidentifiedNoteText: deidentificationStates.EMPTY,
       deidentificationConfigs: [{
         confidenceThreshold: 20,
@@ -40,7 +40,7 @@ class App extends React.Component {
     });
 
     // Make de-identification request
-    this.state.deidentifedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
+    deidentifiedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
       .then((deidentifyResponse) => {
         this.setState({
           deidentifiedNoteText: deidentifyResponse.deidentifiedNote.text
