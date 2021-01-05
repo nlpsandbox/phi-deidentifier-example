@@ -67,10 +67,10 @@ export class DeidentificationConfigForm extends React.Component {
     return (
       <div className="deid-config-form">
         <div className="deid-config-form-bar">
-          <div className="deid-config-header">De-identification Configuration #{this.props.index + 1}</div>
+          <div className="deid-config-header">De-id Step #{this.props.index + 1}</div>
           <div className="deid-config-remove" onClick={this.handleDelete}></div>
         </div>
-        De-identification strategy: &nbsp;
+        Method:
         <select onChange={this.handleStrategyChange} value={this.getStrategy()}>
           <option value="maskingCharConfig">Masking Character</option>
           <option value="redactConfig">Redact</option>

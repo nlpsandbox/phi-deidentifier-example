@@ -16,6 +16,8 @@
   font-size: calc(10px + 2vmin);
   color: white;
   overflow: hidden;
+  padding: 10px;
+  padding-bottom: 50px;
 }
 
 .App:after {
