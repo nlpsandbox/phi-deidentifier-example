@@ -1,6 +1,6 @@
 import './DeidentificationConfigForm.css'
 import React from 'react';
-import { DeidentificationConfigAnnotationTypesEnum, DeidentificationConfigDeidentificationStrategy } from '../models';
+import { DeidentificationConfigAnnotationTypesEnum } from '../models';
 
 export class DeidentificationConfigForm extends React.Component {
   updateDeidConfig = (newSettings) => {
@@ -11,11 +11,25 @@ export class DeidentificationConfigForm extends React.Component {
     // Convert strategy name into correct {key: value} pair
     const newDeidStrategyName = event.target.value;
     let newDeidentificationStrategy = {};
-    newDeidentificationStrategy[newDeidStrategyName] = {};
+    // FIXME: Ideally this could draw on the models defined in src/models
+    if (newDeidStrategyName === "maskingCharConfig") {
+      newDeidentificationStrategy[newDeidStrategyName] = { maskingChar: "*" };
+    } else {
+      newDeidentificationStrategy[newDeidStrategyName] = {}
+    }
 
     // Push up the state
     this.updateDeidConfig({
       deidentificationStrategy: newDeidentificationStrategy
+    });
+  }
+
+  handleMaskingCharChange = (event) => {
+    const maskingChar = event.target.value;
+    this.updateDeidConfig({
+      deidentificationStrategy: {
+        maskingCharConfig: { maskingChar: maskingChar }
+      }
     });
   }
 
@@ -44,6 +58,10 @@ export class DeidentificationConfigForm extends React.Component {
     this.props.deleteDeidConfig(this.props.index);
   }
 
+  getStrategy = () => {
+    return Object.keys(this.props.deidentificationStrategy)[0];
+  }
+
   render = () => {
     const allAnnotationTypes = Object.values(DeidentificationConfigAnnotationTypesEnum)
     return (
@@ -53,11 +71,14 @@ export class DeidentificationConfigForm extends React.Component {
           <div className="deid-config-remove" onClick={this.handleDelete}></div>
         </div>
         De-identification strategy: &nbsp;
-        <select onChange={this.handleStrategyChange} value={Object.keys(this.props.deidentificationStrategy)[0]}>
+        <select onChange={this.handleStrategyChange} value={this.getStrategy()}>
           <option value="maskingCharConfig">Masking Character</option>
           <option value="redactConfig">Redact</option>
           <option value="annotationTypeConfig">Annotation Type</option>
         </select>
+        {this.getStrategy() === "maskingCharConfig" &&
+          <input type="text" maxLength={1} value={this.props.deidentificationStrategy.maskingCharConfig.maskingChar} onChange={this.handleMaskingCharChange} />
+        }
         <br />
         Confidence threshold: &nbsp;
         <input type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" value={this.props.confidenceThreshold} />
