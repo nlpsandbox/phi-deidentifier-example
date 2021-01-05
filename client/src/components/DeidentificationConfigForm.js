@@ -1,6 +1,6 @@
 import './DeidentificationConfigForm.css'
 import React from 'react';
-import { DeidentificationConfigAnnotationTypesEnum } from '../models';
+import { DeidentificationConfigAnnotationTypesEnum, DeidentificationConfigDeidentificationStrategy } from '../models';
 
 export class DeidentificationConfigForm extends React.Component {
   updateDeidConfig = (newSettings) => {
@@ -53,14 +53,14 @@ export class DeidentificationConfigForm extends React.Component {
           <div className="deid-config-remove" onClick={this.handleDelete}></div>
         </div>
         De-identification strategy: &nbsp;
-        <select onChange={this.handleStrategyChange}>
+        <select onChange={this.handleStrategyChange} value={Object.keys(this.props.deidentificationStrategy)[0]}>
           <option value="maskingCharConfig">Masking Character</option>
           <option value="redactConfig">Redact</option>
           <option value="annotationTypeConfig">Annotation Type</option>
         </select>
         <br />
         Confidence threshold: &nbsp;
-        <input type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" />
+        <input type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" value={this.props.confidenceThreshold} />
         <br />
         Annotation types: &nbsp;
         <div>

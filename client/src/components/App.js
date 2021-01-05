@@ -85,7 +85,6 @@ class App extends React.Component {
   }
 
   deleteDeidConfig = (index) => {
-    alert("deleteDeidConfig called with index: " + index.toString());
     let deidentificationConfigs = [...this.state.deidentificationConfigs];
     deidentificationConfigs.splice(index, 1);
     this.setState({
