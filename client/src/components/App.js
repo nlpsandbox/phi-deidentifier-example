@@ -84,6 +84,15 @@ class App extends React.Component {
     });
   }
 
+  deleteDeidConfig = (index) => {
+    alert("deleteDeidConfig called with index: " + index.toString());
+    let deidentificationConfigs = [...this.state.deidentificationConfigs];
+    deidentificationConfigs.splice(index, 1);
+    this.setState({
+      deidentificationConfigs: deidentificationConfigs
+    });
+  }
+
   render() {
     return (
     <div className="App">
@@ -91,13 +100,20 @@ class App extends React.Component {
         <p>Input note:</p>
         <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
         <br />
+        <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
+        <br />
         {
           this.state.deidentificationConfigs.map((deidConfig, index) => 
-            <DeidentificationConfigForm updateDeidConfig={this.updateDeidentificationConfig} key={index} index={index} {...deidConfig} />
+            <DeidentificationConfigForm
+              updateDeidConfig={this.updateDeidentificationConfig}
+              deleteDeidConfig={this.deleteDeidConfig}
+              key={index}
+              index={index}
+              {...deidConfig}
+            />
           )
         }
         <button onClick={this.addDeidConfig}>Add Deidentification Config</button>
-        <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
       </div>
       <div className="right">
         <p>Deidentified note:</p>
