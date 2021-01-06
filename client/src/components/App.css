@@ -51,3 +51,34 @@ textarea {
 .App-link {
   color: #61dafb;
 }
+
+.deidentify-button {
+  border-radius: 5px;
+  background-color: lightskyblue;
+  border: none;
+  text-decoration: none;
+  padding: 15px 32px;
+  font-size: 16px;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.deidentify-button:hover {
+  background-color: lightblue;
+}
+
+.deid-config-add {
+  margin-top: 15px;
+  padding: 2px;
+  padding-top: 0px;
+  width: 20px;
+  border-radius: 5px;
+  background-color: grey;
+  font-size: x-large;
+  user-select: none;
+}
+
+.deid-config-add:hover {
+  color: grey;
+  background-color: lightgrey;
+}

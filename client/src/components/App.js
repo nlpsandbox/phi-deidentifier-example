@@ -24,7 +24,7 @@ class App extends React.Component {
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
   }
 
-  deidentifyNote() {
+  deidentifyNote = () => {
     // Mark de-identified text as loading
     this.setState({deidentifiedNoteText: deidentificationStates.LOADING})
 
@@ -99,7 +99,7 @@ class App extends React.Component {
         <p>Input note:</p>
         <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
         <br />
-        <button onClick={() => {this.deidentifyNote()}}>De-identify Note</button>
+        <button className="deidentify-button" onClick={this.deidentifyNote}>De-identify Note</button>
         <br />
         {
           this.state.deidentificationConfigs.map((deidConfig, index) => 
@@ -112,7 +112,7 @@ class App extends React.Component {
             />
           )
         }
-        <button onClick={this.addDeidConfig}>Add De-id Step</button>
+        <div className="deid-config-add" onClick={this.addDeidConfig}>&#x002B;</div>
       </div>
       <div className="right">
         <p>Deidentified note:</p>
