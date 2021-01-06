@@ -112,7 +112,7 @@ class App extends React.Component {
             />
           )
         }
-        <button onClick={this.addDeidConfig}>Add Deidentification Config</button>
+        <button onClick={this.addDeidConfig}>Add De-id Step</button>
       </div>
       <div className="right">
         <p>Deidentified note:</p>
