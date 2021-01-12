@@ -6,8 +6,7 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
+import { Button, Grid, Box } from '@material-ui/core';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
@@ -102,19 +101,17 @@ class App extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
-
     return (
-    <div className={classes.root}>
-      <Grid container spacing={2}>
-        <Grid item xs={1}>
+    <Box>
+      <Grid container maxWidth="80%">
+        <Grid item xs={6} align="center">
           <p>Input note:</p>
           <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
           <br />
           <Button variant="contained" color="primary" onClick={this.deidentifyNote}>De-identify Note</Button>
           <br />
-          {
-            this.state.deidentificationConfigs.map((deidConfig, index) => 
+          <Grid container direction="column" spacing={2}>
+            {this.state.deidentificationConfigs.map((deidConfig, index) => 
               <DeidentificationConfigForm
                 updateDeidConfig={this.updateDeidentificationConfig}
                 deleteDeidConfig={this.deleteDeidConfig}
@@ -122,16 +119,16 @@ class App extends React.Component {
                 index={index}
                 {...deidConfig}
               />
-            )
-          }
-          <Button onClick={this.addDeidConfig}>&#x002B;</Button>
+            )}
+          </Grid>
+          <Button variant="contained" color="secondary" onClick={this.addDeidConfig}>&#x002B;</Button>
         </Grid>
-        <Grid item xs={1}>
+        <Grid item xs={6}>
           <p>Deidentified note:</p>
           <DeidentifiedText text={this.state.deidentifiedNoteText} />
         </Grid>
       </Grid>
-    </div>
+    </Box>
     );
   }
 }
