@@ -5,8 +5,17 @@ import React from 'react';
 import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
+import { withStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
+
+const styles = {
+  root: {
+    flexGrow: 1,
+  },
+};
 
 class App extends React.Component {
   constructor(props) {
@@ -93,34 +102,38 @@ class App extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
-    <div className="App">
-      <div className="left">
-        <p>Input note:</p>
-        <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
-        <br />
-        <button className="deidentify-button" onClick={this.deidentifyNote}>De-identify Note</button>
-        <br />
-        {
-          this.state.deidentificationConfigs.map((deidConfig, index) => 
-            <DeidentificationConfigForm
-              updateDeidConfig={this.updateDeidentificationConfig}
-              deleteDeidConfig={this.deleteDeidConfig}
-              key={index}
-              index={index}
-              {...deidConfig}
-            />
-          )
-        }
-        <div className="deid-config-add" onClick={this.addDeidConfig}>&#x002B;</div>
-      </div>
-      <div className="right">
-        <p>Deidentified note:</p>
-        <DeidentifiedText text={this.state.deidentifiedNoteText} />
-      </div>
+    <div className={classes.root}>
+      <Grid container spacing={2}>
+        <Grid item xs={1}>
+          <p>Input note:</p>
+          <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
+          <br />
+          <Button variant="contained" color="primary" onClick={this.deidentifyNote}>De-identify Note</Button>
+          <br />
+          {
+            this.state.deidentificationConfigs.map((deidConfig, index) => 
+              <DeidentificationConfigForm
+                updateDeidConfig={this.updateDeidentificationConfig}
+                deleteDeidConfig={this.deleteDeidConfig}
+                key={index}
+                index={index}
+                {...deidConfig}
+              />
+            )
+          }
+          <Button onClick={this.addDeidConfig}>&#x002B;</Button>
+        </Grid>
+        <Grid item xs={1}>
+          <p>Deidentified note:</p>
+          <DeidentifiedText text={this.state.deidentifiedNoteText} />
+        </Grid>
+      </Grid>
     </div>
     );
   }
 }
 
-export default App;
+export default withStyles(styles)(App);
