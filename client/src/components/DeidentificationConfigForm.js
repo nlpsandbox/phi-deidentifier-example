@@ -89,8 +89,8 @@ export class DeidentificationConfigForm extends React.Component {
             </Grid>
           </Box>
         </Grid>
-        <Grid item container align="left">
-          <Grid item xs={4}>
+        <Grid item container align="left" spacing={0}>
+          <Grid item xs={12} sm={4}>
             <Select label="Method" onChange={this.handleStrategyChange} value={this.getStrategy()}>
               <MenuItem value="maskingCharConfig">Masking Character</MenuItem>
               <MenuItem value="redactConfig">Redact</MenuItem>
@@ -107,10 +107,10 @@ export class DeidentificationConfigForm extends React.Component {
               />
             }
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} sm={4}>
             <TextField label="Confidence Threshold" type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" value={this.props.confidenceThreshold} />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} sm={4}>
             {[...Array(allAnnotationTypes.length)].map((e, index) => {
               const selectWidth = 180;
               const labelId = "annotation-id-"+this.props.index.toString()+"-"+index.toString();
