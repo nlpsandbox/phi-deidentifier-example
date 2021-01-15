@@ -1,7 +1,15 @@
 import React from 'react';
 import { DeidentificationConfigAnnotationTypesEnum } from '../models';
-import { Fab, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
+import { FormControl, FormHelperText, InputLabel, Fab, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
+
+const styles = (theme) => ({
+  maskingCharField: {
+    width: "40px",
+    textAlign: "center"
+  }
+});
 
 export class DeidentificationConfigForm extends React.Component {
   updateDeidConfig = (newSettings) => {
@@ -64,40 +72,64 @@ export class DeidentificationConfigForm extends React.Component {
   }
 
   render = () => {
+    const { classes } = this.props;
     const allAnnotationTypes = Object.values(DeidentificationConfigAnnotationTypesEnum)
     return (
-      <Grid item>
-        <Typography variant="h6">De-id Step #{this.props.index + 1}</Typography>
-        <Select label="Method" onChange={this.handleStrategyChange} value={this.getStrategy()}>
-          <MenuItem value="maskingCharConfig">Masking Character</MenuItem>
-          <MenuItem value="redactConfig">Redact</MenuItem>
-          <MenuItem value="annotationTypeConfig">Annotation Type</MenuItem>
-        </Select>
-        &nbsp;
-        {this.getStrategy() === "maskingCharConfig" &&
-          <TextField variant="outlined" maxLength={1} value={this.props.deidentificationStrategy.maskingCharConfig.maskingChar} onChange={this.handleMaskingCharChange} />
-        }
-        <TextField label="Confidence Threshold" type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" value={this.props.confidenceThreshold} />
-        Annotation types:
-        <div>
-          {this.props.annotationTypes.map((annotationType, index) => {
-            return (
-              <div>{annotationType} <button onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}}> - </button></div>
-            );
-          })}
-          {this.props.annotationTypes.length < allAnnotationTypes.length &&
-            <select value="" onChange={this.handleAnnotationTypeAdd}>
-              <option value="">...</option>
-              {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
-                return (
-                  <option value={annotationType}>{annotationType}</option>
-                );
-              })}
-            </select>
+      <Grid item container direction="column">
+        <Grid item>
+          <Typography variant="h6">De-id Step #{this.props.index + 1}</Typography>
+        </Grid>
+        <Grid item>
+          <Select label="Method" onChange={this.handleStrategyChange} value={this.getStrategy()}>
+            <MenuItem value="maskingCharConfig">Masking Character</MenuItem>
+            <MenuItem value="redactConfig">Redact</MenuItem>
+            <MenuItem value="annotationTypeConfig">Annotation Type</MenuItem>
+          </Select>
+          &nbsp;
+          {this.getStrategy() === "maskingCharConfig" &&
+            <TextField
+              variant="outlined"
+              size="small"
+              value={this.props.deidentificationStrategy.maskingCharConfig.maskingChar}
+              onChange={this.handleMaskingCharChange}
+              className={classes.maskingCharField}
+              inputProps={{maxLength: 1, style: { textAlign: "center" }}}
+            />
           }
-        </div>
-        <Fab onClick={this.handleDelete} size="medium"><CloseIcon /></Fab>
+        </Grid>
+        <Grid item>
+          <TextField label="Confidence Threshold" type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" value={this.props.confidenceThreshold} />
+        </Grid>
+        <Grid item>
+          Annotation types:
+          <div>
+            {this.props.annotationTypes.map((annotationType, index) => {
+              return (
+                <div>{annotationType} <button onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}}> - </button></div>
+              );
+            })}
+            {this.props.annotationTypes.length < allAnnotationTypes.length &&
+              <FormControl>
+                <InputLabel>Annotation type</InputLabel>
+                <Select value="" onChange={this.handleAnnotationTypeAdd}>
+                  <MenuItem value=""></MenuItem>
+                  {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
+                    return (
+                      <MenuItem value={annotationType}>{annotationType}</MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText>Click to add</FormHelperText>
+              </FormControl>
+            }
+          </div>
+        </Grid>
+        <Grid item>
+          <Fab onClick={this.handleDelete} size="medium"><CloseIcon /></Fab>
+        </Grid>
       </Grid>
     );
   }
 }
+
+export default withStyles(styles)(DeidentificationConfigForm);

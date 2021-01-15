@@ -3,7 +3,7 @@ import { DeidentifyRequestFromJSON } from '../models';
 import React from 'react';
 import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
-import { DeidentificationConfigForm } from './DeidentificationConfigForm';
+import DeidentificationConfigForm from './DeidentificationConfigForm';
 import { withStyles } from '@material-ui/core/styles';
 import { Divider, Fab, Grid, Box, TextField, AppBar, Toolbar, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
