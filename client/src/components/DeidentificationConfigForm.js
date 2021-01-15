@@ -3,6 +3,7 @@ import { DeidentificationConfigAnnotationTypesEnum } from '../models';
 import { IconButton, Box, FormControl, FormHelperText, InputLabel, Fab, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 const styles = (theme) => ({
   maskingCharField: {
@@ -114,7 +115,7 @@ export class DeidentificationConfigForm extends React.Component {
             <div>
               {this.props.annotationTypes.map((annotationType, index) => {
                 return (
-                  <div>{annotationType} <button onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}}> - </button></div>
+                  <div>{annotationType} <IconButton onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}} size="small"><RemoveIcon /></IconButton></div>
                 );
               })}
               {this.props.annotationTypes.length < allAnnotationTypes.length &&
@@ -131,6 +132,14 @@ export class DeidentificationConfigForm extends React.Component {
                   <FormHelperText>Click to add</FormHelperText>
                 </FormControl>
               }
+              {Array(Math.max(allAnnotationTypes.length - this.props.annotationTypes.length - 1, 0)).map((value, index) => {
+                return (
+                  // <Select value="" disabled>
+                  //   <MenuItem value=""><em>Annotation type...</em></MenuItem>
+                  // </Select>
+                  <p>Extra slot</p>
+                );
+              })}
             </div>
           </Grid>
         </Grid>
