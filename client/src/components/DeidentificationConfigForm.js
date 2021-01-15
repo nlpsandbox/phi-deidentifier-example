@@ -89,7 +89,7 @@ export class DeidentificationConfigForm extends React.Component {
             </Grid>
           </Box>
         </Grid>
-        <Grid item container >
+        <Grid item container align="left">
           <Grid item xs={4}>
             <Select label="Method" onChange={this.handleStrategyChange} value={this.getStrategy()}>
               <MenuItem value="maskingCharConfig">Masking Character</MenuItem>
@@ -111,36 +111,44 @@ export class DeidentificationConfigForm extends React.Component {
             <TextField label="Confidence Threshold" type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" value={this.props.confidenceThreshold} />
           </Grid>
           <Grid item xs={4}>
-            Annotation types:
-            <div>
-              {this.props.annotationTypes.map((annotationType, index) => {
+            {[...Array(allAnnotationTypes.length)].map((e, index) => {
+              const selectWidth = 180;
+              const labelId = "annotation-id-"+this.props.index.toString()+"-"+index.toString();
+              if (index < this.props.annotationTypes.length) {
+                const annotationType = this.props.annotationTypes[index];
                 return (
-                  <div>{annotationType} <IconButton onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}} size="small"><RemoveIcon /></IconButton></div>
+                  <Box>
+                    <FormControl style={{ minWidth: selectWidth }}>
+                      <InputLabel id={labelId}>{annotationType}</InputLabel>
+                      <Select disabled labelId={labelId} value=""><MenuItem value="">{annotationType}</MenuItem></Select>
+                    </FormControl>
+                    <IconButton onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}} size="small"><RemoveIcon size="small"/></IconButton>
+                  </Box>
                 );
-              })}
-              {this.props.annotationTypes.length < allAnnotationTypes.length &&
-                <FormControl>
-                  <InputLabel>Annotation type</InputLabel>
-                  <Select value="" onChange={this.handleAnnotationTypeAdd}>
-                    <MenuItem value=""></MenuItem>
-                    {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
-                      return (
-                        <MenuItem value={annotationType}>{annotationType}</MenuItem>
-                      );
-                    })}
-                  </Select>
-                  <FormHelperText>Click to add</FormHelperText>
-                </FormControl>
+              } else if (index === this.props.annotationTypes.length) {
+                return (
+                  <FormControl style={{ minWidth: selectWidth }}>
+                    <InputLabel>Annotation type</InputLabel>
+                    <Select value="" onChange={this.handleAnnotationTypeAdd}>
+                      <MenuItem value=""></MenuItem>
+                      {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
+                        return (
+                          <MenuItem value={annotationType}>{annotationType}</MenuItem>
+                        );
+                      })}
+                    </Select>
+                    <FormHelperText>Click to add</FormHelperText>
+                  </FormControl>
+                );
+              } else {
+                return (
+                  <FormControl style={{ minWidth: selectWidth }}>
+                    <InputLabel id={labelId}>...</InputLabel>
+                    <Select disabled labelId={labelId} value=""><MenuItem value="">...</MenuItem></Select>
+                  </FormControl>
+                );
               }
-              {Array(Math.max(allAnnotationTypes.length - this.props.annotationTypes.length - 1, 0)).map((value, index) => {
-                return (
-                  // <Select value="" disabled>
-                  //   <MenuItem value=""><em>Annotation type...</em></MenuItem>
-                  // </Select>
-                  <p>Extra slot</p>
-                );
-              })}
-            </div>
+            })}
           </Grid>
         </Grid>
       </Grid>
