@@ -1,6 +1,7 @@
 import React from 'react';
 import { DeidentificationConfigAnnotationTypesEnum } from '../models';
-import { Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
+import { Fab, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 
 export class DeidentificationConfigForm extends React.Component {
   updateDeidConfig = (newSettings) => {
@@ -67,7 +68,6 @@ export class DeidentificationConfigForm extends React.Component {
     return (
       <Grid item>
         <Typography variant="h6">De-id Step #{this.props.index + 1}</Typography>
-        <div className="deid-config-remove" onClick={this.handleDelete}></div>
         <Select label="Method" onChange={this.handleStrategyChange} value={this.getStrategy()}>
           <MenuItem value="maskingCharConfig">Masking Character</MenuItem>
           <MenuItem value="redactConfig">Redact</MenuItem>
@@ -96,6 +96,7 @@ export class DeidentificationConfigForm extends React.Component {
             </select>
           }
         </div>
+        <Fab onClick={this.handleDelete} size="medium"><CloseIcon /></Fab>
       </Grid>
     );
   }

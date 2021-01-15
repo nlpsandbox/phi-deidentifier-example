@@ -5,20 +5,27 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { withStyles } from '@material-ui/core/styles';
-import { Button, Grid, Box, TextField, AppBar, Toolbar, Typography } from '@material-ui/core';
+import { Divider, Fab, Grid, Box, TextField, AppBar, Toolbar, Typography } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
+import ClearAllIcon from '@material-ui/icons/ClearAll';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    fontFamily: 'fixed-width',
   },
   title: {
     display: 'none',
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },
+  },
+  container: {
+    padding: theme.spacing(2)
+  },
+  textBox: {
+    width: "100%"
   }
 });
 
@@ -109,26 +116,24 @@ class App extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-    <React.Fragment className={classes.root}>
-    <Box>
+    <Box className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h5" className={classes.title}>NLP Sandbox PHI Deidentifier</Typography>
+          <Typography variant="h4" className={classes.title}>NLP Sandbox PHI Deidentifier</Typography>
         </Toolbar>
       </AppBar>
-      <Grid container maxWidth="80%">
+      <Grid container spacing={2} className={classes.container}>
         <Grid item container direction="column" spacing={2} xs={6} align="center">
           <Grid item>
             <TextField
               multiline
               variant="outlined"
+              className={classes.textBox}
+              rows={15}
               label="Input Note"
               onChange={this.handleTextAreaChange}
               value={this.state.originalNoteText}
             />
-          </Grid>
-          <Grid item>
-            <Button variant="contained" color="primary" onClick={this.deidentifyNote}>De-identify Note</Button>
           </Grid>
             {this.state.deidentificationConfigs.map((deidConfig, index) => 
               <DeidentificationConfigForm
@@ -140,16 +145,21 @@ class App extends React.Component {
               />
             )}
           <Grid item>
-            <Button variant="contained" color="secondary" onClick={this.addDeidConfig}>&#x002B;</Button>
+          <Fab variant="extended" color="primary" onClick={this.addDeidConfig}>
+            <AddIcon /> Add Step
+          </Fab>
           </Grid>
         </Grid>
+        <Divider orientation="vertical" flexItem />
         <Grid item xs={6}>
-          <p>Deidentified note:</p>
+          <Typography>Anonymized note:</Typography>
           <DeidentifiedText text={this.state.deidentifiedNoteText} />
+          <Fab variant="extended" color="secondary" onClick={this.deidentifyNote}>
+            Anonymize <ClearAllIcon />
+          </Fab>
         </Grid>
       </Grid>
     </Box>
-    </React.Fragment>
     );
   }
 }
