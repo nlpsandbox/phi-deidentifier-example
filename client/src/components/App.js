@@ -1,4 +1,3 @@
-import './App.css';
 import { DeidentifiedNotesApi } from '../apis';
 import { DeidentifyRequestFromJSON } from '../models';
 import React from 'react';
@@ -6,15 +5,22 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { withStyles } from '@material-ui/core/styles';
-import { Button, Grid, Box } from '@material-ui/core';
+import { Button, Grid, Box, TextField, AppBar, Toolbar, Typography } from '@material-ui/core';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
-const styles = {
+const styles = theme => ({
   root: {
     flexGrow: 1,
+    fontFamily: 'fixed-width',
   },
-};
+  title: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
+    },
+  }
+});
 
 class App extends React.Component {
   constructor(props) {
@@ -101,16 +107,29 @@ class App extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
     return (
+    <React.Fragment className={classes.root}>
     <Box>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h5" className={classes.title}>NLP Sandbox PHI Deidentifier</Typography>
+        </Toolbar>
+      </AppBar>
       <Grid container maxWidth="80%">
-        <Grid item xs={6} align="center">
-          <p>Input note:</p>
-          <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
-          <br />
-          <Button variant="contained" color="primary" onClick={this.deidentifyNote}>De-identify Note</Button>
-          <br />
-          <Grid container direction="column" spacing={2}>
+        <Grid item container direction="column" spacing={2} xs={6} align="center">
+          <Grid item>
+            <TextField
+              multiline
+              variant="outlined"
+              label="Input Note"
+              onChange={this.handleTextAreaChange}
+              value={this.state.originalNoteText}
+            />
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary" onClick={this.deidentifyNote}>De-identify Note</Button>
+          </Grid>
             {this.state.deidentificationConfigs.map((deidConfig, index) => 
               <DeidentificationConfigForm
                 updateDeidConfig={this.updateDeidentificationConfig}
@@ -120,8 +139,9 @@ class App extends React.Component {
                 {...deidConfig}
               />
             )}
+          <Grid item>
+            <Button variant="contained" color="secondary" onClick={this.addDeidConfig}>&#x002B;</Button>
           </Grid>
-          <Button variant="contained" color="secondary" onClick={this.addDeidConfig}>&#x002B;</Button>
         </Grid>
         <Grid item xs={6}>
           <p>Deidentified note:</p>
@@ -129,6 +149,7 @@ class App extends React.Component {
         </Grid>
       </Grid>
     </Box>
+    </React.Fragment>
     );
   }
 }

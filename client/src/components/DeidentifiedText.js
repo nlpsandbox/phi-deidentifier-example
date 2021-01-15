@@ -1,4 +1,3 @@
-import './DeidentifiedText.css';
 import React from 'react';
 
 export const deidentificationStates = {
