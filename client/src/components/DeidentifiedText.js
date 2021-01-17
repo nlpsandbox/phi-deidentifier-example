@@ -1,4 +1,5 @@
 import React from 'react';
+import { TextField } from '@material-ui/core';
 
 export const deidentificationStates = {
   EMPTY: 0,
@@ -10,15 +11,17 @@ export class DeidentifiedText extends React.Component {
   render() {
     let content;
     if (this.props.text === deidentificationStates.EMPTY) {
-      content = <i>Input a note and de-identify it in the text box on the right...</i>;
+      content = "";
     } else if (this.props.text === deidentificationStates.LOADING) {
-      content = <i>Loading...</i>;
+      content = "Loading...";
     } else if (this.props.text === deidentificationStates.ERROR) {
-      content = <i>API call resulted in error!</i>
+      content = "API call resulted in error!";
     } else {
       content = this.props.text;
     }
 
-    return <div className="deidentified-text">{content}</div>
+    return <TextField disabled label="Anonymized Note" variant="filled" multiline rows={15} value={content} fullWidth></TextField>;
   }
 }
+
+export default DeidentifiedText;
