@@ -4,9 +4,11 @@ import React from 'react';
 import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import DeidentificationConfigForm from './DeidentificationConfigForm';
+import SaveQueryDialog from './SaveQueryDialog';
 import { withStyles } from '@material-ui/core/styles';
 import { Divider, Fab, Grid, Box, TextField, AppBar, Toolbar, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import SaveIcon from '@material-ui/icons/Save';
 import ClearAllIcon from '@material-ui/icons/ClearAll';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
@@ -39,7 +41,8 @@ class App extends React.Component {
         confidenceThreshold: 20,
         deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
         annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
-      }]
+      }],
+      showSaveQueryDialog: false
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
@@ -148,17 +151,20 @@ class App extends React.Component {
           <Fab variant="extended" color="primary" onClick={this.addDeidConfig}>
             <AddIcon /> Add Step
           </Fab>
+          <Fab variant="extended" color="secondary" onClick={() => this.setState({showSaveQueryDialog: true})}>
+            <SaveIcon /> Save Query
+          </Fab>
           </Grid>
         </Grid>
         <Divider orientation="vertical" flexItem />
         <Grid item xs={6}>
-          <Typography>Anonymized note:</Typography>
           <DeidentifiedText text={this.state.deidentifiedNoteText} />
           <Fab variant="extended" color="secondary" onClick={this.deidentifyNote}>
             Anonymize <ClearAllIcon />
           </Fab>
         </Grid>
       </Grid>
+      <SaveQueryDialog open={this.state.showSaveQueryDialog} handleClose={() => this.setState({showSaveQueryDialog: false})}  deidentificationConfigs={this.state.deidentificationConfigs} />
     </Box>
     );
   }
