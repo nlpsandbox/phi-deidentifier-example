@@ -1,9 +1,8 @@
 import React from 'react';
 import { DeidentificationConfigAnnotationTypesEnum } from '../models';
-import { IconButton, Box, FormControl, FormHelperText, InputLabel, Fab, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
+import { IconButton, Box, FormControl, FormHelperText, InputLabel, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
-import RemoveIcon from '@material-ui/icons/Remove';
 
 const styles = (theme) => ({
   maskingCharField: {
@@ -90,7 +89,7 @@ export class DeidentificationConfigForm extends React.Component {
           </Box>
         </Grid>
         <Grid item container align="left" spacing={0}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} lg={4}>
             <Select label="Method" onChange={this.handleStrategyChange} value={this.getStrategy()}>
               <MenuItem value="maskingCharConfig">Masking Character</MenuItem>
               <MenuItem value="redactConfig">Redact</MenuItem>
@@ -107,45 +106,49 @@ export class DeidentificationConfigForm extends React.Component {
               />
             }
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} lg={4}>
             <TextField label="Confidence Threshold" type="number" onChange={this.handleConfidenceThresholdChange} name="confidenceThreshold" value={this.props.confidenceThreshold} />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} lg={4} container direction="column">
             {[...Array(allAnnotationTypes.length)].map((e, index) => {
               const selectWidth = 180;
               const labelId = "annotation-id-"+this.props.index.toString()+"-"+index.toString();
               if (index < this.props.annotationTypes.length) {
                 const annotationType = this.props.annotationTypes[index];
                 return (
-                  <Box>
+                  <Grid item>
                     <FormControl style={{ minWidth: selectWidth }}>
                       <InputLabel id={labelId}>{annotationType}</InputLabel>
                       <Select disabled labelId={labelId} value=""><MenuItem value="">{annotationType}</MenuItem></Select>
                     </FormControl>
-                    <IconButton onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}} size="small"><RemoveIcon size="small"/></IconButton>
-                  </Box>
+                    <IconButton onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}} size="small"><CloseIcon size="small"/></IconButton>
+                  </Grid>
                 );
               } else if (index === this.props.annotationTypes.length) {
                 return (
-                  <FormControl style={{ minWidth: selectWidth }}>
-                    <InputLabel>Annotation type</InputLabel>
-                    <Select value="" onChange={this.handleAnnotationTypeAdd}>
-                      <MenuItem value=""></MenuItem>
-                      {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
-                        return (
-                          <MenuItem value={annotationType}>{annotationType}</MenuItem>
-                        );
-                      })}
-                    </Select>
-                    <FormHelperText>Click to add</FormHelperText>
-                  </FormControl>
+                  <Grid item>
+                    <FormControl style={{ minWidth: selectWidth }}>
+                      <InputLabel>Annotation type</InputLabel>
+                      <Select value="" onChange={this.handleAnnotationTypeAdd}>
+                        <MenuItem value=""></MenuItem>
+                        {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
+                          return (
+                            <MenuItem value={annotationType}>{annotationType}</MenuItem>
+                          );
+                        })}
+                      </Select>
+                      <FormHelperText>Click to add</FormHelperText>
+                    </FormControl>
+                  </Grid>
                 );
               } else {
                 return (
-                  <FormControl style={{ minWidth: selectWidth }}>
-                    <InputLabel id={labelId}>...</InputLabel>
-                    <Select disabled labelId={labelId} value=""><MenuItem value="">...</MenuItem></Select>
-                  </FormControl>
+                  <Grid item>
+                    <FormControl style={{ minWidth: selectWidth }}>
+                      <InputLabel id={labelId}>...</InputLabel>
+                      <Select disabled labelId={labelId} value=""><MenuItem value="">...</MenuItem></Select>
+                    </FormControl>
+                  </Grid>
                 );
               }
             })}
