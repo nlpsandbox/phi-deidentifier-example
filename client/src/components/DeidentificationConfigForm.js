@@ -1,6 +1,6 @@
 import React from 'react';
 import { DeidentificationConfigAnnotationTypesEnum } from '../models';
-import { IconButton, Box, FormControl, FormHelperText, InputLabel, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
+import { IconButton, Box, FormControl, Select, MenuItem, TextField, Grid, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 
@@ -10,6 +10,10 @@ const styles = (theme) => ({
     textAlign: "center"
   }
 });
+
+function TransparentCloseButton(props) {
+  return <IconButton disabled color="transparent" size="small" style={{ opacity: "0%" }}><CloseIcon size="small" color="transparent"></CloseIcon></IconButton>;
+}
 
 export class DeidentificationConfigForm extends React.Component {
   updateDeidConfig = (newSettings) => {
@@ -88,7 +92,7 @@ export class DeidentificationConfigForm extends React.Component {
             </Grid>
           </Box>
         </Grid>
-        <Grid item container align="left" spacing={0}>
+        <Grid item container align="center" spacing={0}>
           <Grid item xs={12} lg={4}>
             <Select label="Method" onChange={this.handleStrategyChange} value={this.getStrategy()}>
               <MenuItem value="maskingCharConfig">Masking Character</MenuItem>
@@ -111,15 +115,13 @@ export class DeidentificationConfigForm extends React.Component {
           </Grid>
           <Grid item xs={12} lg={4} container direction="column">
             {[...Array(allAnnotationTypes.length)].map((e, index) => {
-              const selectWidth = 180;
-              const labelId = "annotation-id-"+this.props.index.toString()+"-"+index.toString();
+              const selectWidth = 190;
               if (index < this.props.annotationTypes.length) {
                 const annotationType = this.props.annotationTypes[index];
                 return (
                   <Grid item>
                     <FormControl style={{ minWidth: selectWidth }}>
-                      <InputLabel id={labelId}>{annotationType}</InputLabel>
-                      <Select disabled labelId={labelId} value=""><MenuItem value="">{annotationType}</MenuItem></Select>
+                      <Select disabled value={annotationType}><MenuItem value={annotationType}>{annotationType}</MenuItem></Select>
                     </FormControl>
                     <IconButton onClick={(event) => {this.handleAnnotationTypeDelete(event, index);}} size="small"><CloseIcon size="small"/></IconButton>
                   </Grid>
@@ -128,26 +130,25 @@ export class DeidentificationConfigForm extends React.Component {
                 return (
                   <Grid item>
                     <FormControl style={{ minWidth: selectWidth }}>
-                      <InputLabel>Annotation type</InputLabel>
-                      <Select value="" onChange={this.handleAnnotationTypeAdd}>
-                        <MenuItem value=""></MenuItem>
+                      <Select value="" displayEmpty onChange={this.handleAnnotationTypeAdd}>
+                        <MenuItem value=""><em>Add annotation type</em></MenuItem>
                         {allAnnotationTypes.filter(annotationType => !this.props.annotationTypes.includes(annotationType)).map((annotationType) => {
                           return (
                             <MenuItem value={annotationType}>{annotationType}</MenuItem>
                           );
                         })}
                       </Select>
-                      <FormHelperText>Click to add</FormHelperText>
                     </FormControl>
+                    <TransparentCloseButton />
                   </Grid>
                 );
               } else {
                 return (
                   <Grid item>
                     <FormControl style={{ minWidth: selectWidth }}>
-                      <InputLabel id={labelId}>...</InputLabel>
-                      <Select disabled labelId={labelId} value=""><MenuItem value="">...</MenuItem></Select>
+                      <Select disabled value=""><MenuItem value="">...</MenuItem></Select>
                     </FormControl>
+                    <TransparentCloseButton />
                   </Grid>
                 );
               }
