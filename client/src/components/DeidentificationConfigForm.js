@@ -79,7 +79,7 @@ export class DeidentificationConfigForm extends React.Component {
     const { classes } = this.props;
     const allAnnotationTypes = Object.values(DeidentificationConfigAnnotationTypesEnum)
     return (
-      <Grid item container direction="column">
+      <Grid container direction="column">
         <Grid item>
           <Box bgcolor="primary.main" color="primary.contrastText" padding={2} justify="flex-end">
             <Grid container>

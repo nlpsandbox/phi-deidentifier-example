@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField } from '@material-ui/core';
+import { Box, TextField, Typography } from '@material-ui/core';
 
 export const deidentificationStates = {
   EMPTY: 0,
@@ -8,10 +8,23 @@ export const deidentificationStates = {
 }
 
 export class DeidentifiedText extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tabIndex: 0,
+    };
+  }
+
+  handleTabChange = (event, newValue) => {
+    this.setState({
+      tabIndex: newValue
+    });
+  }
+
   render() {
     let content;
     if (this.props.text === deidentificationStates.EMPTY) {
-      content = "";
+      content = "Press de-identify note...";
     } else if (this.props.text === deidentificationStates.LOADING) {
       content = "Loading...";
     } else if (this.props.text === deidentificationStates.ERROR) {
@@ -20,7 +33,11 @@ export class DeidentifiedText extends React.Component {
       content = this.props.text;
     }
 
-    return <TextField disabled label="Anonymized Note" variant="filled" multiline rows={15} value={content} fullWidth></TextField>;
+    return (
+      <Box padding={1}>
+        <TextField disabled label="Anonymized Note" variant="filled" multiline rows={15} value={content} InputProps={{ disableUnderline: true }} fullWidth />
+      </Box>
+    );
   }
 }
 

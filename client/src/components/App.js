@@ -5,11 +5,12 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import DeidentificationConfigForm from './DeidentificationConfigForm';
 import SaveQueryDialog from './SaveQueryDialog';
+import QueryJsonView from './QueryJsonView';
 import { withStyles } from '@material-ui/core/styles';
-import { Divider, Fab, Grid, Box, TextField, AppBar, Toolbar, Typography } from '@material-ui/core';
+import { Divider, Grid, Box, TextField, AppBar, Toolbar, Typography, ButtonGroup, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import SaveIcon from '@material-ui/icons/Save';
 import ClearAllIcon from '@material-ui/icons/ClearAll';
+import { StayPrimaryLandscape } from '@material-ui/icons';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
@@ -48,20 +49,25 @@ class App extends React.Component {
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
   }
 
+  buildRequest = () => {
+    let deidentificationStrategy = {};
+    deidentificationStrategy[this.state.deidentificationStrategy] = {};
+    const deidentifyRequest = new DeidentifyRequestFromJSON({
+      note: {
+        text: this.state.originalNoteText,
+        noteType: "None"  // FIXME: figure out whether and how to get this
+      },
+      deidentificationConfigurations: this.state.deidentificationConfigs
+    });
+    return deidentifyRequest;
+  }
+
   deidentifyNote = () => {
     // Mark de-identified text as loading
     this.setState({deidentifiedNoteText: deidentificationStates.LOADING})
 
     // Build de-identification request
-    let deidentificationStrategy = {};
-    deidentificationStrategy[this.state.deidentificationStrategy] = {};
-    let deidentifyRequest = new DeidentifyRequestFromJSON({
-      note: {
-        text: this.state.originalNoteText,
-        noteType: "ASDF"  // FIXME: figure out whether and how to get this
-      },
-      deidentificationConfigurations: this.state.deidentificationConfigs
-    });
+    const deidentifyRequest = this.buildRequest();
 
     // Make de-identification request
     deidentifiedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
@@ -119,53 +125,57 @@ class App extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-    <Box className={classes.root}>
+    <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h4" className={classes.title}>NLP Sandbox PHI Deidentifier</Typography>
         </Toolbar>
       </AppBar>
-      <Grid container spacing={2} className={classes.container}>
-        <Grid item container direction="column" spacing={2} xs={6} align="center">
-          <Grid item>
-            <TextField
-              multiline
-              variant="outlined"
-              className={classes.textBox}
-              rows={15}
-              label="Input Note"
-              onChange={this.handleTextAreaChange}
-              value={this.state.originalNoteText}
-            />
-          </Grid>
-            {this.state.deidentificationConfigs.map((deidConfig, index) => 
-              <DeidentificationConfigForm
-                updateDeidConfig={this.updateDeidentificationConfig}
-                deleteDeidConfig={this.deleteDeidConfig}
-                key={index}
-                index={index}
-                {...deidConfig}
+      <Box height="85vh" width="95vw" overflow="auto" padding={2}>
+        <Grid container spacing={2} className={classes.container}>
+          <Grid item spacing={2} xs={6} align="center">
+            <Box padding={1}>
+              <TextField
+                multiline
+                variant="outlined"
+                className={classes.textBox}
+                rows={15}
+                label="Input Note"
+                onChange={this.handleTextAreaChange}
+                value={this.state.originalNoteText}
               />
-            )}
-          <Grid item>
-          <Fab variant="extended" color="primary" onClick={this.addDeidConfig}>
-            <AddIcon /> Add Step
-          </Fab>
-          <Fab variant="extended" color="secondary" onClick={() => this.setState({showSaveQueryDialog: true})}>
-            <SaveIcon /> Save Query
-          </Fab>
+            </Box>
+            <Box padding={1}>
+              <ButtonGroup>
+                <Button variant="outlined" color="primary" onClick={this.addDeidConfig}>
+                  <AddIcon /> Add Step
+                </Button>
+                <Button variant="outlined" color="secondary" onClick={this.deidentifyNote}>
+                  Anonymize <ClearAllIcon />
+                </Button>
+              </ButtonGroup>
+            </Box>
+            <Box maxHeight="40vh" overflow="auto" borderRadius={5} borderColor="primary.main" border={1}>
+              {this.state.deidentificationConfigs.map((deidConfig, index) => 
+                <DeidentificationConfigForm
+                  updateDeidConfig={this.updateDeidentificationConfig}
+                  deleteDeidConfig={this.deleteDeidConfig}
+                  key={index}
+                  index={index}
+                  {...deidConfig}
+                />
+              )}
+            </Box>
+          </Grid>
+          <Divider orientation="vertical" flexItem />
+          <Grid item xs={6} container direction="column" spacing={1}>
+            <DeidentifiedText text={this.state.deidentifiedNoteText} />
+            <QueryJsonView query={this.buildRequest()}/>
           </Grid>
         </Grid>
-        <Divider orientation="vertical" flexItem />
-        <Grid item xs={6}>
-          <DeidentifiedText text={this.state.deidentifiedNoteText} />
-          <Fab variant="extended" color="secondary" onClick={this.deidentifyNote}>
-            Anonymize <ClearAllIcon />
-          </Fab>
-        </Grid>
-      </Grid>
+      </Box>
       <SaveQueryDialog open={this.state.showSaveQueryDialog} handleClose={() => this.setState({showSaveQueryDialog: false})}  deidentificationConfigs={this.state.deidentificationConfigs} />
-    </Box>
+    </div>
     );
   }
 }
