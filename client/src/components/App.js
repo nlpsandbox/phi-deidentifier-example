@@ -5,12 +5,13 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import DeidentificationConfigForm from './DeidentificationConfigForm';
 import SaveQueryDialog from './SaveQueryDialog';
+import AnnotatorsInfoDialog from './AnnotatorsInfoDialog';
 import QueryJsonView from './QueryJsonView';
 import { withStyles } from '@material-ui/core/styles';
-import { Divider, Grid, Box, TextField, AppBar, Toolbar, Typography, ButtonGroup, Button } from '@material-ui/core';
+import { Divider, Grid, Box, TextField, AppBar, Toolbar, Typography, ButtonGroup, Button, IconButton } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import InfoIcon from '@material-ui/icons/Info';
 import ClearAllIcon from '@material-ui/icons/ClearAll';
-import { StayPrimaryLandscape } from '@material-ui/icons';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
@@ -29,6 +30,9 @@ const styles = theme => ({
   },
   textBox: {
     width: "100%"
+  },
+  infoButton: {
+    marginLeft: "auto"
   }
 });
 
@@ -43,7 +47,7 @@ class App extends React.Component {
         deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
         annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
       }],
-      showSaveQueryDialog: false
+      showAnnotatorsDialog: true
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
@@ -129,6 +133,7 @@ class App extends React.Component {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h4" className={classes.title}>NLP Sandbox PHI Deidentifier</Typography>
+          <IconButton className={classes.infoButton} color="inherit" onClick={() => this.setState({showAnnotatorsDialog: true})}><InfoIcon /></IconButton>
         </Toolbar>
       </AppBar>
       <Box height="85vh" width="95vw" overflow="auto" padding={2}>
@@ -175,6 +180,7 @@ class App extends React.Component {
         </Grid>
       </Box>
       <SaveQueryDialog open={this.state.showSaveQueryDialog} handleClose={() => this.setState({showSaveQueryDialog: false})}  deidentificationConfigs={this.state.deidentificationConfigs} />
+      <AnnotatorsInfoDialog open={this.state.showAnnotatorsDialog} handleClose={() => this.setState({showAnnotatorsDialog: false})}/>
     </div>
     );
   }
