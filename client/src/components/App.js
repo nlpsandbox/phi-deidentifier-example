@@ -11,17 +11,30 @@ const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePat
 class App extends React.Component {
   constructor(props) {
     super(props);
+    const { location } = props;
+    const queryInUrl = location.pathname.slice(1);
+    let deidentificationConfigs;
+    if (queryInUrl) {
+      deidentificationConfigs = JSON.parse(queryInUrl)
+    } else {
+      deidentificationConfigs = [{
+          confidenceThreshold: 20,
+          deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
+          annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
+      }];
+    }
     this.state = {
       originalNoteText: "",
       deidentifiedNoteText: deidentificationStates.EMPTY,
-      deidentificationConfigs: [{
-        confidenceThreshold: 20,
-        deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
-        annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
-      }]
+      deidentificationConfigs: deidentificationConfigs
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
+  }
+
+  updateUrl = () => {
+    const queryInUrl = "/" + JSON.stringify(this.state.deidentificationConfigs);
+    this.props.history.push(queryInUrl);
   }
 
   deidentifyNote = () => {
@@ -60,9 +73,10 @@ class App extends React.Component {
       ...oldDeidentificationConfig,
       ...newSettings
     };
-    this.setState({
-      deidentificationConfigs: deidentificationConfigs
-    });
+    this.setState(
+      { deidentificationConfigs: deidentificationConfigs },
+      () => this.updateUrl()
+    );
   }
 
   handleTextAreaChange(event) {
@@ -79,17 +93,19 @@ class App extends React.Component {
       annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
     };
     deidentificationConfigs.push(newDeidConfig);
-    this.setState({
-      deidentificationConfigs: deidentificationConfigs
-    });
+    this.setState(
+      { deidentificationConfigs: deidentificationConfigs },
+      () => this.updateUrl()
+    );
   }
 
   deleteDeidConfig = (index) => {
     let deidentificationConfigs = [...this.state.deidentificationConfigs];
     deidentificationConfigs.splice(index, 1);
-    this.setState({
-      deidentificationConfigs: deidentificationConfigs
-    });
+    this.setState(
+      { deidentificationConfigs: deidentificationConfigs },
+      () => this.updateUrl()
+    );
   }
 
   render() {
