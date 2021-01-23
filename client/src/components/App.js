@@ -11,29 +11,37 @@ const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePat
 class App extends React.Component {
   constructor(props) {
     super(props);
+
+    // Try loading state from URL
     const { location } = props;
     const queryInUrl = location.pathname.slice(1);
-    let deidentificationConfigs;
+    let deidentifyRequest;
     if (queryInUrl) {
-      deidentificationConfigs = JSON.parse(queryInUrl)
+      deidentifyRequest = JSON.parse(queryInUrl)
     } else {
-      deidentificationConfigs = [{
+      deidentifyRequest = {
+        deidentificationConfigurations: [{
           confidenceThreshold: 20,
           deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
           annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
-      }];
+        }],
+        note: {
+          text: "",
+          noteType: "ASDF"  // FIXME: figure out whether and how to get this
+        }
+      }
     }
+
     this.state = {
-      originalNoteText: "",
       deidentifiedNoteText: deidentificationStates.EMPTY,
-      deidentificationConfigs: deidentificationConfigs
+      deidentifyRequest: deidentifyRequest
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
   }
 
   updateUrl = () => {
-    const queryInUrl = "/" + JSON.stringify(this.state.deidentificationConfigs);
+    const queryInUrl = "/" + JSON.stringify(this.state.deidentifyRequest);
     this.props.history.push(queryInUrl);
   }
 
@@ -42,15 +50,7 @@ class App extends React.Component {
     this.setState({deidentifiedNoteText: deidentificationStates.LOADING})
 
     // Build de-identification request
-    let deidentificationStrategy = {};
-    deidentificationStrategy[this.state.deidentificationStrategy] = {};
-    let deidentifyRequest = new DeidentifyRequestFromJSON({
-      note: {
-        text: this.state.originalNoteText,
-        noteType: "ASDF"  // FIXME: figure out whether and how to get this
-      },
-      deidentificationConfigurations: this.state.deidentificationConfigs
-    });
+    let deidentifyRequest = new DeidentifyRequestFromJSON(this.state.deidentifyRequest);
 
     // Make de-identification request
     deidentifiedNotesApi.createDeidentifiedNotes({deidentifyRequest: deidentifyRequest})
@@ -67,43 +67,67 @@ class App extends React.Component {
   }
 
   updateDeidentificationConfig = (index, newSettings) => {
-    let deidentificationConfigs = [...this.state.deidentificationConfigs];
-    let oldDeidentificationConfig = {...this.state.deidentificationConfigs[index]}
-    deidentificationConfigs[index] = {
+    let deidentificationConfigurations = [...this.state.deidentifyRequest.deidentificationConfigurations];
+    let oldDeidentificationConfig = {...this.state.deidentifyRequest.deidentificationConfigurations[index]}
+    deidentificationConfigurations[index] = {
       ...oldDeidentificationConfig,
       ...newSettings
     };
     this.setState(
-      { deidentificationConfigs: deidentificationConfigs },
+      {
+        deidentifyRequest: {
+          ...this.state.deidentifyRequest,
+          deidentificationConfigurations: deidentificationConfigurations
+        }
+      },
       () => this.updateUrl()
     );
   }
 
   handleTextAreaChange(event) {
-    this.setState({
-      originalNoteText: event.target.value
-    });
+    this.setState(
+      {
+        deidentifyRequest: {
+          ...this.state.deidentifyRequest,
+          note: {
+            ...this.state.deidentifyRequest.note,
+            text: event.target.value
+          }
+        }
+      },
+      () => this.updateUrl()
+    );
   }
 
   addDeidConfig = (event) => {
-    let deidentificationConfigs = [...this.state.deidentificationConfigs];
+    let deidentificationConfigurations = [...this.state.deidentifyRequest.deidentificationConfigurations];
     const newDeidConfig = {
       confidenceThreshold: 20,
       deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
       annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
     };
-    deidentificationConfigs.push(newDeidConfig);
+    deidentificationConfigurations.push(newDeidConfig);
     this.setState(
-      { deidentificationConfigs: deidentificationConfigs },
+      {
+        deidentifyRequest: {
+          ...this.state.deidentifyRequest,
+          deidentificationConfigurations: deidentificationConfigurations
+        }
+      },
       () => this.updateUrl()
     );
   }
 
   deleteDeidConfig = (index) => {
-    let deidentificationConfigs = [...this.state.deidentificationConfigs];
-    deidentificationConfigs.splice(index, 1);
+    let deidentificationConfigurations = [...this.state.deidentifyRequest.deidentificationConfigurations];
+    deidentificationConfigurations.splice(index, 1);
     this.setState(
-      { deidentificationConfigs: deidentificationConfigs },
+      {
+        deidentifyRequest: {
+          ...this.state.deidentifyRequest,
+          deidentificationConfigurations: deidentificationConfigurations
+        }
+      },
       () => this.updateUrl()
     );
   }
@@ -113,12 +137,12 @@ class App extends React.Component {
     <div className="App">
       <div className="left">
         <p>Input note:</p>
-        <textarea onChange={this.handleTextAreaChange} value={this.state.originalNoteText} />
+        <textarea onChange={this.handleTextAreaChange} value={this.state.deidentifyRequest.note.text} />
         <br />
         <button className="deidentify-button" onClick={this.deidentifyNote}>De-identify Note</button>
         <br />
         {
-          this.state.deidentificationConfigs.map((deidConfig, index) => 
+          this.state.deidentifyRequest.deidentificationConfigurations.map((deidConfig, index) => 
             <DeidentificationConfigForm
               updateDeidConfig={this.updateDeidentificationConfig}
               deleteDeidConfig={this.deleteDeidConfig}
