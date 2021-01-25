@@ -5,6 +5,7 @@ import React from 'react';
 import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
+import { encodeString, decodeString } from '../stringSmuggler';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
@@ -17,7 +18,7 @@ class App extends React.Component {
     const queryInUrl = location.pathname.slice(1);
     let deidentifyRequest;
     if (queryInUrl) {
-      deidentifyRequest = JSON.parse(queryInUrl)
+      deidentifyRequest = JSON.parse(decodeString(queryInUrl));
     } else {
       deidentifyRequest = {
         deidentificationConfigurations: [{
@@ -41,7 +42,7 @@ class App extends React.Component {
   }
 
   updateUrl = () => {
-    const queryInUrl = "/" + JSON.stringify(this.state.deidentifyRequest);
+    const queryInUrl = "/" + encodeString(JSON.stringify(this.state.deidentifyRequest));
     this.props.history.push(queryInUrl);
   }
 
