@@ -1,4 +1,4 @@
-# pull official base image
+# pull official node base image
 FROM node:current-alpine as build
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
