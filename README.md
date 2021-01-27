@@ -22,8 +22,16 @@ following command to start up the stack:
 $ docker-compose up
 ```
 
-When running, the Deidentifier stacks provides a web interface at [http://localhost:8000](http://localhost:8000) that
-you can use to test out a selection of annotators on a clinical note.
+When running, the Deidentifier stacks provides a web interface at [localhost:8000](http://localhost:8000) that
+you can use to test out a selection of annotators on a clinical note. Currently, the deidentifier client requires
+same-origin browser protection to be turned off in order to function properly. For example, Linux users with Google
+Chrome can run the following command:
+
+```bash
+$ google-chrome --disable-web-security --user-data-dir=~/TEMP/
+```
+
+and then navigate to [http://localhost:8000/](http://localhost:8000/) in the newly-opened browser window.
 
 ## Development
 
