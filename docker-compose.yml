@@ -44,6 +44,6 @@ services:
     container_name: deidentifier-client
     restart: always
     ports:
-      - 3000:80
+      - 8000:80
     depends_on:
       - phi-deidentifier
