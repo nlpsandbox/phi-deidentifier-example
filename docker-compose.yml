@@ -36,14 +36,14 @@ services:
       - person-name-annotator
       - physical-address-annotator
 
-  # deidentifier-client:
-  #   image: nlpsandbox/deidentifier-shiny-app:0.1.6
-  #   build:
-  #     context: client
-  #     dockerfile: Dockerfile
-  #   container_name: deidentifier-client
-  #   restart: always
-  #   ports:
-  #     - 8080:3838
-  #   depends_on:
-  #     - deidentifier-server
+  web-client:
+    image: nlpsandbox/deidentifier-web-client:edge
+    build:
+      context: client
+      dockerfile: Dockerfile
+    container_name: deidentifier-client
+    restart: always
+    ports:
+      - 8000:80
+    depends_on:
+      - phi-deidentifier

@@ -14,16 +14,28 @@ TBA
 
 ## Usage
 
-The command below starts the Deidentifier stack locally.
+The PHI Deidentifier runs on a dockerized stack. First, make sure that you have [installed Docker](https://docs.docker.com/get-docker/)
+in your local environment. Once you have done that, move your working directory to this directory, then run the
+following command to start up the stack:
 
-    docker-compose up --build phi-deidentifier
+```
+$ docker-compose up
+```
 
-When running, the Deidentifier stacks provides a web interface (http://localhost:3838)
-that you can use to deidentify single or multiple clinical notes.
+When running, the Deidentifier stacks provides a web interface at [localhost:8000](http://localhost:8000) that
+you can use to test out a selection of annotators on a clinical note. Currently, the deidentifier client requires
+same-origin browser protection to be turned off in order to function properly. For example, Linux users with Google
+Chrome can run the following command:
 
-## Server
+```bash
+$ google-chrome --disable-web-security --user-data-dir=~/TEMP/
+```
 
-### Development
+and then navigate to [http://localhost:8000/](http://localhost:8000/) in the newly-opened browser window.
+
+## Development
+
+### Server
 
 The endpoints for this server are based on the phi-deidentifier OpenAPI schema using
 [openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli). To re-generate the server skeleton from
@@ -49,10 +61,18 @@ $ pip install -e .
 $ python -m openapi_server
 ```
 
+### Client
 
-## Client
+The models and API hooks for the client are based on the phi-deidentifier
+OpenAPI schema using
+[openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli).
+To re-generate or update these models/hooks, first download the latest
+version of the API specification, then run the generator script:
 
-### Run
+```bash
+$ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml
+$ npx openapi-generator-cli generate -g typescript-fetch -i openapi.yaml -o client/src --additional-properties=typescriptThreePlus=true
+```
 
 The client can be run locally by navigating to the `client/` directory and running `npm start`. The client depends on
 the de-identifier server being run in the background. Assuming that Node and Docker are installed, the following
@@ -70,23 +90,10 @@ $ cd client/
 $ npm start
 ```
 
-The frontend can be accessed at `http://localhost:3000`. The API calls currently require the browser to be running with
-CORS enforcement disabled. This can be done with Google Chrome by, for example, running the following command:
+The development frontend can be accessed at `http://localhost:3000`. The API calls currently require the browser to be
+running with CORS enforcement disabled. This can be done with Google Chrome by, for example, running the following
+command:
 
 ```bash
 $ google-chrome --disable-web-security --user-data-dir=~/TEMP/
 ```
-
-### Development
-
-The models and API hooks for the client are based on the phi-deidentifier
-OpenAPI schema using
-[openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli).
-To re-generate or update these models/hooks, first download the latest
-version of the API specification, then run the generator script:
-
-```bash
-$ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml
-$ npx openapi-generator-cli generate -g typescript-fetch -i openapi.yaml -o client/src --additional-properties=typescriptThreePlus=true
-```
-
