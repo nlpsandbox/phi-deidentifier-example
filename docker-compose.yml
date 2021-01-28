@@ -43,14 +43,33 @@ services:
       - person-name-annotator
       - physical-address-annotator
 
-  # phi-deidentifier-app:
-  #   image: nlpsandbox/phi-deidentifier-app:edge
-  #   build:
-  #     context: client
-  #     dockerfile: Dockerfile
-  #   container_name: phi-deidentifier-app
-  #   restart: always
-  #   ports:
-  #     - 8080:80
-  #   depends_on:
-  #     - phi-deidentifier
+  phi-deidentifier-app:
+    image: nlpsandbox/phi-deidentifier-app:edge
+    build:
+      context: client
+      dockerfile: Dockerfile
+    container_name: phi-deidentifier-app
+    restart: always
+    ports:
+      - 8080:80
+    depends_on:
+      - phi-deidentifier
+
+  nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    restart: always
+    environment:
+      - SERVER_HOST=phi-deidentifier
+      - SERVER_PORT=8080
+      - CLIENT_HOST=phi-deidentifier-app
+      - CLIENT_PORT=80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/templates:/etc/nginx/templates:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - phi-deidentifier-app
