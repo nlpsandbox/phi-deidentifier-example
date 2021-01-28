@@ -6,6 +6,7 @@ from openapi_server.models.tool import Tool  # noqa: E501
 from openapi_server.models.license import License
 from openapi_server.models.tool_dependencies import ToolDependencies  # noqa: E501
 from openapi_server import util
+from ..utils import annotator_client
 
 
 def get_tool():  # noqa: E501
@@ -37,4 +38,5 @@ def get_tool_dependencies():  # noqa: E501
 
     :rtype: ToolDependencies
     """
-    return 'do some magic!'
+    tool_dependencies = annotator_client.get_tool_dependencies()
+    return ToolDependencies(tool_dependencies=tool_dependencies), 200
