@@ -4,21 +4,12 @@
 // a-z), then join each code with a hyphen (e.g. "Hello" -> "2w-2t-30-30-33"),
 // then use that as the url.
 
-const base = 36;
-const divider = '-';
-
-function encodeChar(char) {
-  return char.charCodeAt(0).toString(base);
-}
-
-function decodeChar(code) {
-  return String.fromCharCode(parseInt(code, base))
-}
-
 export function encodeString(decodedString) {
-  return [...decodedString].map((char) => encodeChar(char)).join(divider);
+  let buff = new Buffer(decodedString);
+  return buff.toString('base64');
 }
 
 export function decodeString(encodedString) {
-  return encodedString.split('-').map((code) => decodeChar(code)).join('');
+  let buff = new Buffer(encodedString, 'base64');
+  return buff.toString('utf-8');
 }
