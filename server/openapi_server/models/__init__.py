@@ -12,10 +12,13 @@ from openapi_server.models.deidentification_config_deidentification_strategy_mas
 from openapi_server.models.deidentify_request import DeidentifyRequest
 from openapi_server.models.deidentify_response import DeidentifyResponse
 from openapi_server.models.error import Error
+from openapi_server.models.health_check import HealthCheck
+from openapi_server.models.license import License
 from openapi_server.models.note import Note
 from openapi_server.models.resource_source import ResourceSource
-from openapi_server.models.service import Service
 from openapi_server.models.text_annotation import TextAnnotation
 from openapi_server.models.text_date_annotation import TextDateAnnotation
 from openapi_server.models.text_person_name_annotation import TextPersonNameAnnotation
 from openapi_server.models.text_physical_address_annotation import TextPhysicalAddressAnnotation
+from openapi_server.models.tool import Tool
+from openapi_server.models.tool_dependencies import ToolDependencies

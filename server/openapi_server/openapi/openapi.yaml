@@ -12,7 +12,7 @@ info:
     name: Apache 2.0
     url: https://nlpsandbox.github.io/nlpsandbox-schemas/blob/develop/LICENSE
   title: NLP Sandbox Deidentifier API
-  version: 0.2.2
+  version: 0.3.1
   x-logo:
     url: https://nlpsandbox.github.io/nlpsandbox-schemas/logo.png
 servers:
@@ -21,8 +21,10 @@ servers:
 tags:
 - description: Operations about deidentified notes
   name: DeidentifiedNotes
-- description: Operations about this API service
-  name: Service
+- description: Operations about health checks
+  name: HealthCheck
+- description: Operations about this tool
+  name: Tool
 paths:
   /deidentifiedNotes:
     post:
@@ -40,51 +42,121 @@ paths:
               schema:
                 $ref: '#/components/schemas/DeidentifyResponse'
           description: Success
-        "403":
+        "400":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: Unauthorized
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request cannot be fulfilled due to an unexpected server
+            error
       summary: Deidentify a clinical note
       tags:
       - DeidentifiedNotes
       x-openapi-router-controller: openapi_server.controllers.deidentified_notes_controller
-  /service:
+  /healthCheck:
     get:
-      description: Get information about the service
-      operationId: service
+      description: Get information about the health of the service
+      operationId: get_health_check
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: '#/components/schemas/HealthCheck'
           description: Success
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Unauthorized
         "404":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: The specified resource was not found
-      summary: Get service information
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request cannot be fulfilled due to an unexpected server
+            error
+      summary: Get health check information
       tags:
-      - Service
-      x-openapi-router-controller: openapi_server.controllers.service_controller
+      - HealthCheck
+      x-openapi-router-controller: openapi_server.controllers.health_check_controller
+  /tool:
+    get:
+      description: Get information about the tool
+      operationId: get_tool
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tool'
+          description: Success
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request cannot be fulfilled due to an unexpected server
+            error
+      summary: Get tool information
+      tags:
+      - Tool
+      x-openapi-router-controller: openapi_server.controllers.tool_controller
+  /tool/dependencies:
+    get:
+      description: Get the dependencies of this tool
+      operationId: get_tool_dependencies
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolDependencies'
+          description: Success
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request cannot be fulfilled due to an unexpected server
+            error
+      summary: Get tool dependencies
+      tags:
+      - Tool
+      x-openapi-router-controller: openapi_server.controllers.tool_controller
 components:
   responses:
-    Unauthorized:
+    BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-      description: Unauthorized
+      description: Invalid request
+    InternalServerError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The request cannot be fulfilled due to an unexpected server error
     NotFound:
       content:
         application/json:
@@ -129,17 +201,25 @@ components:
             type: string
           type: array
       type: object
+    NoteResourceId:
+      description: ID of the clinical note
+      example: 507f1f77bcf86cd799439011
+      type: string
+    PatientResourceId:
+      description: ID of the FHIR patient
+      example: 507f1f77bcf86cd799439011
+      type: string
     Note:
       description: A clinical note
       example:
         noteType: loinc:LP29684-5
         patientId: 507f1f77bcf86cd799439011
-        id: id
+        id: 507f1f77bcf86cd799439011
         text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
       properties:
         id:
-          description: The ID of the note
-          readOnly: true
+          description: ID of the clinical note
+          example: 507f1f77bcf86cd799439011
           type: string
         text:
           description: The content of the clinical note
@@ -150,7 +230,7 @@ components:
           example: loinc:LP29684-5
           type: string
         patientId:
-          description: The patient ID
+          description: ID of the FHIR patient
           example: 507f1f77bcf86cd799439011
           type: string
       required:
@@ -163,7 +243,7 @@ components:
         note:
           noteType: loinc:LP29684-5
           patientId: 507f1f77bcf86cd799439011
-          id: id
+          id: 507f1f77bcf86cd799439011
           text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
         deidentificationConfigurations:
         - confidenceThreshold: 42.4
@@ -202,6 +282,10 @@ components:
       required:
       - note
       type: object
+    AnnotationName:
+      description: Resource name of the annotation record, of the form datasets/{datasetId}/annotationStores/{annotationStoreId}/annotations/{annotationId}
+      example: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
+      type: string
     ResourceSource:
       description: An API resource source
       example:
@@ -244,6 +328,7 @@ components:
       required:
       - length
       - start
+      - text
       type: object
     TextDateAnnotation:
       allOf:
@@ -307,11 +392,11 @@ components:
         annotationSource:
           resourceSource:
             name: name
-        name: name
+        name: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
       properties:
         name:
           description: Resource name of the annotation record, of the form datasets/{datasetId}/annotationStores/{annotationStoreId}/annotations/{annotationId}
-          readOnly: true
+          example: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
           type: string
         annotationSource:
           $ref: '#/components/schemas/AnnotationSource'
@@ -363,11 +448,11 @@ components:
           annotationSource:
             resourceSource:
               name: name
-          name: name
+          name: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
         deidentifiedNote:
           noteType: loinc:LP29684-5
           patientId: 507f1f77bcf86cd799439011
-          id: id
+          id: 507f1f77bcf86cd799439011
           text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
         originalAnnotations:
           textDateAnnotations:
@@ -398,7 +483,7 @@ components:
           annotationSource:
             resourceSource:
               name: name
-          name: name
+          name: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
       properties:
         originalAnnotations:
           $ref: '#/components/schemas/Annotation'
@@ -427,8 +512,66 @@ components:
       - status
       - title
       type: object
-    Service:
-      description: Information about an NLP service
+    HealthCheck:
+      description: Represents the health of a service
+      example:
+        status: pass
+      properties:
+        status:
+          description: Indicates whether the service status is acceptable or not
+          enum:
+          - pass
+          - fail
+          - warn
+          type: string
+      required:
+      - status
+      type: object
+    License:
+      description: License (license keyword used by GitHub)
+      enum:
+      - afl-3.0
+      - apache-2.0
+      - artistic-2.0
+      - bsl-1.0
+      - bsd-2-clause
+      - bsd-3-clause
+      - bsd-3-clause-clear
+      - cc
+      - cc0-1.0
+      - cc-by-4.0
+      - cc-by-sa-4.0
+      - wtfpl
+      - ecl-2.0
+      - epl-1.0
+      - epl-2.0
+      - eupl-1.1
+      - agpl-3.0
+      - gpl
+      - gpl-2.0
+      - gpl-3.0
+      - lgpl
+      - lgpl-2.1
+      - lgpl-3.0
+      - isc
+      - lppl-1.3c
+      - ms-pl
+      - mit
+      - mpl-2.0
+      - osl-3.0
+      - postgresql
+      - ofl-1.1
+      - ncsa
+      - unlicense
+      - zlib
+      example: apache-2.0
+      type: string
+    ToolType:
+      description: Type of this tool
+      example: nlpsandbox:date-annotator
+      type: string
+    Tool:
+      description: Information about an NLP tool
       example:
         license: apache-2.0
         authorEmail: author@example.com
@@ -437,71 +580,35 @@ components:
         description: An awesome Date Annotator based on regex patterns
         repository: github:awesome-org/awesome-date-annotator
         version: 1.0.0
+        toolType: nlpsandbox:date-annotator
         url: https://openapi-generator.tech
       properties:
         name:
-          description: The service name
+          description: The tool name
           example: awesome-date-annotator
           maxLength: 60
           minLength: 3
           pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
           type: string
         version:
-          description: The version of the service (SemVer string)
+          description: The version of the tool (SemVer string)
           example: 1.0.0
           minLength: 1
           pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
           type: string
         license:
-          description: The license of this service (spdx.org/licenses Identifier)
-          enum:
-          - afl-3.0
-          - apache-2.0
-          - artistic-2.0
-          - bsl-1.0
-          - bsd-2-clause
-          - bsd-3-clause
-          - bsd-3-clause-clear
-          - cc
-          - cc0-1.0
-          - cc-by-4.0
-          - cc-by-sa-4.0
-          - wtfpl
-          - ecl-2.0
-          - epl-1.0
-          - epl-2.0
-          - eupl-1.1
-          - agpl-3.0
-          - gpl
-          - gpl-2.0
-          - gpl-3.0
-          - lgpl
-          - lgpl-2.1
-          - lgpl-3.0
-          - isc
-          - lppl-1.3c
-          - ms-pl
-          - mit
-          - mpl-2.0
-          - osl-3.0
-          - postgresql
-          - ofl-1.1
-          - ncsa
-          - unlicense
-          - zlib
-          example: apache-2.0
-          type: string
+          $ref: '#/components/schemas/License'
         repository:
           description: The place where the code lives
           example: github:awesome-org/awesome-date-annotator
           type: string
         description:
-          description: A short, one-sentence summary of the service
+          description: A short, one-sentence summary of the tool
           example: An awesome Date Annotator based on regex patterns
           maxLength: 100
           type: string
         author:
-          description: The author of the service
+          description: The author of the tool
           example: Example Author
           type: string
         authorEmail:
@@ -510,9 +617,52 @@ components:
           format: email
           type: string
         url:
-          description: The URL to the homepage of the service
+          description: The URL to the homepage of the tool
           format: uri
           type: string
+        toolType:
+          description: Type of this tool
+          example: nlpsandbox:date-annotator
+          type: string
+      required:
+      - author
+      - authorEmail
+      - description
+      - license
+      - name
+      - repository
+      - toolType
+      - url
+      - version
+      type: object
+    ToolDependencies:
+      description: A list of tool dependencies
+      example:
+        toolDependencies:
+        - license: apache-2.0
+          authorEmail: author@example.com
+          author: Example Author
+          name: awesome-date-annotator
+          description: An awesome Date Annotator based on regex patterns
+          repository: github:awesome-org/awesome-date-annotator
+          version: 1.0.0
+          toolType: nlpsandbox:date-annotator
+          url: https://openapi-generator.tech
+        - license: apache-2.0
+          authorEmail: author@example.com
+          author: Example Author
+          name: awesome-date-annotator
+          description: An awesome Date Annotator based on regex patterns
+          repository: github:awesome-org/awesome-date-annotator
+          version: 1.0.0
+          toolType: nlpsandbox:date-annotator
+          url: https://openapi-generator.tech
+      properties:
+        toolDependencies:
+          description: A list of tools
+          items:
+            $ref: '#/components/schemas/Tool'
+          type: array
       type: object
     DeidentificationConfig_deidentificationStrategy_maskingCharConfig:
       description: Configuration for the masking char strategy. E.g. "John Smith lives
@@ -526,6 +676,7 @@ components:
           maxLength: 1
           minLength: 1
           type: string
+      type: object
     DeidentificationConfig_deidentificationStrategy_dateOffsetConfig:
       description: Configuration for the "date offset" strategy. E.g. "John Smith
         visited on 1 January 2020" -> "John Smith visited on 29 October 2025". Note,
@@ -536,6 +687,7 @@ components:
         offsetDays:
           description: Number of days by which to offset annotated dates.
           type: integer
+      type: object
     DeidentificationConfig_deidentificationStrategy:
       description: The strategy used to de-identify the note's text. Only one field
         may be set.
@@ -559,12 +711,14 @@ components:
           type: object
         dateOffsetConfig:
           $ref: '#/components/schemas/DeidentificationConfig_deidentificationStrategy_dateOffsetConfig'
+      type: object
     TextDateAnnotation_allOf:
       properties:
         dateFormat:
           description: Date format (ISO 8601)
           example: MM/DD/YYYY
           type: string
+      type: object
     TextPhysicalAddressAnnotation_allOf:
       properties:
         addressType:
@@ -581,3 +735,4 @@ components:
           - street
           - zip
           type: string
+      type: object
