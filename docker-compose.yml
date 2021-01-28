@@ -2,21 +2,21 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:edge
+    image: nlpsandbox/date-annotator-example:0.3.1
     container_name: date-annotator
     restart: always
     ports:
       - 9000:8080
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:edge
+    image: nlpsandbox/person-name-annotator-example:0.3.1
     container_name: person-name-annotator
     restart: always
     ports:
       - 9001:8080
 
   physical-address-annotator:
-    image: nlpsandbox/physical-address-annotator-example:edge
+    image: nlpsandbox/physical-address-annotator-example:0.3.1
     container_name: physical-address-annotator
     restart: always
     ports:
@@ -29,6 +29,13 @@ services:
       dockerfile: Dockerfile
     container_name: phi-deidentifier
     restart: always
+    environment:
+      - DATE_ANNOTATOR_HOST=date-annotator
+      - DATE_ANNOTATOR_PORT=9000
+      - PERSON_NAME_ANNOTATOR_HOST=person-name-annotator
+      - PERSON_NAME_ANNOTATOR_PORT=9001
+      - PHYSICAL_ADDRESS_ANNOTATOR_HOST=physical-address-annotator
+      - PHYSICAL_ADDRESS_ANNOTATOR_PORT=9002
     ports:
       - 9003:8080
     depends_on:
@@ -36,14 +43,14 @@ services:
       - person-name-annotator
       - physical-address-annotator
 
-  phi-deidentifier-app:
-    image: nlpsandbox/phi-deidentifier-app:edge
-    build:
-      context: client
-      dockerfile: Dockerfile
-    container_name: phi-deidentifier-app
-    restart: always
-    ports:
-      - 8080:80
-    depends_on:
-      - phi-deidentifier
+  # phi-deidentifier-app:
+  #   image: nlpsandbox/phi-deidentifier-app:edge
+  #   build:
+  #     context: client
+  #     dockerfile: Dockerfile
+  #   container_name: phi-deidentifier-app
+  #   restart: always
+  #   ports:
+  #     - 8080:80
+  #   depends_on:
+  #     - phi-deidentifier
