@@ -30,20 +30,20 @@ services:
     container_name: phi-deidentifier
     restart: always
     ports:
-      - 8080:8080
+      - 9003:8080
     depends_on:
       - date-annotator
       - person-name-annotator
       - physical-address-annotator
 
-  web-client:
-    image: nlpsandbox/deidentifier-web-client:edge
+  phi-deidentifier-app:
+    image: nlpsandbox/phi-deidentifier-app:edge
     build:
       context: client
       dockerfile: Dockerfile
-    container_name: deidentifier-client
+    container_name: phi-deidentifier-app
     restart: always
     ports:
-      - 8000:80
+      - 8080:80
     depends_on:
       - phi-deidentifier
