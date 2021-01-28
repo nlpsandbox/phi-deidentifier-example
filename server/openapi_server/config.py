@@ -65,3 +65,30 @@ class Config(AbstractConfig):
             server_url=self.server_url,
             base_path='/api/v1'
         )
+
+    @property
+    def date_annotator_api_url(self):
+        return '{protocol}{host}:{port}{base_path}'.format(
+            protocol=self.get_property('DATE_ANNOTATOR_PROTOCOL'),
+            host=self.get_property('DATE_ANNOTATOR_HOST'),
+            port=self.get_property('DATE_ANNOTATOR_PORT'),
+            base_path='/api/v1'
+        )
+
+    @property
+    def person_name_annotator_api_url(self):
+        return '{protocol}{host}:{port}{base_path}'.format(
+            protocol=self.get_property('PERSON_NAME_ANNOTATOR_PROTOCOL'),
+            host=self.get_property('PERSON_NAME_ANNOTATOR_HOST'),
+            port=self.get_property('PERSON_NAME_ANNOTATOR_PORT'),
+            base_path='/api/v1'
+        )
+
+    @property
+    def physical_address_annotator_api_url(self):
+        return '{protocol}{host}:{port}{base_path}'.format(
+            protocol=self.get_property('PHYSICAL_ADDRESS_ANNOTATOR_PROTOCOL'),
+            host=self.get_property('PHYSICAL_ADDRESS_ANNOTATOR_HOST'),
+            port=self.get_property('PHYSICAL_ADDRESS_ANNOTATOR_PORT'),
+            base_path='/api/v1'
+        )
