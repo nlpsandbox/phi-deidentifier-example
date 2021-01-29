@@ -33,4 +33,4 @@ def get_tool_dependencies():  # noqa: E501
 
     :rtype: ToolDependencies
     """
-    return annotator_client.get_tool_dependencies(), 200
+    return annotator_client.get_annotators_info(), 200

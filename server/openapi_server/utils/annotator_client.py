@@ -30,7 +30,7 @@ def get_annotations(note: Note, annotation_type: str):
     return response.json()[CAMEL_CASE[annotation_type]]
 
 
-def get_tool_dependencies():
+def get_annotators_info():
     tools = []
     for annotation_type, base_url in BASE_URLS.items():
         url = '%s/%s' % (BASE_URLS[annotation_type], TOOL_URL)
