@@ -10,30 +10,30 @@ BASE_URLS = {
 }
 
 
-CAMEL_CASE = {
+ANNOTATION_TYPES_CAMEL_CASE = {
     'text_date': 'textDateAnnotations',
     'text_person_name': 'textPersonNameAnnotations',
     'text_physical_address': 'textPhysicalAddressAnnotations'
 }
 
 
-TOOL_URL = 'tool'
+TOOL_URL_SUFFIX = 'tool'
 
 
-def get_annotations(note: Note, annotation_type: str):
-    url = '%s/%s' % (BASE_URLS[annotation_type], CAMEL_CASE[annotation_type])
+def annotate(note: Note, annotation_type: str):
+    url = '%s/%s' % (BASE_URLS[annotation_type], ANNOTATION_TYPES_CAMEL_CASE[annotation_type])
     response = requests.post(
         url=url,
         json=note.to_dict(),
         headers={'Content-Type': 'application/json', 'charset': 'utf-8'}
     )
-    return response.json()[CAMEL_CASE[annotation_type]]
+    return response.json()[ANNOTATION_TYPES_CAMEL_CASE[annotation_type]]
 
 
 def get_annotators_info():
     tools = []
     for annotation_type, base_url in BASE_URLS.items():
-        url = '%s/%s' % (BASE_URLS[annotation_type], TOOL_URL)
+        url = '%s/%s' % (BASE_URLS[annotation_type], TOOL_URL_SUFFIX)
         response = requests.get(
             url=url,
             headers={'Content-Type': 'application/json', 'charset': 'utf-8'}
