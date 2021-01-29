@@ -8,7 +8,7 @@ defaultValues = {
     "DATE_ANNOTATOR_PROTOCOL": "http://",
     "DATE_ANNOTATOR_HOST": "localhost",
     "DATE_ANNOTATOR_PORT": "9000",
-    "PERSON_NAME_PROTOCOL": "http://",
+    "PERSON_NAME_ANNOTATOR_PROTOCOL": "http://",
     "PERSON_NAME_ANNOTATOR_HOST": "localhost",
     "PERSON_NAME_ANNOTATOR_PORT": "9001",
     "PHYSICAL_ADDRESS_ANNOTATOR_PROTOCOL": "http://",
@@ -37,8 +37,8 @@ class AbstractConfig(object):
 
 class Config(AbstractConfig):
     """
-    THis Class is ued to provide hard coded values to the application, first
-    using environment variables and if not found,  defaulting to those values
+    This class is used to provide hard coded values to the application, first
+    using environment variables and if not found, defaulting to those values
     provided in the defaultValues dictionary above.
     """
 
