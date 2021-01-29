@@ -1,12 +1,15 @@
 import requests
+from openapi_server.models import Note, Tool, ToolDependencies
+from openapi_server.config import Config
 
-from openapi_server.models import Note
 
-URLS = {
-    'text_date': 'http://date-annotator:8080/api/v1/textDateAnnotations',
-    'text_person_name': 'http://person-name-annotator:8080/api/v1/textPersonNameAnnotations',
-    'text_physical_address': 'http://physical-address-annotator:8080/api/v1/textPhysicalAddressAnnotations'
+BASE_URLS = {
+    'text_date': Config().date_annotator_api_url,
+    'text_person_name': Config().person_name_annotator_api_url,
+    'text_physical_address': Config().physical_address_annotator_api_url
 }
+
+
 CAMEL_CASE = {
     'text_date': 'textDateAnnotations',
     'text_person_name': 'textPersonNameAnnotations',
@@ -14,13 +17,27 @@ CAMEL_CASE = {
 }
 
 
+TOOL_URL = 'tool'
+
+
 def get_annotations(note: Note, annotation_type: str):
+    url = '%s/%s' % (BASE_URLS[annotation_type], CAMEL_CASE[annotation_type])
     response = requests.post(
-        url=URLS[annotation_type],
-        json={'note': {
-            'noteType': note.note_type,
-            'text': note.text
-        }},
+        url=url,
+        json=note.to_dict(),
         headers={'Content-Type': 'application/json', 'charset': 'utf-8'}
     )
     return response.json()[CAMEL_CASE[annotation_type]]
+
+
+def get_tool_dependencies():
+    tools = []
+    for annotation_type, base_url in BASE_URLS.items():
+        url = '%s/%s' % (BASE_URLS[annotation_type], TOOL_URL)
+        response = requests.get(
+            url=url,
+            headers={'Content-Type': 'application/json', 'charset': 'utf-8'}
+        )
+        tools.append(Tool.from_dict(response.json()))
+    tool_dependencies = ToolDependencies(tool_dependencies=tools)
+    return tool_dependencies
