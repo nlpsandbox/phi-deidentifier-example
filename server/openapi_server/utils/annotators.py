@@ -17,7 +17,7 @@ ANNOTATION_TYPES_CAMEL_CASE = {
 }
 
 
-TOOL_URL_SUFFIX = 'tool'
+TOOL_URL_PATH = 'tool'
 
 
 def annotate(note: Note, annotation_type: str):
@@ -33,7 +33,7 @@ def annotate(note: Note, annotation_type: str):
 def get_annotators_info():
     tools = []
     for annotation_type, base_url in BASE_URLS.items():
-        url = '%s/%s' % (BASE_URLS[annotation_type], TOOL_URL_SUFFIX)
+        url = '%s/%s' % (BASE_URLS[annotation_type], TOOL_URL_PATH)
         response = requests.get(
             url=url,
             headers={'Content-Type': 'application/json', 'charset': 'utf-8'}

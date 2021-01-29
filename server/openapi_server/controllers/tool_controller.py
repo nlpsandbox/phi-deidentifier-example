@@ -1,5 +1,4 @@
 from openapi_server.models.tool import Tool  # noqa: E501
-# from openapi_server.models.tool_dependencies import ToolDependencies  # noqa: E501
 from ..models import License
 from ..utils import annotators
 
