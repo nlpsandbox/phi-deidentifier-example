@@ -6,7 +6,7 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { encodeString, decodeString } from '../stringSmuggler';
-import { AppBar, Box, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, Box, Button, Toolbar, Typography } from '@material-ui/core';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
@@ -23,6 +23,7 @@ class App extends React.Component {
     } else {
       deidentifyRequest = {
         deidentificationConfigurations: [{
+          key: 0,
           confidenceThreshold: 20,
           deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
           annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
@@ -30,7 +31,8 @@ class App extends React.Component {
         note: {
           text: "",
           noteType: "ASDF"  // FIXME: figure out whether and how to get this
-        }
+        },
+        keyMax: 0
       }
     }
 
@@ -106,14 +108,16 @@ class App extends React.Component {
     const newDeidConfig = {
       confidenceThreshold: 20,
       deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
-      annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
+      annotationTypes: ["text_person_name", "text_physical_address", "text_date"],
+      key: this.state.deidentifyRequest.keyMax+1
     };
     deidentificationConfigurations.push(newDeidConfig);
     this.setState(
       {
         deidentifyRequest: {
           ...this.state.deidentifyRequest,
-          deidentificationConfigurations: deidentificationConfigurations
+          deidentificationConfigurations: deidentificationConfigurations,
+          keyMax: this.state.deidentifyRequest.keyMax + 1
         }
       },
       () => this.updateUrl()
@@ -155,7 +159,7 @@ class App extends React.Component {
             <DeidentificationConfigForm
               updateDeidConfig={this.updateDeidentificationConfig}
               deleteDeidConfig={this.deleteDeidConfig}
-              key={index}
+              key={deidConfig.key}
               index={index}
               {...deidConfig}
             />
