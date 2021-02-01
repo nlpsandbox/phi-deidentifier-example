@@ -6,7 +6,8 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { encodeString, decodeString } from '../stringSmuggler';
-import { AppBar, Box, Button, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, Box, IconButton, Toolbar, Typography } from '@material-ui/core';
+import InfoIcon from '@material-ui/icons/Info';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
@@ -141,9 +142,10 @@ class App extends React.Component {
   render() {
     return (
     <div className="App">
-      <AppBar position="static">
+      <AppBar style={{ backgroundColor: "grey" }} position="static">
         <Toolbar>
-          <Typography variant="h4">NLP Sandbox PHI Deidentifier</Typography>
+          <Typography variant="h4" style={{ flex: 1 }} >NLP Sandbox PHI Deidentifier</Typography>
+          <IconButton><InfoIcon style={{ color: "white" }} /></IconButton>
         </Toolbar>
       </AppBar>
       <div className="left">
