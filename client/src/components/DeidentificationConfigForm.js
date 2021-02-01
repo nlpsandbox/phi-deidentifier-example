@@ -67,7 +67,7 @@ export class DeidentificationConfigForm extends React.Component {
       { expand: false }, () => {
         setTimeout(
           () => {this.props.deleteDeidConfig(this.props.index);},
-          200
+          250
         )
       }
     );
