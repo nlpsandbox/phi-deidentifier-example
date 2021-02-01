@@ -6,6 +6,7 @@ import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { encodeString, decodeString } from '../stringSmuggler';
+import { AppBar, Box, Toolbar, Typography } from '@material-ui/core';
 
 const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
 
@@ -136,8 +137,15 @@ class App extends React.Component {
   render() {
     return (
     <div className="App">
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h4">NLP Sandbox PHI Deidentifier</Typography>
+        </Toolbar>
+      </AppBar>
       <div className="left">
-        <p>Input note:</p>
+        <Box padding={2}>
+          <Typography variant="h5" style={{ fontWeight: "bold" }}>Input note:</Typography>
+        </Box>
         <textarea onChange={this.handleTextAreaChange} value={this.state.deidentifyRequest.note.text} />
         <br />
         <button className="deidentify-button" onClick={this.deidentifyNote}>De-identify Note</button>
@@ -156,7 +164,9 @@ class App extends React.Component {
         <div className="deid-config-add" onClick={this.addDeidConfig}>&#x002B;</div>
       </div>
       <div className="right">
-        <p>Deidentified note:</p>
+        <Box padding={2}>
+        <Typography variant="h5" style={{ fontWeight: "bold" }}>Deidentified note:</Typography>
+        </Box>
         <DeidentifiedText text={this.state.deidentifiedNoteText} />
       </div>
     </div>
