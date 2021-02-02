@@ -1,5 +1,6 @@
 from openapi_server.models.tool import Tool  # noqa: E501
-# from openapi_server.models.tool_dependencies import ToolDependencies  # noqa: E501
+from ..models import License
+from ..utils import annotators
 
 
 def get_tool():  # noqa: E501
@@ -12,7 +13,7 @@ def get_tool():  # noqa: E501
     tool = Tool(
         name="phi-deidentifier",
         version="0.3.1",
-        license="apache-2.0",
+        license=License.APACHE_2_0,
         repository="github:nlpsandbox/phi-deidentifier",
         description="NLP Sandbox PHI Deidentifier",
         author="The NLP Sandbox Team",
@@ -31,4 +32,4 @@ def get_tool_dependencies():  # noqa: E501
 
     :rtype: ToolDependencies
     """
-    return [], 200
+    return annotators.get_annotators_info(), 200
