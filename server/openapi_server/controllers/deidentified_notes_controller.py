@@ -3,7 +3,7 @@ import connexion
 from openapi_server.models import DeidentificationConfig, DeidentifyResponse, Annotation
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models.note import Note  # noqa: E501
-from openapi_server.utils import annotator_client
+from openapi_server.utils import annotators
 from openapi_server.utils.deidentifiers import apply_masking_char, apply_redaction, apply_annotation_type
 
 
@@ -23,7 +23,7 @@ def create_deidentified_notes():  # noqa: E501
         annotations = {}
 
         for annotation_type in ['text_date', 'text_person_name', 'text_physical_address']:
-            annotations[annotation_type] = annotator_client.get_annotations(note, annotation_type)
+            annotations[annotation_type] = annotators.annotate(note, annotation_type)
 
         # De-identify note
         deidentified_note = Note.from_dict(note.to_dict())

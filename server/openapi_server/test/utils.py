@@ -1,5 +1,4 @@
-from openapi_server.models import Note
-
+from openapi_server.models import Note, ToolDependencies, Tool
 
 SAMPLE_NOTE = Note.from_dict({
     "noteType": "loinc:LP29684-5",
@@ -103,3 +102,7 @@ def mock_get_annotations(note, annotation_type):
         return PARTIAL_OVERLAP_ANNOTATIONS[annotation_type]
     else:
         raise ValueError("Could not retrieve mock annotations for note: '%s'" % (note,))
+
+
+def mock_get_annotators_info():
+    return ToolDependencies(tool_dependencies=[])
