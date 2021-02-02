@@ -16,7 +16,7 @@ services:
       - 9001:8080
 
   physical-address-annotator:
-    image: nlpsandbox/physical-address-annotator-example:0.3.1
+    image: nlpsandbox/physical-address-annotator-example:edge
     container_name: physical-address-annotator
     restart: always
     ports:
@@ -31,11 +31,11 @@ services:
     restart: always
     environment:
       - DATE_ANNOTATOR_HOST=date-annotator
-      - DATE_ANNOTATOR_PORT=9000
+      - DATE_ANNOTATOR_PORT=8080
       - PERSON_NAME_ANNOTATOR_HOST=person-name-annotator
-      - PERSON_NAME_ANNOTATOR_PORT=9001
+      - PERSON_NAME_ANNOTATOR_PORT=8080
       - PHYSICAL_ADDRESS_ANNOTATOR_HOST=physical-address-annotator
-      - PHYSICAL_ADDRESS_ANNOTATOR_PORT=9002
+      - PHYSICAL_ADDRESS_ANNOTATOR_PORT=8080
     ports:
       - 9003:8080
     depends_on:

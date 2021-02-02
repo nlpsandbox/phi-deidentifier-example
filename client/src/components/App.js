@@ -9,7 +9,7 @@ import { encodeString, decodeString } from '../stringSmuggler';
 import { AppBar, Box, IconButton, Toolbar, Typography } from '@material-ui/core';
 import InfoIcon from '@material-ui/icons/Info';
 
-const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost:8080/api/v1"})) // FIXME: Figure out how to handle hostname
+const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost/api/v1"})) // FIXME: Figure out how to handle hostname
 
 class App extends React.Component {
   constructor(props) {
