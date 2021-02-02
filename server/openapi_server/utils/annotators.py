@@ -24,7 +24,7 @@ def annotate(note: Note, annotation_type: str):
     url = '%s/%s' % (BASE_URLS[annotation_type], ANNOTATION_TYPES_CAMEL_CASE[annotation_type])
     response = requests.post(
         url=url,
-        json=note.to_dict(),
+        json={'note': {note.attribute_map[key]: value for key, value in note.to_dict().items() if value is not None}},
         headers={'Content-Type': 'application/json', 'charset': 'utf-8'}
     )
     return response.json()[ANNOTATION_TYPES_CAMEL_CASE[annotation_type]]
@@ -41,3 +41,4 @@ def get_annotators_info():
         tools.append(Tool.from_dict(response.json()))
     tool_dependencies = ToolDependencies(tool_dependencies=tools)
     return tool_dependencies
+

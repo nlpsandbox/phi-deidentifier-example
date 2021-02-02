@@ -26,7 +26,7 @@ def create_deidentified_notes():  # noqa: E501
             annotations[annotation_type] = annotators.annotate(note, annotation_type)
 
         # De-identify note
-        deidentified_note = Note.from_dict(note.to_dict())
+        deidentified_note = Note.from_dict({note.attribute_map[key]: value for key, value in note.to_dict().items()})
         deidentified_annotations = {key: value.copy() for key, value in annotations.items()}
 
         deid_config: DeidentificationConfig
