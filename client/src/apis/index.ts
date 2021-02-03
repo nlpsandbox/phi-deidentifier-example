@@ -1,2 +1,3 @@
 export * from './DeidentifiedNotesApi';
-export * from './ServiceApi';
+export * from './HealthCheckApi';
+export * from './ToolApi';
