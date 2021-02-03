@@ -1,5 +1,5 @@
 import './App.css';
-import { DeidentifiedNotesApi } from '../apis';
+import { DeidentifiedNotesApi, ToolApi } from '../apis';
 import { DeidentifyRequestFromJSON } from '../models';
 import React from 'react';
 import { Configuration } from '../runtime';
@@ -8,8 +8,11 @@ import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { encodeString, decodeString } from '../stringSmuggler';
 import { AppBar, Box, IconButton, Toolbar, Typography } from '@material-ui/core';
 import InfoIcon from '@material-ui/icons/Info';
+import { InfoDialog } from './InfoDialog';
 
-const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost/api/v1"})) // FIXME: Figure out how to handle hostname
+const apiConfiguration = new Configuration({basePath: "http://localhost/api/v1"}); // FIXME: Figure out how to handle hostname
+const deidentifiedNotesApi = new DeidentifiedNotesApi(apiConfiguration);
+const toolApi = new ToolApi(apiConfiguration);
 
 class App extends React.Component {
   constructor(props) {
@@ -19,8 +22,10 @@ class App extends React.Component {
     const { location } = props;
     const queryInUrl = location.pathname.slice(1);
     let deidentifyRequest;
+    let showInfo;
     if (queryInUrl) {
       deidentifyRequest = JSON.parse(decodeString(queryInUrl));
+      showInfo = false;
     } else {
       deidentifyRequest = {
         deidentificationConfigurations: [{
@@ -34,12 +39,14 @@ class App extends React.Component {
           noteType: "ASDF"  // FIXME: figure out whether and how to get this
         },
         keyMax: 0
-      }
+      };
+      showInfo = true;
     }
 
     this.state = {
       deidentifiedNoteText: deidentificationStates.EMPTY,
-      deidentifyRequest: deidentifyRequest
+      deidentifyRequest: deidentifyRequest,
+      showInfo: showInfo
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
@@ -145,7 +152,7 @@ class App extends React.Component {
       <AppBar style={{ backgroundColor: "grey" }} position="static">
         <Toolbar>
           <Typography variant="h4" style={{ flex: 1 }} >NLP Sandbox PHI Deidentifier</Typography>
-          <IconButton><InfoIcon style={{ color: "white" }} /></IconButton>
+          <IconButton onClick={() => {this.setState({showInfo: true})}}><InfoIcon style={{ color: "white" }} /></IconButton>
         </Toolbar>
       </AppBar>
       <div className="left">
@@ -175,6 +182,11 @@ class App extends React.Component {
         </Box>
         <DeidentifiedText text={this.state.deidentifiedNoteText} />
       </div>
+      <InfoDialog
+        open={this.state.showInfo}
+        handleClose={() => {this.setState({showInfo: false})}}
+        toolApi={toolApi}
+      />
     </div>
     );
   }
