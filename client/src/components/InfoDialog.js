@@ -106,9 +106,9 @@ export class InfoDialog extends React.Component {
   render = () => {
     let content;
     if (this.state.deidentifierInfo === toolInfoStates.LOADING) {
-      content = <DialogContent>API Error</DialogContent>;
-    } else if (this.state.deidentifierInfo === toolInfoStates.ERROR) {
       content = <DialogContent><CircularProgress /></DialogContent>
+    } else if (this.state.deidentifierInfo === toolInfoStates.ERROR) {
+      content = <DialogContent>API Error</DialogContent>;
     } else {
       const toolInfo = this.state.deidentifierInfo;
       content = <DialogContent>
