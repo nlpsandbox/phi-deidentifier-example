@@ -1,8 +1,16 @@
 import './DeidentificationConfigForm.css'
 import React from 'react';
 import { DeidentificationConfigAnnotationTypesEnum } from '../models';
+import { Collapse } from '@material-ui/core';
 
 export class DeidentificationConfigForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      expand: false
+    }
+  }
+
   updateDeidConfig = (newSettings) => {
     this.props.updateDeidConfig(this.props.index, newSettings);
   }
@@ -55,7 +63,18 @@ export class DeidentificationConfigForm extends React.Component {
   }
 
   handleDelete = () => {
-    this.props.deleteDeidConfig(this.props.index);
+    this.setState(
+      { expand: false }, () => {
+        setTimeout(
+          () => {this.props.deleteDeidConfig(this.props.index);},
+          250
+        )
+      }
+    );
+  }
+
+  componentDidMount = () => {
+    this.setState({ expand: true });
   }
 
   getStrategy = () => {
@@ -65,6 +84,7 @@ export class DeidentificationConfigForm extends React.Component {
   render = () => {
     const allAnnotationTypes = Object.values(DeidentificationConfigAnnotationTypesEnum)
     return (
+      <Collapse in={this.state.expand}>
       <div className="deid-config-form">
         <div className="deid-config-form-bar">
           <div className="deid-config-header">De-id Step #{this.props.index + 1}</div>
@@ -121,6 +141,7 @@ export class DeidentificationConfigForm extends React.Component {
           </tr>
         </table>
       </div>
+      </Collapse>
     );
   }
 }

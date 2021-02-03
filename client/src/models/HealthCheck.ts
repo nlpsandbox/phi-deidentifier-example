@@ -14,34 +14,44 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * An API resource source
+ * Represents the health of a service
  * @export
- * @interface ResourceSource
+ * @interface HealthCheck
  */
-export interface ResourceSource {
+export interface HealthCheck {
     /**
-     * Full path of an API resource
+     * Indicates whether the service status is acceptable or not
      * @type {string}
-     * @memberof ResourceSource
+     * @memberof HealthCheck
      */
-    name?: string;
+    status: HealthCheckStatusEnum;
 }
 
-export function ResourceSourceFromJSON(json: any): ResourceSource {
-    return ResourceSourceFromJSONTyped(json, false);
+/**
+* @export
+* @enum {string}
+*/
+export enum HealthCheckStatusEnum {
+    Pass = 'pass',
+    Fail = 'fail',
+    Warn = 'warn'
 }
 
-export function ResourceSourceFromJSONTyped(json: any, ignoreDiscriminator: boolean): ResourceSource {
+export function HealthCheckFromJSON(json: any): HealthCheck {
+    return HealthCheckFromJSONTyped(json, false);
+}
+
+export function HealthCheckFromJSONTyped(json: any, ignoreDiscriminator: boolean): HealthCheck {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'name': !exists(json, 'name') ? undefined : json['name'],
+        'status': json['status'],
     };
 }
 
-export function ResourceSourceToJSON(value?: ResourceSource | null): any {
+export function HealthCheckToJSON(value?: HealthCheck | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -50,7 +60,7 @@ export function ResourceSourceToJSON(value?: ResourceSource | null): any {
     }
     return {
         
-        'name': value.name,
+        'status': value.status,
     };
 }
 
