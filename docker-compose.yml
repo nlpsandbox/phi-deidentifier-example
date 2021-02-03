@@ -2,22 +2,18 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:0.3.1
+    image: nlpsandbox/date-annotator-example:0.3.2
     container_name: date-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
-    # ports:
-    #   - "9000:8080"
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:0.3.1
+    image: nlpsandbox/person-name-annotator-example:0.3.2
     container_name: person-name-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
-    # ports:
-    #   - "9001:8080"
 
   physical-address-annotator:
     image: nlpsandbox/physical-address-annotator-example:0.3.2
@@ -25,8 +21,6 @@ services:
     restart: always
     networks:
       - nlp-sandbox-internal
-    # ports:
-    #   - "9002:8080"
 
   phi-deidentifier:
     image: nlpsandbox/phi-deidentifier:edge
@@ -44,8 +38,6 @@ services:
       - PHYSICAL_ADDRESS_ANNOTATOR_PORT=8080
     networks:
       - nlp-sandbox-internal
-    # ports:
-    #   - "9003:8080"
     depends_on:
       - date-annotator
       - person-name-annotator
@@ -60,8 +52,6 @@ services:
     restart: always
     networks:
       - nlp-sandbox-internal
-    # ports:
-    #   - "8080:80"
     depends_on:
       - phi-deidentifier
 
@@ -80,14 +70,14 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/templates:/etc/nginx/templates:ro
     networks:
-      - nlp-sandbox-internal
       - nlp-sandbox
+      - nlp-sandbox-internal
     ports:
       - "80:80"
     depends_on:
       - phi-deidentifier-app
 
 networks:
+  nlp-sandbox:
   nlp-sandbox-internal:
     internal: true
-  nlp-sandbox:
