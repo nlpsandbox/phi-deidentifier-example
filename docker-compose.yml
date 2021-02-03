@@ -2,25 +2,25 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:0.3.1
+    image: nlpsandbox/date-annotator-example:0.3.2
     container_name: date-annotator
     restart: always
-    ports:
-      - 9000:8080
+    networks:
+      - nlp-sandbox-internal
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:0.3.1
+    image: nlpsandbox/person-name-annotator-example:0.3.2
     container_name: person-name-annotator
     restart: always
-    ports:
-      - 9001:8080
+    networks:
+      - nlp-sandbox-internal
 
   physical-address-annotator:
     image: nlpsandbox/physical-address-annotator-example:0.3.2
     container_name: physical-address-annotator
     restart: always
-    ports:
-      - 9002:8080
+    networks:
+      - nlp-sandbox-internal
 
   phi-deidentifier:
     image: nlpsandbox/phi-deidentifier:edge
@@ -36,8 +36,8 @@ services:
       - PERSON_NAME_ANNOTATOR_PORT=8080
       - PHYSICAL_ADDRESS_ANNOTATOR_HOST=physical-address-annotator
       - PHYSICAL_ADDRESS_ANNOTATOR_PORT=8080
-    ports:
-      - 9003:8080
+    networks:
+      - nlp-sandbox-internal
     depends_on:
       - date-annotator
       - person-name-annotator
@@ -50,8 +50,8 @@ services:
       dockerfile: Dockerfile
     container_name: phi-deidentifier-app
     restart: always
-    ports:
-      - 8080:80
+    networks:
+      - nlp-sandbox-internal
     depends_on:
       - phi-deidentifier
 
@@ -69,7 +69,15 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/templates:/etc/nginx/templates:ro
+    networks:
+      - nlp-sandbox
+      - nlp-sandbox-internal
     ports:
       - "80:80"
     depends_on:
       - phi-deidentifier-app
+
+networks:
+  nlp-sandbox:
+  nlp-sandbox-internal:
+    internal: true
