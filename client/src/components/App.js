@@ -1,13 +1,18 @@
 import './App.css';
-import { DeidentifiedNotesApi } from '../apis';
+import { DeidentifiedNotesApi, ToolApi } from '../apis';
 import { DeidentifyRequestFromJSON } from '../models';
 import React from 'react';
 import { Configuration } from '../runtime';
 import { DeidentifiedText, deidentificationStates } from './DeidentifiedText';
 import { DeidentificationConfigForm } from './DeidentificationConfigForm';
 import { encodeString, decodeString } from '../stringSmuggler';
+import { AppBar, Box, IconButton, Toolbar, Typography } from '@material-ui/core';
+import InfoIcon from '@material-ui/icons/Info';
+import { InfoDialog } from './InfoDialog';
 
-const deidentifiedNotesApi = new DeidentifiedNotesApi(new Configuration({basePath: "http://localhost/api/v1"})) // FIXME: Figure out how to handle hostname
+const apiConfiguration = new Configuration({basePath: "http://localhost/api/v1"}); // FIXME: Figure out how to handle hostname
+const deidentifiedNotesApi = new DeidentifiedNotesApi(apiConfiguration);
+const toolApi = new ToolApi(apiConfiguration);
 
 class App extends React.Component {
   constructor(props) {
@@ -17,11 +22,14 @@ class App extends React.Component {
     const { location } = props;
     const queryInUrl = location.pathname.slice(1);
     let deidentifyRequest;
+    let showInfo;
     if (queryInUrl) {
       deidentifyRequest = JSON.parse(decodeString(queryInUrl));
+      showInfo = false;
     } else {
       deidentifyRequest = {
         deidentificationConfigurations: [{
+          key: 0,
           confidenceThreshold: 20,
           deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
           annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
@@ -29,13 +37,16 @@ class App extends React.Component {
         note: {
           text: "",
           noteType: "ASDF"  // FIXME: figure out whether and how to get this
-        }
-      }
+        },
+        keyMax: 0
+      };
+      showInfo = true;
     }
 
     this.state = {
       deidentifiedNoteText: deidentificationStates.EMPTY,
-      deidentifyRequest: deidentifyRequest
+      deidentifyRequest: deidentifyRequest,
+      showInfo: showInfo
     };
 
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
@@ -105,14 +116,16 @@ class App extends React.Component {
     const newDeidConfig = {
       confidenceThreshold: 20,
       deidentificationStrategy: {maskingCharConfig: {maskingChar: "*"}},
-      annotationTypes: ["text_person_name", "text_physical_address", "text_date"]
+      annotationTypes: ["text_person_name", "text_physical_address", "text_date"],
+      key: this.state.deidentifyRequest.keyMax+1
     };
     deidentificationConfigurations.push(newDeidConfig);
     this.setState(
       {
         deidentifyRequest: {
           ...this.state.deidentifyRequest,
-          deidentificationConfigurations: deidentificationConfigurations
+          deidentificationConfigurations: deidentificationConfigurations,
+          keyMax: this.state.deidentifyRequest.keyMax + 1
         }
       },
       () => this.updateUrl()
@@ -136,8 +149,16 @@ class App extends React.Component {
   render() {
     return (
     <div className="App">
+      <AppBar style={{ backgroundColor: "grey" }} position="static">
+        <Toolbar>
+          <Typography variant="h4" style={{ flex: 1 }} >NLP Sandbox PHI Deidentifier</Typography>
+          <IconButton onClick={() => {this.setState({showInfo: true})}}><InfoIcon style={{ color: "white" }} /></IconButton>
+        </Toolbar>
+      </AppBar>
       <div className="left">
-        <p>Input note:</p>
+        <Box padding={2}>
+          <Typography variant="h5" style={{ fontWeight: "bold" }}>Input note:</Typography>
+        </Box>
         <textarea onChange={this.handleTextAreaChange} value={this.state.deidentifyRequest.note.text} />
         <br />
         <button className="deidentify-button" onClick={this.deidentifyNote}>De-identify Note</button>
@@ -147,7 +168,7 @@ class App extends React.Component {
             <DeidentificationConfigForm
               updateDeidConfig={this.updateDeidentificationConfig}
               deleteDeidConfig={this.deleteDeidConfig}
-              key={index}
+              key={deidConfig.key}
               index={index}
               {...deidConfig}
             />
@@ -156,9 +177,16 @@ class App extends React.Component {
         <div className="deid-config-add" onClick={this.addDeidConfig}>&#x002B;</div>
       </div>
       <div className="right">
-        <p>Deidentified note:</p>
+        <Box padding={2}>
+        <Typography variant="h5" style={{ fontWeight: "bold" }}>Deidentified note:</Typography>
+        </Box>
         <DeidentifiedText text={this.state.deidentifiedNoteText} />
       </div>
+      <InfoDialog
+        open={this.state.showInfo}
+        handleClose={() => {this.setState({showInfo: false})}}
+        toolApi={toolApi}
+      />
     </div>
     );
   }
