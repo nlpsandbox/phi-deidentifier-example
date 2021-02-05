@@ -9,8 +9,10 @@ import { encodeString, decodeString } from '../stringSmuggler';
 import { AppBar, Box, IconButton, Toolbar, Typography } from '@material-ui/core';
 import InfoIcon from '@material-ui/icons/Info';
 import { InfoDialog } from './InfoDialog';
+import Config from '../config';
 
-const apiConfiguration = new Configuration({basePath: "http://localhost/api/v1"}); // FIXME: Figure out how to handle hostname
+const config = new Config()
+const apiConfiguration = new Configuration({basePath: config.serverApiUrl()}); // FIXME: Figure out how to handle hostname
 const deidentifiedNotesApi = new DeidentifiedNotesApi(apiConfiguration);
 const toolApi = new ToolApi(apiConfiguration);
 
