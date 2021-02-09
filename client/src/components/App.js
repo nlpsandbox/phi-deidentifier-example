@@ -12,7 +12,7 @@ import { InfoDialog } from './InfoDialog';
 import Config from '../config';
 
 const config = new Config()
-const apiConfiguration = new Configuration({basePath: config.serverApiUrl()}); // FIXME: Figure out how to handle hostname
+const apiConfiguration = new Configuration({basePath: config.serverApiUrl()});
 const deidentifiedNotesApi = new DeidentifiedNotesApi(apiConfiguration);
 const toolApi = new ToolApi(apiConfiguration);
 
