@@ -16,7 +16,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
     """DeidentifiedNotesController integration test stubs
     """
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_masking_char(self):
         """Test case for de-identification with masking character
         """
@@ -56,7 +56,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         # Masking char de-identification doesn't change any annotation character addresses
         self.assertEqual(response_data['deidentifiedAnnotations'], response_data['originalAnnotations'])
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_redact(self):
         """Test case for de-identification with redaction
         """
@@ -98,7 +98,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
                 self.assertLessEqual(0, annotation['start'])
                 self.assertLess(annotation['start'], len(response_data['deidentifiedNote']['text']))
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_annotation_type(self):
         """Test case for de-identification by replacing annotation with "[ANNOTATION_TYPE]"
         """
@@ -139,7 +139,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
             # Check that there is an observed annotation with matching
             self.assertTrue(any(annotation['start'] == start and annotation['length'] == length for annotation in all_annotations))
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_no_deid_method(self):
         """Test case for de-identification configuration with no de-identification strategy (should fail).
         """
@@ -159,7 +159,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         )
         self.assertStatus(response, 400, 'Response body is : ' + response.data.decode('utf-8'))
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_multiple_strategies(self):
         """Test multiple de-identification strategies on one note.
         """
@@ -211,7 +211,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "---- ---------- came back from ******* yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
         self.assertEqual(expected_deidentified_text, deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_type_or_mask(self):
         """Test an example multi-strategy de-identification request. Give the type if the confidence is above 90.0%,
         otherwise just mask it with "*" character.
@@ -248,7 +248,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "*** [TEXT_PERSON_NAME] came back from ******, [TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [TEXT_DATE]."
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_mask_or_redact(self):
         """Test an example multi-strategy de-identification request. Mask if the confidence is above 90.0%,
         otherwise just redact it.
@@ -285,7 +285,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = " ********** came back from , ** yesterday, ** **** ****."
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_redact_over_confidence(self):
         type_or_mask_request = {
             "note": OVERLAPPING_NOTE,
@@ -312,7 +312,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "May  came back from Austin,  yesterday,   ."
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_conflicting_masks(self):
         """Test for the weird edge behavior that happens when annotations of different types partially overlap
         """
@@ -361,7 +361,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "_____FG"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_conflicting_masks_reverse(self):
         """Reverse order of masking by annotation type as test_conflicting_masks()
         """
@@ -410,7 +410,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "***----_____FG"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_conflicting_annotation_types(self):
         request = {
             "note": CONFLICTING_NOTE,
@@ -437,7 +437,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS]FG"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_conflicting_annotation_types_reverse(self):
         request = {
             "note": CONFLICTING_NOTE,
@@ -464,7 +464,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]FG"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_partial_overlap_mask(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,
@@ -496,7 +496,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "---____***"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_partial_overlap_mask_reverse(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,
@@ -530,7 +530,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "***"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_partial_overlap_annotation_type(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,
@@ -554,7 +554,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         expected_deidentified_text = "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]"
         self.assertEqual(response_data['deidentifiedNote']['text'], expected_deidentified_text)
 
-    @patch('openapi_server.utils.annotators.annotate', new=mock_get_annotations)
+    @patch('openapi_server.phi_deidentifier.annotators.annotate', new=mock_get_annotations)
     def test_partial_overlap_annotation_type_reverse(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,

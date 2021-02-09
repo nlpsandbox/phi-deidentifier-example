@@ -32,7 +32,7 @@ class TestToolController(BaseTestCase):
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
 
-    @patch('openapi_server.utils.annotators.get_annotators_info', new=mock_get_annotators_info)
+    @patch('openapi_server.phi_deidentifier.annotators.get_annotators_info', new=mock_get_annotators_info)
     def test_get_tool_dependencies(self):
         """Test case for get_tool_dependencies
 

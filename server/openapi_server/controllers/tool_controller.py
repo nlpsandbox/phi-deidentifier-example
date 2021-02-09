@@ -1,6 +1,6 @@
 from openapi_server.models.tool import Tool  # noqa: E501
 from ..models import License
-from ..utils import annotators
+from ..phi_deidentifier import annotators
 
 
 def get_tool():  # noqa: E501
