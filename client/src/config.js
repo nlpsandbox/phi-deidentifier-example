@@ -1,19 +1,8 @@
-const defaultValues = {
-  SERVER_PROTOCOL: "http://",
-  SERVER_HOST: "localhost",
-  SERVER_PORT: "8080",
-  SERVER_API_PATH: "/api/v1"
-}
-
 export default class Config {
   constructor() {}
 
   getProperty(key) {
-    if ('REACT_APP_' + key in process.env) {
-      return process.env['REACT_APP_' + key];
-    } else {
-      return defaultValues[key]
-    }
+    return window._env_[key];
   }
 
   serverProtocol() {
