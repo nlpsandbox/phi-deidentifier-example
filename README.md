@@ -87,7 +87,7 @@ Then, in another shell, run the following:
 
 ```bash
 $ cd client/
-$ npm start
+$ SERVER_PORT=80 npm run dev
 ```
 
 The development frontend can be accessed at `http://localhost:3000`. The API calls currently require the browser to be
