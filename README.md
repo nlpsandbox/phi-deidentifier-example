@@ -6,11 +6,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/nlpsandbox/phi-deidentifier.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=pulls&logo=docker)](https://hub.docker.com/r/nlpsandbox/phi-deidentifier)
 [![Discord](https://img.shields.io/discord/770484164393828373.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=Discord&logo=discord)](https://discord.gg/Zb4ymtF "Realtime support / chat with the community and the team")
 
-NLP Sandbox PHI Deidentifier
-
-## Specification
-
-TBA
+NLP Sandbox PHI Deidentifier Server
 
 ## Usage
 
@@ -22,20 +18,26 @@ following command to start up the stack:
 $ docker-compose up
 ```
 
-When running, the Deidentifier stacks provides a web interface at [localhost:8000](http://localhost:8000) that
-you can use to test out a selection of annotators on a clinical note. Currently, the deidentifier client requires
-same-origin browser protection to be turned off in order to function properly. For example, Linux users with Google
-Chrome can run the following command:
+You can browse the API through a web interface at [localhost:8080/api/v1/ui](http://localhost:8080/api/v1/ui). You can
+change out the back end annotators by changing the value for `image` under the `*-annotator` sections of
+`docker-compose.yml`. E.g. to switch out the date annotator, change these lines:
 
-```bash
-$ google-chrome --disable-web-security --user-data-dir=~/TEMP/
+```yaml
+date-annotator:
+  image: nlpsandbox/date-annotator-example:0.3.2
 ```
 
-and then navigate to [http://localhost:8000/](http://localhost:8000/) in the newly-opened browser window.
+to 
+
+```yaml
+date-annotator:
+  image: some-group-name/some-date-annotator:1.2.3
+```
+
+where `some-group-name` is the name of a Dockerhub organization, `some-date-annotator` is the name of a Dockerhub repo
+for a date annotator, and `1.2.3` is the version tag for an image of that repo.
 
 ## Development
-
-### Server
 
 The endpoints for this server are based on the phi-deidentifier OpenAPI schema using
 [openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli). To re-generate the server skeleton from
@@ -59,41 +61,4 @@ From there, you can install and run the generated flask server:
 $ cd server
 $ pip install -e .
 $ python -m openapi_server
-```
-
-### Client
-
-The models and API hooks for the client are based on the phi-deidentifier
-OpenAPI schema using
-[openapi-generator-cli](https://github.com/OpenAPITools/openapi-generator-cli).
-To re-generate or update these models/hooks, first download the latest
-version of the API specification, then run the generator script:
-
-```bash
-$ curl -O https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/edge/openapi.yaml
-$ npx openapi-generator-cli generate -g typescript-fetch -i openapi.yaml -o client/src --additional-properties=typescriptThreePlus=true
-```
-
-The client can be run locally by navigating to the `client/` directory and running `npm start`. The client depends on
-the de-identifier server being run in the background. Assuming that Node and Docker are installed, the following
-commands can start up the full stack (backend & frontend) for development/testing purposes using the following commands:
-
-```bash
-$ docker-compose up --build phi-deidentifier
-```
-(you may have to run this command as root or prepend the command with `sudo`).
-
-Then, in another shell, run the following:
-
-```bash
-$ cd client/
-$ SERVER_PORT=80 npm run dev
-```
-
-The development frontend can be accessed at `http://localhost:3000`. The API calls currently require the browser to be
-running with CORS enforcement disabled. This can be done with Google Chrome by, for example, running the following
-command:
-
-```bash
-$ google-chrome --disable-web-security --user-data-dir=~/TEMP/
 ```
