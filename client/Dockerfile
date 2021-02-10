@@ -14,10 +14,10 @@ FROM nginx:1.19.6-alpine
 COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy .env file and shell script to container
+# Copy env_vars file and shell script to container
 WORKDIR /usr/share/nginx/html
 COPY env.sh .
-COPY .env .
+COPY env_vars .
 
 RUN apk add --no-cache bash
 RUN chmod +x env.sh
