@@ -50,7 +50,10 @@ services:
       dockerfile: Dockerfile
     container_name: phi-deidentifier-app
     environment:
-      - SERVER_PORT=80
+      - SERVER_PORT=${SERVER_PORT}
+      - SERVER_PROTOCOL=${SERVER_PROTOCOL}
+      - SERVER_HOST=${SERVER_HOST}
+      - SERVER_API_PATH=${SERVER_API_PATH}
     restart: always
     networks:
       - nlp-sandbox-internal
