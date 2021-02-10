@@ -3,8 +3,8 @@ import connexion
 from openapi_server.models import DeidentificationConfig, DeidentifyResponse, Annotation
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models.note import Note  # noqa: E501
-from openapi_server.utils import annotators
-from openapi_server.utils.deidentifiers import apply_masking_char, apply_redaction, apply_annotation_type
+from openapi_server.phi_deidentifier import annotators
+from openapi_server.phi_deidentifier.deidentifiers import apply_masking_char, apply_redaction, apply_annotation_type
 
 
 def create_deidentified_notes():  # noqa: E501
