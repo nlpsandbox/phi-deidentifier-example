@@ -6,7 +6,8 @@ __doc__ = "Utils and sample data for testing"
 
 SAMPLE_NOTE = Note.from_dict({
     "noteType": "loinc:LP29684-5",
-    "patientId": "patientId",
+    "identifier": "snote",
+    "patientId": "abc123",
     "text":
         "Mary Williamson came back from Seattle yesterday, 12 December 2013."
 })
@@ -37,7 +38,8 @@ SAMPLE_NOTE_ANNOTATIONS = {
 # A note with more ambiguous PII
 OVERLAPPING_NOTE = Note.from_dict({
     "noteType": "loinc:LP29684-5",
-    "patientId": "patientId",
+    "identifier": "ono",
+    "patientId": "def456",
     "text": "May Williamson came back from Austin, TX yesterday, 12 June 2013."
 })
 
@@ -73,7 +75,8 @@ OVERLAPPING_ANNOTATIONS = {
 # A note with more ambiguous PII
 CONFLICTING_NOTE = Note.from_dict({
     "noteType": "loinc:LP29684-5",
-    "patientId": "patientId",
+    "identifier": "cnote",
+    "patientId": "ghi789",
     "text": "ABCDEFG"
 })
 
@@ -96,7 +99,8 @@ CONFLICTING_ANNOTATIONS = {
 
 PARTIAL_OVERLAP_NOTE = Note.from_dict({
     "noteType": "loinc:LP29684-5",
-    "patientId": "patientId",
+    "identifier": "ponote",
+    "patientId": "jkl123",
     "text": "TUVWXYZ"
 })
 
