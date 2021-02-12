@@ -1,23 +1,21 @@
 # coding: utf-8
+
 from __future__ import absolute_import
 import unittest
-from openapi_server.test import BaseTestCase
-from openapi_server.test.utils import SAMPLE_NOTE, OVERLAPPING_NOTE, \
-    CONFLICTING_NOTE, PARTIAL_OVERLAP_NOTE, \
-    mock_get_annotations
 from unittest.mock import patch
+
 from flask import json
 
-
-__doc__ = "Tests for DeidentifiedNotes controller"
+from openapi_server.test import BaseTestCase
+from openapi_server.test.utils import mock_get_annotations, SAMPLE_NOTE, \
+    OVERLAPPING_NOTE, CONFLICTING_NOTE, PARTIAL_OVERLAP_NOTE
 
 
 DEIDENTIFIER_ENDPOINT_URL = 'http://127.0.0.1:8080/api/v1/deidentifiedNotes'
 
 
-class TestDeidentifiedNotesController(BaseTestCase):
-    """DeidentifiedNotesController integration test stubs
-    """
+class TestDeidentifiedNoteController(BaseTestCase):
+    """DeidentifiedNoteController integration test stubs"""
 
     @patch('openapi_server.phi_deidentifier.annotators.annotate',
            new=mock_get_annotations)
@@ -27,20 +25,17 @@ class TestDeidentifiedNotesController(BaseTestCase):
         # Mask all fields, with different characters for each one
         masking_char_request = {
             "note": SAMPLE_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "*"}},
+                    "maskingCharConfig": {"maskingChar": "*"},
                     "annotationTypes": ["text_physical_address"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "_"}},
+                    "maskingCharConfig": {"maskingChar": "_"},
                     "annotationTypes": ["text_person_name"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "-"}},
+                    "maskingCharConfig": {"maskingChar": "-"},
                     "annotationTypes": ["text_date"]
                 }
             ]
@@ -76,10 +71,8 @@ class TestDeidentifiedNotesController(BaseTestCase):
         """
         redact_request = {
             "note": SAMPLE_NOTE,
-            "deidentificationConfigurations": [{
-                "deidentificationStrategy": {
-                    "redactConfig": {},
-                },
+            "deidentificationSteps": [{
+                "redactConfig": {},
                 "annotationTypes": ["text_physical_address",
                                     "text_person_name", "text_date"]
             }]
@@ -104,11 +97,11 @@ class TestDeidentifiedNotesController(BaseTestCase):
 
         # Redaction should reduce all annotation lengths to 0
         for annotation_type in (
-            'textPersonNameAnnotations', 'textPhysicalAddressAnnotations',
-            'textDateAnnotations'
+                'textPersonNameAnnotations', 'textPhysicalAddressAnnotations',
+                'textDateAnnotations'
         ):
             for annotation in response_data['deidentifiedAnnotations'][
-                                            annotation_type]:
+                annotation_type]:
                 self.assertEqual(annotation['length'], 0,
                                  "bad annotation: '%s'" % (repr(annotation),))
 
@@ -134,10 +127,8 @@ class TestDeidentifiedNotesController(BaseTestCase):
         """
         annotation_type_request = {
             "note": SAMPLE_NOTE,
-            "deidentificationConfigurations": [{
-                "deidentificationStrategy": {
-                    "annotationTypeConfig": {},
-                },
+            "deidentificationSteps": [{
+                "annotationTypeMaskConfig": {},
                 "annotationTypes": ["text_physical_address",
                                     "text_person_name", "text_date"]
             }]
@@ -192,8 +183,7 @@ class TestDeidentifiedNotesController(BaseTestCase):
         """
         no_method_request = {
             "note": SAMPLE_NOTE,
-            "deidentificationConfigurations": [{
-                "deidentificationStrategy": {},
+            "deidentificationSteps": [{
                 "annotationTypes": ["text_physical_address",
                                     "text_person_name", "text_date"]
             }]
@@ -217,34 +207,26 @@ class TestDeidentifiedNotesController(BaseTestCase):
         # Note that later configurations over-ride earlier configurations
         multiple_strategies_request = {
             "note": SAMPLE_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "redactConfig": {},
-                    },
+                    "redactConfig": {},
                     "annotationTypes": ["text_physical_address"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "*"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "*"
                     },
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "-"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "-"
                     },
                     "annotationTypes": ["text_person_name"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "annotationTypeConfig": {}
-                    },
+                    "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_date"]
                 }
             ]
@@ -275,19 +257,15 @@ class TestDeidentifiedNotesController(BaseTestCase):
         """
         type_or_mask_request = {
             "note": OVERLAPPING_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {}  # should default to "*"
-                    },
+                    "maskingCharConfig": {},  # should default to "*"
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 10.0
                 },
                 {
-                    "deidentificationStrategy": {
-                        "annotationTypeConfig": {}
-                    },
+                    "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
@@ -320,19 +298,15 @@ class TestDeidentifiedNotesController(BaseTestCase):
         """
         type_or_mask_request = {
             "note": OVERLAPPING_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "redactConfig": {}
-                    },
+                    "redactConfig": {},
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 10.0
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {}
-                    },
+                    "maskingCharConfig": {},
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
@@ -360,11 +334,9 @@ class TestDeidentifiedNotesController(BaseTestCase):
     def test_redact_over_confidence(self):
         type_or_mask_request = {
             "note": OVERLAPPING_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "redactConfig": {}
-                    },
+                    "redactConfig": {},
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
@@ -395,30 +367,24 @@ class TestDeidentifiedNotesController(BaseTestCase):
         """
         request = {
             "note": CONFLICTING_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "*"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "*"
                     },
                     "annotationTypes": ["text_date"],
                     "confidenceThreshold": 90.0
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "-"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "-"
                     },
                     "annotationTypes": ["text_person_name"],
                     "confidenceThreshold": 90.0
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "_"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "_"
                     },
                     "annotationTypes": ["text_physical_address"],
                     "confidenceThreshold": 90.0
@@ -447,30 +413,24 @@ class TestDeidentifiedNotesController(BaseTestCase):
         """
         request = {
             "note": CONFLICTING_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "_"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "_"
                     },
                     "annotationTypes": ["text_physical_address"],
                     "confidenceThreshold": 90.0
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "-"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "-"
                     },
                     "annotationTypes": ["text_person_name"],
                     "confidenceThreshold": 90.0
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {
-                            "maskingChar": "*"
-                        }
+                    "maskingCharConfig": {
+                        "maskingChar": "*"
                     },
                     "annotationTypes": ["text_date"],
                     "confidenceThreshold": 90.0
@@ -497,11 +457,9 @@ class TestDeidentifiedNotesController(BaseTestCase):
     def test_conflicting_annotation_types(self):
         request = {
             "note": CONFLICTING_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "annotationTypeConfig": {}
-                    },
+                    "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_date", "text_person_name",
                                         "text_physical_address"],
                     "confidenceThreshold": 90.0
@@ -528,11 +486,9 @@ class TestDeidentifiedNotesController(BaseTestCase):
     def test_conflicting_annotation_types_reverse(self):
         request = {
             "note": CONFLICTING_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "annotationTypeConfig": {}
-                    },
+                    "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
@@ -560,23 +516,17 @@ class TestDeidentifiedNotesController(BaseTestCase):
     def test_partial_overlap_mask(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "*"}
-                    },
+                    "maskingCharConfig": {"maskingChar": "*"},
                     "annotationTypes": ["text_physical_address"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "_"}
-                    },
+                    "maskingCharConfig": {"maskingChar": "_"},
                     "annotationTypes": ["text_person_name"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "-"}
-                    },
+                    "maskingCharConfig": {"maskingChar": "-"},
                     "annotationTypes": ["text_date"]
                 }
             ]
@@ -601,23 +551,17 @@ class TestDeidentifiedNotesController(BaseTestCase):
     def test_partial_overlap_mask_reverse(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "-"}
-                    },
+                    "maskingCharConfig": {"maskingChar": "-"},
                     "annotationTypes": ["text_date"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "_"}
-                    },
+                    "maskingCharConfig": {"maskingChar": "_"},
                     "annotationTypes": ["text_person_name"]
                 },
                 {
-                    "deidentificationStrategy": {
-                        "maskingCharConfig": {"maskingChar": "*"}
-                    },
+                    "maskingCharConfig": {"maskingChar": "*"},
                     "annotationTypes": ["text_physical_address"]
                 }
             ]
@@ -645,9 +589,9 @@ class TestDeidentifiedNotesController(BaseTestCase):
     def test_partial_overlap_annotation_type(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {"annotationTypeConfig": {}},
+                    "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"]
                 }
@@ -674,9 +618,9 @@ class TestDeidentifiedNotesController(BaseTestCase):
     def test_partial_overlap_annotation_type_reverse(self):
         request = {
             "note": PARTIAL_OVERLAP_NOTE,
-            "deidentificationConfigurations": [
+            "deidentificationSteps": [
                 {
-                    "deidentificationStrategy": {"annotationTypeConfig": {}},
+                    "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_date", "text_person_name",
                                         "text_physical_address"]
                 }
