@@ -6,11 +6,11 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model_ import Model
-from openapi_server.models.annotation import Annotation
+from openapi_server.models.annotation_set import AnnotationSet
 from openapi_server.models.note import Note
 from openapi_server import util
 
-from openapi_server.models.annotation import Annotation  # noqa: E501
+from openapi_server.models.annotation_set import AnnotationSet  # noqa: E501
 from openapi_server.models.note import Note  # noqa: E501
 
 class DeidentifyResponse(Model):
@@ -23,15 +23,15 @@ class DeidentifyResponse(Model):
         """DeidentifyResponse - a model defined in OpenAPI
 
         :param original_annotations: The original_annotations of this DeidentifyResponse.  # noqa: E501
-        :type original_annotations: Annotation
+        :type original_annotations: AnnotationSet
         :param deidentified_annotations: The deidentified_annotations of this DeidentifyResponse.  # noqa: E501
-        :type deidentified_annotations: Annotation
+        :type deidentified_annotations: AnnotationSet
         :param deidentified_note: The deidentified_note of this DeidentifyResponse.  # noqa: E501
         :type deidentified_note: Note
         """
         self.openapi_types = {
-            'original_annotations': Annotation,
-            'deidentified_annotations': Annotation,
+            'original_annotations': AnnotationSet,
+            'deidentified_annotations': AnnotationSet,
             'deidentified_note': Note
         }
 
@@ -62,7 +62,7 @@ class DeidentifyResponse(Model):
 
 
         :return: The original_annotations of this DeidentifyResponse.
-        :rtype: Annotation
+        :rtype: AnnotationSet
         """
         return self._original_annotations
 
@@ -72,7 +72,7 @@ class DeidentifyResponse(Model):
 
 
         :param original_annotations: The original_annotations of this DeidentifyResponse.
-        :type original_annotations: Annotation
+        :type original_annotations: AnnotationSet
         """
 
         self._original_annotations = original_annotations
@@ -83,7 +83,7 @@ class DeidentifyResponse(Model):
 
 
         :return: The deidentified_annotations of this DeidentifyResponse.
-        :rtype: Annotation
+        :rtype: AnnotationSet
         """
         return self._deidentified_annotations
 
@@ -93,7 +93,7 @@ class DeidentifyResponse(Model):
 
 
         :param deidentified_annotations: The deidentified_annotations of this DeidentifyResponse.
-        :type deidentified_annotations: Annotation
+        :type deidentified_annotations: AnnotationSet
         """
 
         self._deidentified_annotations = deidentified_annotations
