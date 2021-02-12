@@ -1,18 +1,18 @@
-openapi: 3.0.2
+openapi: 3.0.3
 info:
   contact:
     email: thomas.schaffter@sagebionetworks.org
     name: The NLP Sandbox Team
-    url: https://nlpsandbox.github.io/nlpsandbox-schemas
+    url: https://nlpsandbox.io
   description: |
-    The OpenAPI specification implemented by NLP Sandbox PHI Deidentifiers.
     # Overview
-    TBA
+    This NLP tool relies on the following NLP tools to deidentify a clinical note given as input.
+    - Data Annotator - Person Name Annotator - Physical Address Annotator - TBA
   license:
     name: Apache 2.0
-    url: https://nlpsandbox.github.io/nlpsandbox-schemas/blob/develop/LICENSE
-  title: NLP Sandbox Deidentifier API
-  version: 0.3.1
+    url: https://github.com/nlpsandbox/nlpsandbox-schemas/blob/develop/LICENSE
+  title: NLP Sandbox PHI Deidentifier API
+  version: 1.0.0
   x-logo:
     url: https://nlpsandbox.github.io/nlpsandbox-schemas/logo.png
 servers:
@@ -20,7 +20,7 @@ servers:
 - url: https://example.com/api/v1
 tags:
 - description: Operations about deidentified notes
-  name: DeidentifiedNotes
+  name: DeidentifiedNote
 - description: Operations about health checks
   name: HealthCheck
 - description: Operations about this tool
@@ -57,8 +57,8 @@ paths:
             error
       summary: Deidentify a clinical note
       tags:
-      - DeidentifiedNotes
-      x-openapi-router-controller: openapi_server.controllers.deidentified_notes_controller
+      - DeidentifiedNote
+      x-openapi-router-controller: openapi_server.controllers.deidentified_note_controller
   /healthCheck:
     get:
       description: Get information about the health of the service
@@ -164,18 +164,100 @@ components:
             $ref: '#/components/schemas/Error'
       description: The specified resource was not found
   schemas:
-    DeidentificationConfig:
-      description: Configuration of one deidentification strategy and a list of annotation
-        types to apply it to.
+    NoteId:
+      description: The ID of the clinical note
+      example: awesome-note
+      maxLength: 60
+      minLength: 3
+      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+      type: string
+    PatientId:
+      description: The ID of the FHIR patient
+      example: awesome-patient
+      maxLength: 60
+      minLength: 3
+      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+      type: string
+    Note:
+      description: A clinical note
       example:
+        identifier: awesome-note
+        text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott in Seattle.
+        noteType: loinc:LP29684-5
+        patientId: awesome-patient
+      properties:
+        identifier:
+          description: The ID of the clinical note
+          example: awesome-note
+          maxLength: 60
+          minLength: 3
+          pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+          type: string
+        text:
+          description: The content of the clinical note
+          type: string
+        noteType:
+          description: The note type (LOINC concept)
+          type: string
+        patientId:
+          description: The ID of the FHIR patient
+          example: awesome-patient
+          maxLength: 60
+          minLength: 3
+          pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+          type: string
+      required:
+      - identifier
+      - noteType
+      - patientId
+      - text
+      type: object
+    MaskingCharConfig:
+      description: Configuration for the masking char strategy. E.g. "John Smith lives
+        at 123 Main St" -> "********* lives at ***********".
+      example:
+        maskingChar: '*'
+      properties:
+        maskingChar:
+          default: '*'
+          description: Character used to mask sensitive information
+          maxLength: 1
+          minLength: 1
+          type: string
+      required:
+      - maskingChar
+      type: object
+    AnnotationTypeMaskConfig:
+      description: Configuration for the "annotation type" strategy. E.g. "John Smith
+        lives at 123 Main St" -> "[PERSON_NAME] lives at [PHYSICAL_ADDRESS]".
+      type: object
+    RedactConfig:
+      description: Configuration for the redaction strategy. E.g. "John Smith lives
+        at 123 Main St" -> "lives at".
+      type: object
+    DateOffsetConfig:
+      description: Configuration for the "date offset" strategy. E.g. "John Smith
+        visited on 1 January 2020" -> "John Smith visited on 29 October 2025". Note,
+        can only be set with the "text_date" annotation type.
+      example:
+        offsetDays: 0
+      properties:
+        offsetDays:
+          description: Number of days by which to offset annotated dates.
+          type: integer
+      required:
+      - offsetDays
+      type: object
+    DeidentificationStep:
+      description: The configuration of a deidentification step
+      example:
+        redactConfig: '{}'
+        annotationTypeMaskConfig: '{}'
         confidenceThreshold: 42.4
-        deidentificationStrategy:
-          redactConfig: '{}'
-          annotationTypeConfig: '{}'
-          maskingCharConfig:
-            maskingChar: '*'
-          dateOffsetConfig:
-            offsetDays: 0
+        maskingCharConfig:
+          maskingChar: '*'
+        dateOffsetConfig:
+          offsetDays: 0
         annotationTypes:
         - text_physical_address
         - text_physical_address
@@ -188,10 +270,20 @@ components:
           maximum: 100
           minimum: 0
           type: number
-        deidentificationStrategy:
-          $ref: '#/components/schemas/DeidentificationConfig_deidentificationStrategy'
+        maskingCharConfig:
+          $ref: '#/components/schemas/MaskingCharConfig'
+        annotationTypeMaskConfig:
+          description: Configuration for the "annotation type" strategy. E.g. "John
+            Smith lives at 123 Main St" -> "[PERSON_NAME] lives at [PHYSICAL_ADDRESS]".
+          type: object
+        redactConfig:
+          description: Configuration for the redaction strategy. E.g. "John Smith
+            lives at 123 Main St" -> "lives at".
+          type: object
+        dateOffsetConfig:
+          $ref: '#/components/schemas/DateOffsetConfig'
         annotationTypes:
-          description: the types of annotations to which the de-identifer should apply
+          description: The types of annotations to which the de-identifer should apply
             the selected strategy
           items:
             enum:
@@ -201,126 +293,66 @@ components:
             type: string
           type: array
       type: object
-    NoteResourceId:
-      description: ID of the clinical note
-      example: 507f1f77bcf86cd799439011
-      type: string
-    PatientResourceId:
-      description: ID of the FHIR patient
-      example: 507f1f77bcf86cd799439011
-      type: string
-    Note:
-      description: A clinical note
-      example:
-        noteType: loinc:LP29684-5
-        patientId: 507f1f77bcf86cd799439011
-        id: 507f1f77bcf86cd799439011
-        text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
-      properties:
-        id:
-          description: ID of the clinical note
-          example: 507f1f77bcf86cd799439011
-          type: string
-        text:
-          description: The content of the clinical note
-          example: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
-          type: string
-        noteType:
-          description: The note type (LOINC concept)
-          example: loinc:LP29684-5
-          type: string
-        patientId:
-          description: ID of the FHIR patient
-          example: 507f1f77bcf86cd799439011
-          type: string
-      required:
-      - noteType
-      - text
-      type: object
     DeidentifyRequest:
-      description: A request to de-identify a note
+      description: A request to de-identify a clinical note
       example:
         note:
+          identifier: awesome-note
+          text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott in Seattle.
           noteType: loinc:LP29684-5
-          patientId: 507f1f77bcf86cd799439011
-          id: 507f1f77bcf86cd799439011
-          text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
-        deidentificationConfigurations:
-        - confidenceThreshold: 42.4
-          deidentificationStrategy:
-            redactConfig: '{}'
-            annotationTypeConfig: '{}'
-            maskingCharConfig:
-              maskingChar: '*'
-            dateOffsetConfig:
-              offsetDays: 0
+          patientId: awesome-patient
+        deidentificationSteps:
+        - redactConfig: '{}'
+          annotationTypeMaskConfig: '{}'
+          confidenceThreshold: 42.4
+          maskingCharConfig:
+            maskingChar: '*'
+          dateOffsetConfig:
+            offsetDays: 0
           annotationTypes:
           - text_physical_address
           - text_physical_address
-        - confidenceThreshold: 42.4
-          deidentificationStrategy:
-            redactConfig: '{}'
-            annotationTypeConfig: '{}'
-            maskingCharConfig:
-              maskingChar: '*'
-            dateOffsetConfig:
-              offsetDays: 0
+        - redactConfig: '{}'
+          annotationTypeMaskConfig: '{}'
+          confidenceThreshold: 42.4
+          maskingCharConfig:
+            maskingChar: '*'
+          dateOffsetConfig:
+            offsetDays: 0
           annotationTypes:
           - text_physical_address
           - text_physical_address
       properties:
-        deidentificationConfigurations:
-          description: A list of deidentification strategies and the entity types
-            on which to perform them. De-identification priority (i.e. which annotation
-            to use when two annotations overlap) is determined by the order of this
-            array and the order of the annotationTypes array inside of each deidentificationConfig.
-          items:
-            $ref: '#/components/schemas/DeidentificationConfig'
-          type: array
         note:
           $ref: '#/components/schemas/Note'
+        deidentificationSteps:
+          description: A list of deidentification steps
+          items:
+            $ref: '#/components/schemas/DeidentificationStep'
+          type: array
       required:
+      - deidentificationSteps
       - note
-      type: object
-    AnnotationName:
-      description: Resource name of the annotation record, of the form datasets/{datasetId}/annotationStores/{annotationStoreId}/annotations/{annotationId}
-      example: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
-      type: string
-    ResourceSource:
-      description: An API resource source
-      example:
-        name: name
-      properties:
-        name:
-          description: Full path of an API resource
-          type: string
-      type: object
-    AnnotationSource:
-      description: The source of an annotation record
-      example:
-        resourceSource:
-          name: name
-      properties:
-        resourceSource:
-          $ref: '#/components/schemas/ResourceSource'
       type: object
     TextAnnotation:
       description: An annotation in a text
+      example:
+        start: 42
+        length: 19
+        text: the annotation text
+        confidence: 95.5
       properties:
         start:
           description: The position of the first character
-          example: 42
           type: integer
         length:
           description: The length of the annotation
-          example: 10
           type: integer
         text:
           description: The string annotated
           type: string
         confidence:
           description: The confidence in the accuracy of the annotation
-          example: 95
           format: float
           maximum: 100
           minimum: 0
@@ -340,6 +372,7 @@ components:
         length: 10
         text: 10/26/2020
         dateFormat: MM/DD/YYYY
+        confidence: 95.5
       type: object
     TextPersonNameAnnotation:
       allOf:
@@ -349,57 +382,55 @@ components:
         start: 42
         length: 11
         text: Chloe Price
+        confidence: 95.5
       type: object
     TextPhysicalAddressAnnotation:
       allOf:
       - $ref: '#/components/schemas/TextAnnotation'
       - $ref: '#/components/schemas/TextPhysicalAddressAnnotation_allOf'
-      description: A person name annotation in a text
+      description: A physical address annotation in a text
       example:
         start: 42
-        length: 11
+        length: 7
         text: Seattle
         addressType: city
+        confidence: 95.5
       type: object
-    Annotation:
-      description: An annotation record
+    AnnotationSet:
+      description: Set of annotations of all types for a text
       example:
         textDateAnnotations:
         - start: 42
           length: 10
           text: 10/26/2020
           dateFormat: MM/DD/YYYY
+          confidence: 95.5
         - start: 42
           length: 10
           text: 10/26/2020
           dateFormat: MM/DD/YYYY
+          confidence: 95.5
         textPersonNameAnnotations:
         - start: 42
           length: 11
           text: Chloe Price
+          confidence: 95.5
         - start: 42
           length: 11
           text: Chloe Price
+          confidence: 95.5
         textPhysicalAddressAnnotations:
         - start: 42
-          length: 11
+          length: 7
           text: Seattle
           addressType: city
+          confidence: 95.5
         - start: 42
-          length: 11
+          length: 7
           text: Seattle
           addressType: city
-        annotationSource:
-          resourceSource:
-            name: name
-        name: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
+          confidence: 95.5
       properties:
-        name:
-          description: Resource name of the annotation record, of the form datasets/{datasetId}/annotationStores/{annotationStoreId}/annotations/{annotationId}
-          example: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
-          type: string
-        annotationSource:
-          $ref: '#/components/schemas/AnnotationSource'
         textDateAnnotations:
           description: Date annotations in a text
           items:
@@ -415,9 +446,13 @@ components:
           items:
             $ref: '#/components/schemas/TextPhysicalAddressAnnotation'
           type: array
+      required:
+      - textDateAnnotations
+      - textPersonNameAnnotations
+      - textPhysicalAddressAnnotations
       type: object
     DeidentifyResponse:
-      description: Response to deidentification request
+      description: The response to a deidentification request
       example:
         deidentifiedAnnotations:
           textDateAnnotations:
@@ -425,70 +460,74 @@ components:
             length: 10
             text: 10/26/2020
             dateFormat: MM/DD/YYYY
+            confidence: 95.5
           - start: 42
             length: 10
             text: 10/26/2020
             dateFormat: MM/DD/YYYY
+            confidence: 95.5
           textPersonNameAnnotations:
           - start: 42
             length: 11
             text: Chloe Price
+            confidence: 95.5
           - start: 42
             length: 11
             text: Chloe Price
+            confidence: 95.5
           textPhysicalAddressAnnotations:
           - start: 42
-            length: 11
+            length: 7
             text: Seattle
             addressType: city
+            confidence: 95.5
           - start: 42
-            length: 11
+            length: 7
             text: Seattle
             addressType: city
-          annotationSource:
-            resourceSource:
-              name: name
-          name: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
+            confidence: 95.5
         deidentifiedNote:
+          identifier: awesome-note
+          text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott in Seattle.
           noteType: loinc:LP29684-5
-          patientId: 507f1f77bcf86cd799439011
-          id: 507f1f77bcf86cd799439011
-          text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott.
+          patientId: awesome-patient
         originalAnnotations:
           textDateAnnotations:
           - start: 42
             length: 10
             text: 10/26/2020
             dateFormat: MM/DD/YYYY
+            confidence: 95.5
           - start: 42
             length: 10
             text: 10/26/2020
             dateFormat: MM/DD/YYYY
+            confidence: 95.5
           textPersonNameAnnotations:
           - start: 42
             length: 11
             text: Chloe Price
+            confidence: 95.5
           - start: 42
             length: 11
             text: Chloe Price
+            confidence: 95.5
           textPhysicalAddressAnnotations:
           - start: 42
-            length: 11
+            length: 7
             text: Seattle
             addressType: city
+            confidence: 95.5
           - start: 42
-            length: 11
+            length: 7
             text: Seattle
             addressType: city
-          annotationSource:
-            resourceSource:
-              name: name
-          name: datasets/awesome-dataset/annotationStores/awesome-annotation-store/annotations/507f1f77bcf86cd799439011
+            confidence: 95.5
       properties:
         originalAnnotations:
-          $ref: '#/components/schemas/Annotation'
+          $ref: '#/components/schemas/AnnotationSet'
         deidentifiedAnnotations:
-          $ref: '#/components/schemas/Annotation'
+          $ref: '#/components/schemas/AnnotationSet'
         deidentifiedNote:
           $ref: '#/components/schemas/Note'
       type: object
@@ -528,7 +567,7 @@ components:
       - status
       type: object
     License:
-      description: License (license keyword used by GitHub)
+      description: The license (license keyword used by GitHub)
       enum:
       - afl-3.0
       - apache-2.0
@@ -567,53 +606,51 @@ components:
       example: apache-2.0
       type: string
     ToolType:
-      description: Type of this tool
+      description: The type of this tool
       example: nlpsandbox:date-annotator
+      maxLength: 60
+      minLength: 3
+      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*(:)[a-z0-9]+(?:-[a-z0-9]+)*$
       type: string
     Tool:
       description: Information about an NLP tool
       example:
+        name: awesome-nlp-tool
+        version: 1.0.6
         license: apache-2.0
+        repository: github:awesome-org/awesome-nlp-tool
+        description: An awesome NLP Tool that takes as input X and outputs Y.
+        author: Awesome Team
         authorEmail: author@example.com
-        author: Example Author
-        name: awesome-date-annotator
-        description: An awesome Date Annotator based on regex patterns
-        repository: github:awesome-org/awesome-date-annotator
-        version: 1.0.0
+        url: https://example.com
         toolType: nlpsandbox:date-annotator
-        url: https://openapi-generator.tech
+        toolApiVersion: 1.0.0
       properties:
         name:
           description: The tool name
-          example: awesome-date-annotator
           maxLength: 60
           minLength: 3
           pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
           type: string
         version:
           description: The version of the tool (SemVer string)
-          example: 1.0.0
           minLength: 1
-          pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+          pattern: ^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$
           type: string
         license:
           $ref: '#/components/schemas/License'
         repository:
           description: The place where the code lives
-          example: github:awesome-org/awesome-date-annotator
           type: string
         description:
           description: A short, one-sentence summary of the tool
-          example: An awesome Date Annotator based on regex patterns
           maxLength: 100
           type: string
         author:
           description: The author of the tool
-          example: Example Author
           type: string
         authorEmail:
           description: The email address of the author
-          example: author@example.com
           format: email
           type: string
         url:
@@ -621,8 +658,16 @@ components:
           format: uri
           type: string
         toolType:
-          description: Type of this tool
+          description: The type of this tool
           example: nlpsandbox:date-annotator
+          maxLength: 60
+          minLength: 3
+          pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*(:)[a-z0-9]+(?:-[a-z0-9]+)*$
+          type: string
+        toolApiVersion:
+          description: The version of the tool OpenAPI specification
+          minLength: 1
+          pattern: ^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$
           type: string
       required:
       - author
@@ -631,6 +676,7 @@ components:
       - license
       - name
       - repository
+      - toolApiVersion
       - toolType
       - url
       - version
@@ -639,78 +685,34 @@ components:
       description: A list of tool dependencies
       example:
         toolDependencies:
-        - license: apache-2.0
+        - name: awesome-nlp-tool
+          version: 1.0.6
+          license: apache-2.0
+          repository: github:awesome-org/awesome-nlp-tool
+          description: An awesome NLP Tool that takes as input X and outputs Y.
+          author: Awesome Team
           authorEmail: author@example.com
-          author: Example Author
-          name: awesome-date-annotator
-          description: An awesome Date Annotator based on regex patterns
-          repository: github:awesome-org/awesome-date-annotator
-          version: 1.0.0
+          url: https://example.com
           toolType: nlpsandbox:date-annotator
-          url: https://openapi-generator.tech
-        - license: apache-2.0
+          toolApiVersion: 1.0.0
+        - name: awesome-nlp-tool
+          version: 1.0.6
+          license: apache-2.0
+          repository: github:awesome-org/awesome-nlp-tool
+          description: An awesome NLP Tool that takes as input X and outputs Y.
+          author: Awesome Team
           authorEmail: author@example.com
-          author: Example Author
-          name: awesome-date-annotator
-          description: An awesome Date Annotator based on regex patterns
-          repository: github:awesome-org/awesome-date-annotator
-          version: 1.0.0
+          url: https://example.com
           toolType: nlpsandbox:date-annotator
-          url: https://openapi-generator.tech
+          toolApiVersion: 1.0.0
       properties:
         toolDependencies:
           description: A list of tools
           items:
             $ref: '#/components/schemas/Tool'
           type: array
-      type: object
-    DeidentificationConfig_deidentificationStrategy_maskingCharConfig:
-      description: Configuration for the masking char strategy. E.g. "John Smith lives
-        at 123 Main St" -> "********* lives at ***********".
-      example:
-        maskingChar: '*'
-      properties:
-        maskingChar:
-          default: '*'
-          description: Character used to mask annotated PII text.
-          maxLength: 1
-          minLength: 1
-          type: string
-      type: object
-    DeidentificationConfig_deidentificationStrategy_dateOffsetConfig:
-      description: Configuration for the "date offset" strategy. E.g. "John Smith
-        visited on 1 January 2020" -> "John Smith visited on 29 October 2025". Note,
-        can only be set with the "text_date" annotation type.
-      example:
-        offsetDays: 0
-      properties:
-        offsetDays:
-          description: Number of days by which to offset annotated dates.
-          type: integer
-      type: object
-    DeidentificationConfig_deidentificationStrategy:
-      description: The strategy used to de-identify the note's text. Only one field
-        may be set.
-      example:
-        redactConfig: '{}'
-        annotationTypeConfig: '{}'
-        maskingCharConfig:
-          maskingChar: '*'
-        dateOffsetConfig:
-          offsetDays: 0
-      properties:
-        maskingCharConfig:
-          $ref: '#/components/schemas/DeidentificationConfig_deidentificationStrategy_maskingCharConfig'
-        redactConfig:
-          description: Configuration for the redaction strategy. E.g. "John Smith
-            lives at 123 Main St" -> "lives at".
-          type: object
-        annotationTypeConfig:
-          description: Configuration for the "annotation type" strategy. E.g. "John
-            Smith lives at 123 Main St" -> "[PERSON_NAME] lives at [PHYSICAL_ADDRESS]".
-          type: object
-        dateOffsetConfig:
-          $ref: '#/components/schemas/DeidentificationConfig_deidentificationStrategy_dateOffsetConfig'
+      required:
+      - toolDependencies
       type: object
     TextDateAnnotation_allOf:
       properties:
