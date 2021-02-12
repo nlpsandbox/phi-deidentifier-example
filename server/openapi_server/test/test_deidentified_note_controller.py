@@ -101,7 +101,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                 'textDateAnnotations'
         ):
             for annotation in response_data['deidentifiedAnnotations'][
-                annotation_type]:
+                    annotation_type]:
                 self.assertEqual(annotation['length'], 0,
                                  "bad annotation: '%s'" % (repr(annotation),))
 
