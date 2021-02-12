@@ -61,7 +61,7 @@ def apply_deidentification(annotation_types, annotations, confidence_threshold,
         note_type=note.note_type,
         text=note.text,
         patient_id=note.patient_id,
-        id=note.id
+        identifier=note.identifier
     )
     for annotation_type in annotation_types:
         # Only de-identify notes with sufficient confidence level
