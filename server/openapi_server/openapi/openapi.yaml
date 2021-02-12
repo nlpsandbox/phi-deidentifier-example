@@ -224,8 +224,6 @@ components:
           maxLength: 1
           minLength: 1
           type: string
-      required:
-      - maskingChar
       type: object
     AnnotationTypeMaskConfig:
       description: Configuration for the "annotation type" strategy. E.g. "John Smith
@@ -253,7 +251,7 @@ components:
       example:
         redactConfig: '{}'
         annotationTypeMaskConfig: '{}'
-        confidenceThreshold: 42.4
+        confidenceThreshold: 95.5
         maskingCharConfig:
           maskingChar: '*'
         dateOffsetConfig:
@@ -265,7 +263,7 @@ components:
         confidenceThreshold:
           default: 0
           description: The minimum confidence level for a given annotation to be de-identified
-          example: 42.4
+          example: 95.5
           format: float
           maximum: 100
           minimum: 0
@@ -292,6 +290,8 @@ components:
             - text_person_name
             type: string
           type: array
+      required:
+      - annotationTypes
       type: object
     DeidentifyRequest:
       description: A request to de-identify a clinical note
@@ -304,7 +304,7 @@ components:
         deidentificationSteps:
         - redactConfig: '{}'
           annotationTypeMaskConfig: '{}'
-          confidenceThreshold: 42.4
+          confidenceThreshold: 95.5
           maskingCharConfig:
             maskingChar: '*'
           dateOffsetConfig:
@@ -314,7 +314,7 @@ components:
           - text_physical_address
         - redactConfig: '{}'
           annotationTypeMaskConfig: '{}'
-          confidenceThreshold: 42.4
+          confidenceThreshold: 95.5
           maskingCharConfig:
             maskingChar: '*'
           dateOffsetConfig:
@@ -635,7 +635,7 @@ components:
         version:
           description: The version of the tool (SemVer string)
           minLength: 1
-          pattern: ^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$
+          pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
           type: string
         license:
           $ref: '#/components/schemas/License'
@@ -667,7 +667,7 @@ components:
         toolApiVersion:
           description: The version of the tool OpenAPI specification
           minLength: 1
-          pattern: ^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$
+          pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
           type: string
       required:
       - author
