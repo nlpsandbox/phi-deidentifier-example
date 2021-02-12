@@ -259,9 +259,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "note": OVERLAPPING_NOTE,
             "deidentificationSteps": [
                 {
-                    "maskingCharConfig": {
-                        "maskingChar": "*"
-                    },
+                    "maskingCharConfig": {},  # should default to "*"
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 10.0
@@ -308,9 +306,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                     "confidenceThreshold": 10.0
                 },
                 {
-                    "maskingCharConfig": {
-                        "maskingChar": "*"
-                    },
+                    "maskingCharConfig": {},
                     "annotationTypes": ["text_physical_address",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
