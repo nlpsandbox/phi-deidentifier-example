@@ -19,6 +19,10 @@ configuration object, and outputs the de-identified clinical note.
 - PHI Deidentifier API version: 1.0.0
 - Tool version: 1.0.0
 - Docker image: [nlpsandbox/phi-deidentifier]
+- Tool dependencies:
+  - [NLP Sandbox Date Annotator]
+  - [NLP Sandbox Person Name Annotator]
+  - [NLP Sandbox Physical Address Annotator]
 
 > NOTE: The identification of the input and output of this NLP Task is still in
 > progress. Once the specification of this NLP tool has been finalized, it will
@@ -60,11 +64,39 @@ We recommend using a Conda environment to install and run the PHI Deidentifier.
     conda create --name phi-deidentifier python=3.9.1
     conda activate phi-deidentifier
 
+Start the NLP tool dependencies.
+
+    docker-compose up -d date-annotator \
+        person-name-annotator \
+        physical-address-annotator
+
 Install and start the PHI Deidentifier.
 
     cd server/
     pip install -e .
     python -m openapi_server
+
+### Updating NLP tool dependencies
+
+This tool is built on top of other NLP tools to complete its task. These
+dependencies are defined in [docker-compose.yml](docker-compose.yml). Any of
+these dependencies can be replaced by another tool that implements the same
+dependency OpenAPI specification.
+
+For example, let's imagine that you are looking for the best-performing `Date
+Annotator` that implements the Date Annotator OpenAPI specification version
+`x.y.z`.
+
+1. Visit [nlpsandbox.io] and visit the Leaderboard for the Date Annotators.
+2. Identify the best-performing tool that implements the Date Annotator OpenAPI
+   specification version `x.y.z`. Note the name and version of its Docker image,
+   e.g. `mit/awesome-date-annotator:1.2.3` (this image does not exist).
+3. Replace the Date Annotator Docker image in
+   [docker-compose.yml](docker-compose.yml) by the image of the tool that you
+   have identified.
+
+That's it! Restart your tool and the annotation of dates will now be carried out
+by the new Date Annotator.
 
 ### Accessing the UI
 
@@ -260,6 +292,6 @@ Thinking about contributing to this project? Get started by reading our
 [nlpsandbox/nlpsandbox-schemas]: https://github.com/nlpsandbox/nlpsandbox-schemas
 [semantic versioning]: https://semver.org/
 [OpenAPITools/openapi-generator]: https://github.com/OpenAPITools/openapi-generator
-[NLP Sandbox Date Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/date-annotator/latest/docs/
-[NLP Sandbox Person Name Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/person-name-annotator/latest/docs/
-[NLP Sandbox Physical Address Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/physical-address-annotator/latest/docs/
+[NLP Sandbox Date Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/date-annotator/1.0.0/docs/
+[NLP Sandbox Person Name Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/person-name-annotator/1.0.0/docs/
+[NLP Sandbox Physical Address Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/physical-address-annotator/1.0.0/docs/
