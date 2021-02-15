@@ -62,8 +62,6 @@ class MaskingCharConfig(Model):
         :param masking_char: The masking_char of this MaskingCharConfig.
         :type masking_char: str
         """
-        if masking_char is None:
-            raise ValueError("Invalid value for `masking_char`, must not be `None`")  # noqa: E501
         if masking_char is not None and len(masking_char) > 1:
             raise ValueError("Invalid value for `masking_char`, length must be less than or equal to `1`")  # noqa: E501
         if masking_char is not None and len(masking_char) < 1:

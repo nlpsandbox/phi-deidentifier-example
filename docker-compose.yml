@@ -2,21 +2,21 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:0.3.2
+    image: nlpsandbox/date-annotator-example:1.0.0
     container_name: date-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:0.3.2
+    image: nlpsandbox/person-name-annotator-example:1.0.0
     container_name: person-name-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
   physical-address-annotator:
-    image: nlpsandbox/physical-address-annotator-example:0.3.2
+    image: nlpsandbox/physical-address-annotator-example:1.0.0
     container_name: physical-address-annotator
     restart: always
     networks:
@@ -30,7 +30,7 @@ services:
     container_name: phi-deidentifier
     restart: always
     ports:
-      - "8080:8080"
+      - "80:8080"
     environment:
       - DATE_ANNOTATOR_HOST=date-annotator
       - DATE_ANNOTATOR_PORT=8080
