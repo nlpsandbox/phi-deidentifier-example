@@ -220,8 +220,6 @@ components:
     MaskingCharConfig:
       description: Configuration for the masking char strategy. E.g. "John Smith lives
         at 123 Main St" -> "********* lives at ***********".
-      example:
-        maskingChar: '*'
       properties:
         maskingChar:
           default: '*'
@@ -242,8 +240,6 @@ components:
       description: Configuration for the "date offset" strategy. E.g. "John Smith
         visited on 1 January 2020" -> "John Smith visited on 29 October 2025". Note,
         can only be set with the "text_date" annotation type.
-      example:
-        offsetDays: 0
       properties:
         offsetDays:
           description: Number of days by which to offset annotated dates.
@@ -253,17 +249,6 @@ components:
       type: object
     DeidentificationStep:
       description: The configuration of a deidentification step
-      example:
-        redactConfig: '{}'
-        annotationTypeMaskConfig: '{}'
-        confidenceThreshold: 95.5
-        maskingCharConfig:
-          maskingChar: '*'
-        dateOffsetConfig:
-          offsetDays: 0
-        annotationTypes:
-        - text_physical_address
-        - text_physical_address
       properties:
         confidenceThreshold:
           default: 0
@@ -301,32 +286,26 @@ components:
     DeidentifyRequest:
       description: A request to de-identify a clinical note
       example:
+        deidentificationSteps:
+        - confidenceThreshold: 20
+          maskingCharConfig:
+            maskingChar: '-'
+          annotationTypes:
+          - text_date
+        - confidenceThreshold: 30
+          maskingCharConfig:
+            maskingChar: '#'
+          annotationTypes:
+          - text_person_name
+        - confidenceThreshold: 20
+          annotationTypeMaskConfig: {}
+          annotationTypes:
+          - text_physical_address
         note:
           identifier: awesome-note
           text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott in Seattle.
           noteType: loinc:LP29684-5
           patientId: awesome-patient
-        deidentificationSteps:
-        - redactConfig: '{}'
-          annotationTypeMaskConfig: '{}'
-          confidenceThreshold: 95.5
-          maskingCharConfig:
-            maskingChar: '*'
-          dateOffsetConfig:
-            offsetDays: 0
-          annotationTypes:
-          - text_physical_address
-          - text_physical_address
-        - redactConfig: '{}'
-          annotationTypeMaskConfig: '{}'
-          confidenceThreshold: 95.5
-          maskingCharConfig:
-            maskingChar: '*'
-          dateOffsetConfig:
-            offsetDays: 0
-          annotationTypes:
-          - text_physical_address
-          - text_physical_address
       properties:
         note:
           $ref: '#/components/schemas/Note'
@@ -608,6 +587,7 @@ components:
       - ncsa
       - unlicense
       - zlib
+      - none
       example: apache-2.0
       type: string
     ToolType:
