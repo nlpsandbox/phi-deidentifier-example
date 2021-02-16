@@ -14,6 +14,11 @@ This repository provides a Python-Flask implementation of the [NLP Sandbox PHI
 Deidentifier]. A PHI Deidentifier takes as input a clinical note and a
 configuration object, and outputs the de-identified clinical note.
 
+All the NLP Sandbox Tools are shipped with a web interface (see Section
+[Accessing the UI](#Accessing-the-UI)). The PHI Deidentifier also has a [React
+interface] that enables the de-identification of clinical notes in a more
+user-friendly way.
+
 ### Specification
 
 - PHI Deidentifier API version: 1.0.0
@@ -295,3 +300,4 @@ Thinking about contributing to this project? Get started by reading our
 [NLP Sandbox Date Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/date-annotator/1.0.0/docs/
 [NLP Sandbox Person Name Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/person-name-annotator/1.0.0/docs/
 [NLP Sandbox Physical Address Annotator]: https://nlpsandbox.github.io/nlpsandbox-schemas/physical-address-annotator/1.0.0/docs/
+[React interface]: https://github.com/nlpsandbox/phi-deidentifier-app
