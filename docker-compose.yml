@@ -29,8 +29,6 @@ services:
       dockerfile: Dockerfile
     container_name: phi-deidentifier
     restart: always
-    ports:
-      - "80:8080"
     environment:
       - DATE_ANNOTATOR_HOST=date-annotator
       - DATE_ANNOTATOR_PORT=8080
@@ -41,6 +39,8 @@ services:
     networks:
       - nlp-sandbox-internal
       - nlp-sandbox
+    ports:
+      - "80:8080"
     depends_on:
       - date-annotator
       - person-name-annotator
