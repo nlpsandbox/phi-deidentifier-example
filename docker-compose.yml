@@ -2,21 +2,21 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:1.0.0
+    image: nlpsandbox/date-annotator-example:1.0.1
     container_name: date-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:1.0.0
+    image: nlpsandbox/person-name-annotator-example:1.0.1
     container_name: person-name-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
   physical-address-annotator:
-    image: nlpsandbox/physical-address-annotator-example:1.0.0
+    image: nlpsandbox/physical-address-annotator-example:1.0.1
     container_name: physical-address-annotator
     restart: always
     networks:

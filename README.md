@@ -21,8 +21,8 @@ user-friendly way.
 
 ### Specification
 
-- PHI Deidentifier API version: 1.0.0
-- Tool version: 1.0.0
+- PHI Deidentifier API version: 1.0.1
+- Tool version: 1.0.1
 - Docker image: [nlpsandbox/phi-deidentifier]
 - Tool dependencies:
   - [NLP Sandbox Date Annotator]
