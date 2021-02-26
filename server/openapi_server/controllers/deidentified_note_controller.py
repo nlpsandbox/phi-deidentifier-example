@@ -2,9 +2,10 @@ import connexion
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models import DeidentificationStep, DeidentifyResponse, \
     AnnotationSet, Note
-from openapi_server.phi_deidentifier import annotators
 from openapi_server.phi_deidentifier.deidentifiers import apply_masking_char, \
     apply_redaction, apply_annotation_type
+from openapi_server.config import Config
+from nlpsandboxclient import client
 
 
 def create_deidentified_notes():  # noqa: E501
@@ -20,13 +21,33 @@ def create_deidentified_notes():  # noqa: E501
             connexion.request.get_json())
         note = deid_request.note
 
-        # Annotations is a dict[key: list[str]]
-        annotations = {}
+        # Make set of all annotation types in the de-id request
+        all_annotation_types = {
+            annotation_type for annotation_types in
+            [deid_step.annotation_types for deid_step
+             in deid_request.deidentification_steps]
+            for annotation_type in annotation_types
+        }
 
-        for annotation_type in ['text_date', 'text_person_name',
-                                'text_physical_address']:
-            annotations[annotation_type] = annotators.annotate(note,
-                                                               annotation_type)
+        config = Config()
+        # Annotations is a dict[key: list[str]]
+        annotations = {'text_date': [], 'text_person_name': [],
+                       'text_physical_address': []}
+        if 'text_date' in all_annotation_types:
+            annotations['text_date'] = client.annotate_note(
+                host=config.date_annotator_api_url,
+                note={'note': note.to_dict()}, annotator_type='date')[
+                'textDateAnnotations']
+        if 'text_person_name' in all_annotation_types:
+            annotations['text_person_name'] = client.annotate_note(
+                host=config.person_name_annotator_api_url,
+                note={'note': note.to_dict()}, annotator_type='person')[
+                'textPersonNameAnnotations']
+        if 'text_physical_address' in all_annotation_types:
+            annotations['text_physical_address'] = client.annotate_note(
+                host=config.physical_address_annotator_api_url,
+                note={'note': note.to_dict()}, annotator_type='address')[
+                'textPhysicalAddressAnnotations']
 
         # De-identify note
         deidentified_note = \

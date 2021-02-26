@@ -1,6 +1,5 @@
 from openapi_server.models.tool import Tool  # noqa: E501
 from ..models import License
-from ..phi_deidentifier import annotators
 
 
 def get_tool():  # noqa: E501
@@ -33,4 +32,5 @@ def get_tool_dependencies():  # noqa: E501
 
     :rtype: ToolDependencies
     """
-    return annotators.get_annotators_info(), 200
+    # return annotators.get_annotators_info(), 200
+    return "Do some magic!", 200

@@ -3,3 +3,4 @@ mongoengine==0.22.1
 psycopg2-binary==2.8.6
 requests==2.25.1
 swagger-ui-bundle==0.0.8
+nlpsandbox-client==0.3.1
