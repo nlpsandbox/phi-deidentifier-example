@@ -4,6 +4,13 @@ from openapi_server.models import Note, ToolDependencies
 __doc__ = "Utils and sample data for testing"
 
 
+ANNOTATOR_TYPE_MAP = {
+    'address': ('text_physical_address', 'textPhysicalAddressAnnotations'),
+    'person': ('text_person_name', 'textPersonNameAnnotations'),
+    'date': ('text_date', 'textDateAnnotations')
+}
+
+
 SAMPLE_NOTE = Note.from_dict({
     "noteType": "loinc:LP29684-5",
     "identifier": "snote",
@@ -121,20 +128,27 @@ PARTIAL_OVERLAP_ANNOTATIONS = {
 }
 
 
-def mock_get_annotations(note, annotation_type):
+def mock_annotate_note(host, note, annotator_type):
     """Get mock annotations for a note
     """
-    if note == SAMPLE_NOTE:
-        return SAMPLE_NOTE_ANNOTATIONS[annotation_type]
-    if note == OVERLAPPING_NOTE:
-        return OVERLAPPING_ANNOTATIONS[annotation_type]
-    if note == CONFLICTING_NOTE:
-        return CONFLICTING_ANNOTATIONS[annotation_type]
-    if note == PARTIAL_OVERLAP_NOTE:
-        return PARTIAL_OVERLAP_ANNOTATIONS[annotation_type]
+    _note = Note(
+        note_type=note['note']['note_type'],
+        patient_id=note['note']['patient_id'],
+        text=note['note']['text'],
+        identifier=note['note']['identifier']
+    )
+    annotation_type, annotationType = ANNOTATOR_TYPE_MAP[annotator_type]
+    if _note == SAMPLE_NOTE:
+        return {annotationType: SAMPLE_NOTE_ANNOTATIONS[annotation_type]}
+    if _note == OVERLAPPING_NOTE:
+        return {annotationType: OVERLAPPING_ANNOTATIONS[annotation_type]}
+    if _note == CONFLICTING_NOTE:
+        return {annotationType: CONFLICTING_ANNOTATIONS[annotation_type]}
+    if _note == PARTIAL_OVERLAP_NOTE:
+        return {annotationType: PARTIAL_OVERLAP_ANNOTATIONS[annotation_type]}
     raise ValueError(
         "Could not retrieve mock annotations for note: '%s'"
-        % (note,)
+        % (_note,)
     )
 
 
