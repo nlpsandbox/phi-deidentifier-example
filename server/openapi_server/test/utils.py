@@ -1,5 +1,4 @@
-from openapi_server.models import Note, ToolDependencies
-
+from openapi_server.models import Note, Tool, License
 
 __doc__ = "Utils and sample data for testing"
 
@@ -152,7 +151,26 @@ def mock_annotate_note(host, note, annotator_type):
     )
 
 
-def mock_get_annotators_info():
+def mock_get_tool(host):
     """Get mock annotator info
     """
-    return ToolDependencies(tool_dependencies=[])
+    if 'person-name' in host:
+        tool_type = 'nlpsandbox:person-name-annotator'
+    elif 'physical-address' in host:
+        tool_type = 'nlpsandbox:physical-address-annotator'
+    elif 'date' in host:
+        tool_type = 'nlpsandbox:date-annotator'
+    else:
+        tool_type = 'nlpsandbox:some-annotator-type'
+    return Tool(
+        name=host,
+        version='1.0.0',
+        license=License.APACHE_2_0,
+        repository = 'some-user/some-repo',
+        description='some tool',
+        author='some person',
+        author_email='someperson@somesite.org',
+        url='somesite.org/some-annotator',
+        tool_type=tool_type,
+        tool_api_version='1.0.1'
+    )
