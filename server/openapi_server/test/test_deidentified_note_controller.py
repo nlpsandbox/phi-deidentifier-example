@@ -7,7 +7,7 @@ from unittest.mock import patch
 from flask import json
 
 from openapi_server.test import BaseTestCase
-from openapi_server.test.utils import mock_annotate_note, SAMPLE_NOTE, \
+from openapi_server.test.utils import SAMPLE_NOTE, \
     OVERLAPPING_NOTE, CONFLICTING_NOTE, PARTIAL_OVERLAP_NOTE, \
     mock_annotate_note
 

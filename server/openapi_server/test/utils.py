@@ -166,7 +166,7 @@ def mock_get_tool(host):
         name=host,
         version='1.0.0',
         license=License.APACHE_2_0,
-        repository = 'some-user/some-repo',
+        repository='some-user/some-repo',
         description='some tool',
         author='some person',
         author_email='someperson@somesite.org',
