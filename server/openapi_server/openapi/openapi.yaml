@@ -5,19 +5,16 @@ info:
     name: The NLP Sandbox Team
     url: https://nlpsandbox.io
   description: |
-    # Overview
-
-    This NLP tool takes as input a clinical note and returned a de-identified
-    version of the note.
-
+    # Introduction
+    This NLP tool takes as input a clinical note and returned a de-identified version of the note.
+    This design of this API is a work in progress.
     # Examples
-
     - [NLP Sandbox PHI Deidentifier](https://github.com/nlpsandbox/phi-deidentifier)
   license:
     name: Apache 2.0
     url: https://github.com/nlpsandbox/nlpsandbox-schemas/blob/develop/LICENSE
   title: NLP Sandbox PHI Deidentifier API
-  version: 1.0.0
+  version: 1.0.1
   x-logo:
     url: https://nlpsandbox.github.io/nlpsandbox-schemas/logo.png
 servers:
@@ -342,6 +339,7 @@ components:
           minimum: 0
           type: number
       required:
+      - confidence
       - length
       - start
       - text
@@ -609,7 +607,7 @@ components:
         authorEmail: author@example.com
         url: https://example.com
         toolType: nlpsandbox:date-annotator
-        toolApiVersion: 1.0.0
+        toolApiVersion: 1.0.1
       properties:
         name:
           description: The tool name
@@ -679,7 +677,7 @@ components:
           authorEmail: author@example.com
           url: https://example.com
           toolType: nlpsandbox:date-annotator
-          toolApiVersion: 1.0.0
+          toolApiVersion: 1.0.1
         - name: awesome-nlp-tool
           version: 1.0.6
           license: apache-2.0
@@ -689,7 +687,7 @@ components:
           authorEmail: author@example.com
           url: https://example.com
           toolType: nlpsandbox:date-annotator
-          toolApiVersion: 1.0.0
+          toolApiVersion: 1.0.1
       properties:
         toolDependencies:
           description: A list of tools
