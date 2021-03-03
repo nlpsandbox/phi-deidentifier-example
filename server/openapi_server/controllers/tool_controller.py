@@ -42,5 +42,9 @@ def get_tool_dependencies():  # noqa: E501
         config.person_name_annotator_api_url,
         config.physical_address_annotator_api_url
     ):
-        tool_dependencies.append(client.get_tool(host=hostname).to_dict())
+        client_tool = client.get_tool(host=hostname)
+        tool = Tool.from_dict({client_tool.attribute_map[key]: value
+                               for key, value in
+                               client_tool.to_dict().items()})
+        tool_dependencies.append(tool)
     return ToolDependencies(tool_dependencies=tool_dependencies)
