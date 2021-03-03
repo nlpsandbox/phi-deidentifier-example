@@ -163,7 +163,7 @@ def mock_get_tool(host):
     else:
         tool_type = 'nlpsandbox:some-annotator-type'
     return Tool(
-        name=host,
+        name='some-tool',
         version='1.0.0',
         license=License.APACHE_2_0,
         repository='some-user/some-repo',
