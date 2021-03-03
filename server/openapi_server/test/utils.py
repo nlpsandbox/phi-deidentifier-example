@@ -1,7 +1,13 @@
-from openapi_server.models import Note, ToolDependencies
-
+from openapi_server.models import Note, Tool, License
 
 __doc__ = "Utils and sample data for testing"
+
+
+ANNOTATOR_TYPE_MAP = {
+    'address': ('text_physical_address', 'textPhysicalAddressAnnotations'),
+    'person': ('text_person_name', 'textPersonNameAnnotations'),
+    'date': ('text_date', 'textDateAnnotations')
+}
 
 
 SAMPLE_NOTE = Note.from_dict({
@@ -121,24 +127,50 @@ PARTIAL_OVERLAP_ANNOTATIONS = {
 }
 
 
-def mock_get_annotations(note, annotation_type):
+def mock_annotate_note(host, note, annotator_type):
     """Get mock annotations for a note
     """
-    if note == SAMPLE_NOTE:
-        return SAMPLE_NOTE_ANNOTATIONS[annotation_type]
-    if note == OVERLAPPING_NOTE:
-        return OVERLAPPING_ANNOTATIONS[annotation_type]
-    if note == CONFLICTING_NOTE:
-        return CONFLICTING_ANNOTATIONS[annotation_type]
-    if note == PARTIAL_OVERLAP_NOTE:
-        return PARTIAL_OVERLAP_ANNOTATIONS[annotation_type]
+    _note = Note(
+        note_type=note['note']['note_type'],
+        patient_id=note['note']['patient_id'],
+        text=note['note']['text'],
+        identifier=note['note']['identifier']
+    )
+    annotation_type, annotationType = ANNOTATOR_TYPE_MAP[annotator_type]
+    if _note == SAMPLE_NOTE:
+        return {annotationType: SAMPLE_NOTE_ANNOTATIONS[annotation_type]}
+    if _note == OVERLAPPING_NOTE:
+        return {annotationType: OVERLAPPING_ANNOTATIONS[annotation_type]}
+    if _note == CONFLICTING_NOTE:
+        return {annotationType: CONFLICTING_ANNOTATIONS[annotation_type]}
+    if _note == PARTIAL_OVERLAP_NOTE:
+        return {annotationType: PARTIAL_OVERLAP_ANNOTATIONS[annotation_type]}
     raise ValueError(
         "Could not retrieve mock annotations for note: '%s'"
-        % (note,)
+        % (_note,)
     )
 
 
-def mock_get_annotators_info():
+def mock_get_tool(host):
     """Get mock annotator info
     """
-    return ToolDependencies(tool_dependencies=[])
+    if 'person-name' in host:
+        tool_type = 'nlpsandbox:person-name-annotator'
+    elif 'physical-address' in host:
+        tool_type = 'nlpsandbox:physical-address-annotator'
+    elif 'date' in host:
+        tool_type = 'nlpsandbox:date-annotator'
+    else:
+        tool_type = 'nlpsandbox:some-annotator-type'
+    return Tool(
+        name='some-tool',
+        version='1.0.0',
+        license=License.APACHE_2_0,
+        repository='some-user/some-repo',
+        description='some tool',
+        author='some person',
+        author_email='someperson@somesite.org',
+        url='somesite.org/some-annotator',
+        tool_type=tool_type,
+        tool_api_version='1.0.1'
+    )

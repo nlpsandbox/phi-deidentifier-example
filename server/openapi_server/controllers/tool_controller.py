@@ -1,6 +1,8 @@
+from nlpsandboxclient import client
+
 from openapi_server.models.tool import Tool  # noqa: E501
-from ..models import License
-from ..phi_deidentifier import annotators
+from ..config import Config
+from ..models import License, ToolDependencies
 
 
 def get_tool():  # noqa: E501
@@ -33,4 +35,16 @@ def get_tool_dependencies():  # noqa: E501
 
     :rtype: ToolDependencies
     """
-    return annotators.get_annotators_info(), 200
+    config = Config()
+    tool_dependencies = []
+    for hostname in (
+        config.date_annotator_api_url,
+        config.person_name_annotator_api_url,
+        config.physical_address_annotator_api_url
+    ):
+        client_tool = client.get_tool(host=hostname)
+        tool = Tool.from_dict({client_tool.attribute_map[key]: value
+                               for key, value in
+                               client_tool.to_dict().items()})
+        tool_dependencies.append(tool)
+    return ToolDependencies(tool_dependencies=tool_dependencies)
