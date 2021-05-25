@@ -1,4 +1,5 @@
 connexion==2.7.0
+Flask-Testing==0.8.1
 mongoengine==0.22.1
 nlpsandbox-client==0.4.1
 psycopg2-binary==2.8.6
