@@ -11,7 +11,7 @@ ANNOTATOR_TYPE_MAP = {
 
 
 SAMPLE_NOTE = Note.from_dict({
-    "noteType": "loinc:LP29684-5",
+    "type": "loinc:LP29684-5",
     "identifier": "snote",
     "patientId": "abc123",
     "text":
@@ -43,7 +43,7 @@ SAMPLE_NOTE_ANNOTATIONS = {
 
 # A note with more ambiguous PII
 OVERLAPPING_NOTE = Note.from_dict({
-    "noteType": "loinc:LP29684-5",
+    "type": "loinc:LP29684-5",
     "identifier": "ono",
     "patientId": "def456",
     "text": "May Williamson came back from Austin, TX yesterday, 12 June 2013."
@@ -80,7 +80,7 @@ OVERLAPPING_ANNOTATIONS = {
 
 # A note with more ambiguous PII
 CONFLICTING_NOTE = Note.from_dict({
-    "noteType": "loinc:LP29684-5",
+    "type": "loinc:LP29684-5",
     "identifier": "cnote",
     "patientId": "ghi789",
     "text": "ABCDEFG"
@@ -104,7 +104,7 @@ CONFLICTING_ANNOTATIONS = {
 
 
 PARTIAL_OVERLAP_NOTE = Note.from_dict({
-    "noteType": "loinc:LP29684-5",
+    "type": "loinc:LP29684-5",
     "identifier": "ponote",
     "patientId": "jkl123",
     "text": "TUVWXYZ"
@@ -131,7 +131,7 @@ def mock_annotate_note(host, note, annotator_type):
     """Get mock annotations for a note
     """
     _note = Note(
-        note_type=note['note']['note_type'],
+        type=note['note']['type'],
         patient_id=note['note']['patient_id'],
         text=note['note']['text'],
         identifier=note['note']['identifier']
@@ -171,6 +171,6 @@ def mock_get_tool(host):
         author='some person',
         author_email='someperson@somesite.org',
         url='somesite.org/some-annotator',
-        tool_type=tool_type,
-        tool_api_version='1.0.1'
+        type=tool_type,
+        api_version='1.0.1'
     )

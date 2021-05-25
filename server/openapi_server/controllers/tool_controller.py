@@ -21,8 +21,8 @@ def get_tool():  # noqa: E501
         author="The NLP Sandbox Team",
         author_email="thomas.schaffter@sagebionetworks.org",
         url="https://github.com/nlpsandbox/phi-deidentifier",
-        tool_type="nlpsandbox:phi-deidentifier",
-        tool_api_version="1.0.1"
+        type="nlpsandbox:phi-deidentifier",
+        api_version="1.0.1"
     )
     return tool, 200
 
@@ -47,4 +47,4 @@ def get_tool_dependencies():  # noqa: E501
                                for key, value in
                                client_tool.to_dict().items()})
         tool_dependencies.append(tool)
-    return ToolDependencies(tool_dependencies=tool_dependencies)
+    return ToolDependencies(tools=tool_dependencies)

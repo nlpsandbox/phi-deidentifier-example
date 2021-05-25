@@ -58,7 +58,7 @@ def apply_deidentification(annotation_types, annotations, confidence_threshold,
     """
     left_shifts = [0] * (len(note.text) + 1)
     deidentified_note = Note(
-        note_type=note.note_type,
+        type=note.type,
         text=note.text,
         patient_id=note.patient_id,
         identifier=note.identifier

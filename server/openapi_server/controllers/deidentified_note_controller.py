@@ -1,4 +1,6 @@
 import connexion
+import six
+
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models import DeidentificationStep, DeidentifyResponse, \
     AnnotationSet, Note
@@ -8,14 +10,16 @@ from openapi_server.config import Config
 from nlpsandboxclient import client
 
 
-def create_deidentified_notes():  # noqa: E501
+def create_deidentified_notes(deidentify_request=None):  # noqa: E501
     """Deidentify a clinical note
 
     Returns the deidentified note # noqa: E501
 
+    :param deidentify_request: 
+    :type deidentify_request: dict | bytes
+
     :rtype: DeidentifyResponse
     """
-
     if connexion.request.is_json:
         deid_request = DeidentifyRequest.from_dict(
             connexion.request.get_json())
