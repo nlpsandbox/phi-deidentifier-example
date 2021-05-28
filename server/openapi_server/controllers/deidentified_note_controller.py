@@ -1,5 +1,7 @@
 import connexion
 import six
+from datanode.model.note_id import NoteId
+from datanode.model.patient_id import PatientId
 
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models import DeidentificationStep, DeidentifyResponse, \
@@ -37,20 +39,25 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
         # Annotations is a dict[key: list[str]]
         annotations = {'text_date': [], 'text_person_name': [],
                        'text_physical_address': []}
+
+        # Convert to NLPSandboxClient's Note object
+        client_note = client.Note(
+            identifier=NoteId(note.identifier), text=note.text, type=note.type, patient_id=PatientId(note.patient_id))
+
         if 'text_date' in all_annotation_types:
             annotations['text_date'] = client.annotate_note(
                 host=config.date_annotator_api_url,
-                note={'note': note.to_dict()}, annotator_type='date')[
+                note=client_note, tool_type='nlpsandbox:date-annotator')[
                 'textDateAnnotations']
         if 'text_person_name' in all_annotation_types:
             annotations['text_person_name'] = client.annotate_note(
                 host=config.person_name_annotator_api_url,
-                note={'note': note.to_dict()}, annotator_type='person')[
+                note=client_note, tool_type='nlpsandbox:person-name-annotator')[
                 'textPersonNameAnnotations']
         if 'text_physical_address' in all_annotation_types:
             annotations['text_physical_address'] = client.annotate_note(
                 host=config.physical_address_annotator_api_url,
-                note={'note': note.to_dict()}, annotator_type='address')[
+                note=client_note, tool_type='nlpsandbox:physical-address-annotator')[
                 'textPhysicalAddressAnnotations']
 
         # De-identify note
