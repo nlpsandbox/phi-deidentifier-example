@@ -8,16 +8,20 @@ __doc__ = "Utils and sample data for testing"
 
 
 def client_note_to_request_dict(note: Note):
-    """Turn a (datanode) Note model object, return a JSON dict (with camelCase keys)
+    """Take a (datanode) Note model object, return a JSON dict (with camelCase
+    keys).
     """
     snake_note_dict = note.to_dict()
-    camel_case_note_dict = {note.attribute_map[key]: value for key, value in snake_note_dict.items()}
+    camel_case_note_dict = {note.attribute_map[key]: value for key, value in
+                            snake_note_dict.items()}
     return camel_case_note_dict
 
 
 ANNOTATOR_TYPE_MAP = {
-    'nlpsandbox:physical-address-annotator': ('text_physical_address', 'textPhysicalAddressAnnotations'),
-    'nlpsandbox:person-name-annotator': ('text_person_name', 'textPersonNameAnnotations'),
+    'nlpsandbox:physical-address-annotator': (
+    'text_physical_address', 'textPhysicalAddressAnnotations'),
+    'nlpsandbox:person-name-annotator': (
+    'text_person_name', 'textPersonNameAnnotations'),
     'nlpsandbox:date-annotator': ('text_date', 'textDateAnnotations')
 }
 

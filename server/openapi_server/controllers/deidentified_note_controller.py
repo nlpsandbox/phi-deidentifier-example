@@ -1,5 +1,4 @@
 import connexion
-import six
 from datanode.model.note_id import NoteId
 from datanode.model.patient_id import PatientId
 
@@ -17,7 +16,7 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
 
     Returns the deidentified note # noqa: E501
 
-    :param deidentify_request: 
+    :param deidentify_request:
     :type deidentify_request: dict | bytes
 
     :rtype: DeidentifyResponse
@@ -42,7 +41,8 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
 
         # Convert to NLPSandboxClient's Note object
         client_note = client.Note(
-            identifier=NoteId(note.identifier), text=note.text, type=note.type, patient_id=PatientId(note.patient_id))
+            identifier=NoteId(note.identifier), text=note.text, type=note.type,
+            patient_id=PatientId(note.patient_id))
 
         if 'text_date' in all_annotation_types:
             annotations['text_date'] = client.annotate_note(
@@ -57,7 +57,8 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
         if 'text_physical_address' in all_annotation_types:
             annotations['text_physical_address'] = client.annotate_note(
                 host=config.physical_address_annotator_api_url,
-                note=client_note, tool_type='nlpsandbox:physical-address-annotator')[
+                note=client_note,
+                tool_type='nlpsandbox:physical-address-annotator')[
                 'textPhysicalAddressAnnotations']
 
         # De-identify note
