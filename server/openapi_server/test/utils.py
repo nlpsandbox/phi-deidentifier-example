@@ -19,9 +19,9 @@ def client_note_to_request_dict(note: Note):
 
 ANNOTATOR_TYPE_MAP = {
     'nlpsandbox:physical-address-annotator': (
-    'text_physical_address', 'textPhysicalAddressAnnotations'),
+        'text_physical_address', 'textPhysicalAddressAnnotations'),
     'nlpsandbox:person-name-annotator': (
-    'text_person_name', 'textPersonNameAnnotations'),
+        'text_person_name', 'textPersonNameAnnotations'),
     'nlpsandbox:date-annotator': ('text_date', 'textDateAnnotations')
 }
 
