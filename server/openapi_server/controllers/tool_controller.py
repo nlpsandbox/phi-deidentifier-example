@@ -22,7 +22,7 @@ def get_tool():  # noqa: E501
         author_email="thomas.schaffter@sagebionetworks.org",
         url="https://github.com/nlpsandbox/phi-deidentifier",
         type="nlpsandbox:phi-deidentifier",
-        api_version="1.0.1"
+        api_version="1.1.1"
     )
     return tool, 200
 
