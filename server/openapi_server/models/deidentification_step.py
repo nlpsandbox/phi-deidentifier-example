@@ -206,7 +206,7 @@ class DeidentificationStep(Model):
         :param annotation_types: The annotation_types of this DeidentificationStep.
         :type annotation_types: List[str]
         """
-        allowed_values = ["text_physical_address", "text_date", "text_person_name"]  # noqa: E501
+        allowed_values = ["text_date", "text_person_name", "text_physical_address", "text_id", "text_contact"]  # noqa: E501
         if not set(annotation_types).issubset(set(allowed_values)):
             raise ValueError(
                 "Invalid values for `annotation_types` [{0}], must be a subset of [{1}]"  # noqa: E501
