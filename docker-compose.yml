@@ -23,14 +23,14 @@ services:
       - nlp-sandbox-internal
 
   contact-annotator:
-    image: nlpsandbox/contact-annotator-example:1.1.2
+    image: nlpsandbox/contact-annotator-example:1.1.1
     container_name: contact-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
   id-annotator:
-    image: nlpsandbox/id-annotator-example:1.1.2
+    image: nlpsandbox/id-annotator-example:1.1.1
     container_name: id-annotator
     restart: always
     networks:
