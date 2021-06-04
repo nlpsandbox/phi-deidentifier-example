@@ -124,15 +124,18 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
                 text_physical_address_annotations=annotations[
                     'text_physical_address'],
                 text_contact_annotations=annotations[
-                    'text_contact_annotations'],
-                text_id_annotations=annotations['text_id_annotations'],
+                    'text_contact'],
+                text_id_annotations=annotations['text_id'],
             ),
             deidentified_annotations=AnnotationSet(
                 text_date_annotations=deidentified_annotations['text_date'],
                 text_person_name_annotations=deidentified_annotations[
                     'text_person_name'],
                 text_physical_address_annotations=deidentified_annotations[
-                    'text_physical_address']
+                    'text_physical_address'],
+                text_contact_annotations=deidentified_annotations[
+                    'text_contact'],
+                text_id_annotations=deidentified_annotations['text_id'],
             )
         )
         return deidentify_response, 200
