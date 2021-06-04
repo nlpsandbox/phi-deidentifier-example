@@ -37,7 +37,8 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
         config = Config()
         # Annotations is a dict[key: list[str]]
         annotations = {'text_date': [], 'text_person_name': [],
-                       'text_physical_address': []}
+                       'text_physical_address': [], 'text_contact': [],
+                       'text_id': []}
 
         # Convert to NLPSandboxClient's Note object
         client_note = client.Note(
@@ -60,6 +61,18 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
                 note=client_note,
                 tool_type='nlpsandbox:physical-address-annotator')[
                 'textPhysicalAddressAnnotations']
+        if 'text_contact' in all_annotation_types:
+            annotations['text_contact'] = client.annotate_note(
+                host=config.contact_annotator_api_url,
+                note=client_note,
+                tool_type='nlpsandbox:contact-annotator')[
+                'textContactAnnotations']
+        if 'text_id' in all_annotation_types:
+            annotations['text_id'] = client.annotate_note(
+                host=config.id_annotator_api_url,
+                note=client_note,
+                tool_type='nlpsandbox:id-annotator')[
+                'textIdAnnotations']
 
         # De-identify note
         deidentified_note = \
@@ -109,7 +122,10 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
                 text_date_annotations=annotations['text_date'],
                 text_person_name_annotations=annotations['text_person_name'],
                 text_physical_address_annotations=annotations[
-                    'text_physical_address']
+                    'text_physical_address'],
+                text_contact_annotations=annotations[
+                    'text_contact_annotations'],
+                text_id_annotations=annotations['text_id_annotations'],
             ),
             deidentified_annotations=AnnotationSet(
                 text_date_annotations=deidentified_annotations['text_date'],
