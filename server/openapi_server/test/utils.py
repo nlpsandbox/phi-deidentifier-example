@@ -1,6 +1,6 @@
-from datanode.model.note import Note
-from datanode.model.note_id import NoteId
-from datanode.model.patient_id import PatientId
+from nlpsandbox.model.note import Note
+from nlpsandbox.model.note_id import NoteId
+from nlpsandbox.model.patient_id import PatientId
 
 from openapi_server.models import Tool, License
 

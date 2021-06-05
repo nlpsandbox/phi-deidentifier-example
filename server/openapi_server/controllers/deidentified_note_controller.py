@@ -1,6 +1,6 @@
 import connexion
-from datanode.model.note_id import NoteId
-from datanode.model.patient_id import PatientId
+from nlpsandbox.model.note_id import NoteId
+from nlpsandbox.model.patient_id import PatientId
 
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models import DeidentificationStep, DeidentifyResponse, \
