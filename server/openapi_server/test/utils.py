@@ -23,7 +23,8 @@ ANNOTATOR_TYPE_MAP = {
     'nlpsandbox:person-name-nlpsandboxsdk': (
         'text_person_name', 'textPersonNameAnnotations'),
     'nlpsandbox:date-nlpsandboxsdk': ('text_date', 'textDateAnnotations'),
-    'nlpsandbox:contact-nlpsandboxsdk': ('text_contact', 'textContactAnnotations'),
+    'nlpsandbox:contact-nlpsandboxsdk': (
+        'text_contact', 'textContactAnnotations'),
     'nlpsandbox:id-nlpsandboxsdk': ('text_id', 'textIdAnnotations'),
 }
 
