@@ -2,28 +2,42 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: nlpsandbox/date-annotator-example:1.0.1
+    image: nlpsandbox/date-annotator-example:1.1.1
     container_name: date-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
   person-name-annotator:
-    image: nlpsandbox/person-name-annotator-example:1.0.1
+    image: nlpsandbox/person-name-annotator-example:1.1.1
     container_name: person-name-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
   physical-address-annotator:
-    image: nlpsandbox/physical-address-annotator-example:1.0.1
+    image: nlpsandbox/physical-address-annotator-example:1.1.1
     container_name: physical-address-annotator
     restart: always
     networks:
       - nlp-sandbox-internal
 
+  contact-annotator:
+    image: nlpsandbox/contact-annotator-example:1.1.1
+    container_name: contact-annotator
+    restart: always
+    networks:
+      - nlp-sandbox-internal
+
+  id-annotator:
+    image: nlpsandbox/id-annotator-example:1.1.1
+    container_name: id-annotator
+    restart: always
+    networks:
+      - nlp-sandbox-internal
+
   phi-deidentifier:
-    image: nlpsandbox/phi-deidentifier:1.0.1
+    image: nlpsandbox/phi-deidentifier:1.1.0
     build:
       context: server
       dockerfile: Dockerfile
@@ -36,12 +50,18 @@ services:
       - PERSON_NAME_ANNOTATOR_PORT=8080
       - PHYSICAL_ADDRESS_ANNOTATOR_HOST=physical-address-annotator
       - PHYSICAL_ADDRESS_ANNOTATOR_PORT=8080
+      - CONTACT_ANNOTATOR_HOST=contact-annotator
+      - CONTACT_ANNOTATOR_PORT=8080
+      - ID_ANNOTATOR_HOST=id-annotator
+      - ID_ANNOTATOR_PORT=8080
     networks:
       - nlp-sandbox-internal
     depends_on:
       - date-annotator
       - person-name-annotator
       - physical-address-annotator
+      - contact-annotator
+      - id-annotator
 
   nginx:
     image: nginx:1.19.6-alpine

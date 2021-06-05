@@ -9,7 +9,7 @@ from flask import json
 from openapi_server.test import BaseTestCase
 from openapi_server.test.utils import SAMPLE_NOTE, \
     OVERLAPPING_NOTE, CONFLICTING_NOTE, PARTIAL_OVERLAP_NOTE, \
-    mock_annotate_note
+    mock_annotate_note, client_note_to_request_dict, EXTENDED_NOTE
 
 DEIDENTIFIER_ENDPOINT_URL = 'http://127.0.0.1:8080/api/v1/deidentifiedNotes'
 
@@ -24,7 +24,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         """
         # Mask all fields, with different characters for each one
         masking_char_request = {
-            "note": SAMPLE_NOTE,
+            "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {"maskingChar": "*"},
@@ -66,11 +66,68 @@ class TestDeidentifiedNoteController(BaseTestCase):
 
     @patch('nlpsandboxclient.client.annotate_note',
            new=mock_annotate_note)
+    def test_masking_char_all_types(self):
+        """Test case for de-identification with masking character
+        """
+        # Mask all fields, with different characters for each one
+        masking_char_request = {
+            "note": client_note_to_request_dict(EXTENDED_NOTE),
+            "deidentificationSteps": [
+                {
+                    "maskingCharConfig": {"maskingChar": "*"},
+                    "annotationTypes": ["text_physical_address"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "_"},
+                    "annotationTypes": ["text_person_name"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "-"},
+                    "annotationTypes": ["text_date"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "&"},
+                    "annotationTypes": ["text_contact"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "#"},
+                    "annotationTypes": ["text_id"]
+                },
+            ]
+        }
+
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(masking_char_request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 200,
+                          'Response body:' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # This is what the deidentified note *should* look like (based on how
+        # we know the annotators will annotate)
+        expected_deidentified_text = "____ __________ came back from *******"\
+                                     " yesterday, -- -------- ----. Her email"\
+                                     " is &&&&&&&&&&&&&&&&&&&&&&&&&, and her"\
+                                     " SSN is ###########."
+        self.assertEqual(response_data['deidentifiedNote']['text'],
+                         expected_deidentified_text)
+
+        # Masking char de-identification doesn't change any annotation
+        # character addresses
+        self.assertEqual(response_data['deidentifiedAnnotations'],
+                         response_data['originalAnnotations'])
+
+    @patch('nlpsandboxclient.client.annotate_note',
+           new=mock_annotate_note)
     def test_redact(self):
         """Test case for de-identification with redaction
         """
         redact_request = {
-            "note": SAMPLE_NOTE,
+            "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [{
                 "redactConfig": {},
                 "annotationTypes": ["text_physical_address",
@@ -126,7 +183,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         "[ANNOTATION_TYPE]"
         """
         annotation_type_request = {
-            "note": SAMPLE_NOTE,
+            "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [{
                 "annotationTypeMaskConfig": {},
                 "annotationTypes": ["text_physical_address",
@@ -182,7 +239,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         de-identification strategy (should fail).
         """
         no_method_request = {
-            "note": SAMPLE_NOTE,
+            "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [{
                 "annotationTypes": ["text_physical_address",
                                     "text_person_name", "text_date"]
@@ -206,7 +263,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         """
         # Note that later configurations over-ride earlier configurations
         multiple_strategies_request = {
-            "note": SAMPLE_NOTE,
+            "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [
                 {
                     "redactConfig": {},
@@ -256,7 +313,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         character.
         """
         type_or_mask_request = {
-            "note": OVERLAPPING_NOTE,
+            "note": client_note_to_request_dict(OVERLAPPING_NOTE),
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {},  # should default to "*"
@@ -297,7 +354,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         the confidence is above 90.0%, otherwise just redact it.
         """
         type_or_mask_request = {
-            "note": OVERLAPPING_NOTE,
+            "note": client_note_to_request_dict(OVERLAPPING_NOTE),
             "deidentificationSteps": [
                 {
                     "redactConfig": {},
@@ -333,7 +390,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
            new=mock_annotate_note)
     def test_redact_over_confidence(self):
         type_or_mask_request = {
-            "note": OVERLAPPING_NOTE,
+            "note": client_note_to_request_dict(OVERLAPPING_NOTE),
             "deidentificationSteps": [
                 {
                     "redactConfig": {},
@@ -366,7 +423,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         different types partially overlap
         """
         request = {
-            "note": CONFLICTING_NOTE,
+            "note": client_note_to_request_dict(CONFLICTING_NOTE),
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {
@@ -412,7 +469,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         """Reverse order of masking compared to test_conflicting_masks()
         """
         request = {
-            "note": CONFLICTING_NOTE,
+            "note": client_note_to_request_dict(CONFLICTING_NOTE),
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {
@@ -456,7 +513,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
            new=mock_annotate_note)
     def test_conflicting_annotation_types(self):
         request = {
-            "note": CONFLICTING_NOTE,
+            "note": client_note_to_request_dict(CONFLICTING_NOTE),
             "deidentificationSteps": [
                 {
                     "annotationTypeMaskConfig": {},
@@ -485,7 +542,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
            new=mock_annotate_note)
     def test_conflicting_annotation_types_reverse(self):
         request = {
-            "note": CONFLICTING_NOTE,
+            "note": client_note_to_request_dict(CONFLICTING_NOTE),
             "deidentificationSteps": [
                 {
                     "annotationTypeMaskConfig": {},
@@ -515,7 +572,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
            new=mock_annotate_note)
     def test_partial_overlap_mask(self):
         request = {
-            "note": PARTIAL_OVERLAP_NOTE,
+            "note": client_note_to_request_dict(PARTIAL_OVERLAP_NOTE),
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {"maskingChar": "*"},
@@ -550,7 +607,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
            new=mock_annotate_note)
     def test_partial_overlap_mask_reverse(self):
         request = {
-            "note": PARTIAL_OVERLAP_NOTE,
+            "note": client_note_to_request_dict(PARTIAL_OVERLAP_NOTE),
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {"maskingChar": "-"},
@@ -588,7 +645,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
            new=mock_annotate_note)
     def test_partial_overlap_annotation_type(self):
         request = {
-            "note": PARTIAL_OVERLAP_NOTE,
+            "note": client_note_to_request_dict(PARTIAL_OVERLAP_NOTE),
             "deidentificationSteps": [
                 {
                     "annotationTypeMaskConfig": {},
@@ -617,7 +674,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
            new=mock_annotate_note)
     def test_partial_overlap_annotation_type_reverse(self):
         request = {
-            "note": PARTIAL_OVERLAP_NOTE,
+            "note": client_note_to_request_dict(PARTIAL_OVERLAP_NOTE),
             "deidentificationSteps": [
                 {
                     "annotationTypeMaskConfig": {},
