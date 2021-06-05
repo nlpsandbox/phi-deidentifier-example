@@ -37,7 +37,7 @@ services:
       - nlp-sandbox-internal
 
   phi-deidentifier:
-    image: nlpsandbox/phi-deidentifier:1.0.1
+    image: nlpsandbox/phi-deidentifier:1.1.0
     build:
       context: server
       dockerfile: Dockerfile
