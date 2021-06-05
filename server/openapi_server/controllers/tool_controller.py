@@ -14,15 +14,16 @@ def get_tool():  # noqa: E501
     """
     tool = Tool(
         name="phi-deidentifier",
-        version="1.0.1",
+        version="1.1.0",
         license=License.APACHE_2_0,
         repository="github:nlpsandbox/phi-deidentifier",
-        description="Example implementation of the NLP Sandbox PHI Deidentifier",  # noqa: E501
-        author="The NLP Sandbox Team",
-        author_email="thomas.schaffter@sagebionetworks.org",
+        description="Example implementation of the NLP Sandbox PHI "
+                    "Deidentifier",
+        author="NLP Sandbox Team",
+        author_email="team@nlpsandbox.io",
         url="https://github.com/nlpsandbox/phi-deidentifier",
         type="nlpsandbox:phi-deidentifier",
-        api_version="1.1.1"
+        api_version="1.1.2"
     )
     return tool, 200
 
@@ -38,9 +39,11 @@ def get_tool_dependencies():  # noqa: E501
     config = Config()
     tool_dependencies = []
     for hostname in (
-        config.date_annotator_api_url,
-        config.person_name_annotator_api_url,
-        config.physical_address_annotator_api_url
+            config.date_annotator_api_url,
+            config.person_name_annotator_api_url,
+            config.physical_address_annotator_api_url,
+            config.contact_annotator_api_url,
+            config.id_annotator_api_url,
     ):
         client_tool = client.get_tool(host=hostname)
         tool = Tool.from_dict({client_tool.attribute_map[key]: value
