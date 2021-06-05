@@ -14,16 +14,16 @@ def get_tool():  # noqa: E501
     """
     tool = Tool(
         name="phi-deidentifier",
-        version="1.0.1",
+        version="1.1.0",
         license=License.APACHE_2_0,
         repository="github:nlpsandbox/phi-deidentifier",
         description="Example implementation of the NLP Sandbox PHI "
                     "Deidentifier",
-        author="The NLP Sandbox Team",
-        author_email="thomas.schaffter@sagebionetworks.org",
+        author="NLP Sandbox Team",
+        author_email="team@nlpsandbox.io",
         url="https://github.com/nlpsandbox/phi-deidentifier",
         type="nlpsandbox:phi-deidentifier",
-        api_version="1.1.1"
+        api_version="1.1.2"
     )
     return tool, 200
 
