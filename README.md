@@ -66,7 +66,7 @@ You can stop the container run with `Ctrl+C`, followed by `docker-compose down`.
 
 We recommend using a Conda environment to install and run the PHI Deidentifier.
 
-    conda create --name phi-deidentifier python=3.9.1
+    conda create --name phi-deidentifier python=3.9.4 -y
     conda activate phi-deidentifier
 
 Start the NLP tool dependencies.
@@ -78,7 +78,7 @@ Start the NLP tool dependencies.
 Install and start the PHI Deidentifier.
 
     cd server/
-    pip install -e .
+    pip install -r requirements.txt
     python -m openapi_server
 
 ### Updating NLP tool dependencies

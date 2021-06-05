@@ -1,8 +1,8 @@
+.env
 .empty/
 .vscode/
-node_modules/
-
-client/env_vars
 dist.yaml
+client/env_vars
+node_modules/
 openapi.yaml
 openapitools.json

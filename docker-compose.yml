@@ -43,6 +43,8 @@ services:
       dockerfile: Dockerfile
     container_name: phi-deidentifier
     restart: always
+    env_file:
+      - .env
     environment:
       - DATE_ANNOTATOR_HOST=date-annotator
       - DATE_ANNOTATOR_PORT=8080
@@ -77,7 +79,7 @@ services:
       - nlpsandbox
       - nlpsandbox-internal
     ports:
-      - "80:80"
+      - "${SERVER_PORT}:80"
     depends_on:
       - phi-deidentifier
 
