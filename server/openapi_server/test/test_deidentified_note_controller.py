@@ -9,7 +9,7 @@ from flask import json
 from openapi_server.test import BaseTestCase
 from openapi_server.test.utils import SAMPLE_NOTE, \
     OVERLAPPING_NOTE, CONFLICTING_NOTE, PARTIAL_OVERLAP_NOTE, \
-    mock_annotate_note, client_note_to_request_dict
+    mock_annotate_note, client_note_to_request_dict, EXTENDED_NOTE
 
 DEIDENTIFIER_ENDPOINT_URL = 'http://127.0.0.1:8080/api/v1/deidentifiedNotes'
 
@@ -56,6 +56,63 @@ class TestDeidentifiedNoteController(BaseTestCase):
         # we know the annotators will annotate)
         expected_deidentified_text = "____ __________ came back from *******" \
                                      " yesterday, -- -------- ----."
+        self.assertEqual(response_data['deidentifiedNote']['text'],
+                         expected_deidentified_text)
+
+        # Masking char de-identification doesn't change any annotation
+        # character addresses
+        self.assertEqual(response_data['deidentifiedAnnotations'],
+                         response_data['originalAnnotations'])
+
+    @patch('nlpsandboxclient.client.annotate_note',
+           new=mock_annotate_note)
+    def test_masking_char_all_types(self):
+        """Test case for de-identification with masking character
+        """
+        # Mask all fields, with different characters for each one
+        masking_char_request = {
+            "note": client_note_to_request_dict(EXTENDED_NOTE),
+            "deidentificationSteps": [
+                {
+                    "maskingCharConfig": {"maskingChar": "*"},
+                    "annotationTypes": ["text_physical_address"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "_"},
+                    "annotationTypes": ["text_person_name"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "-"},
+                    "annotationTypes": ["text_date"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "&"},
+                    "annotationTypes": ["text_contact"]
+                },
+                {
+                    "maskingCharConfig": {"maskingChar": "#"},
+                    "annotationTypes": ["text_id"]
+                },
+            ]
+        }
+
+        response = self.client.open(
+            DEIDENTIFIER_ENDPOINT_URL,
+            method='POST',
+            headers={'Accept': 'application/json'},
+            data=json.dumps(masking_char_request),
+            content_type='application/json'
+        )
+        self.assertStatus(response, 200,
+                          'Response body:' + response.data.decode('utf-8'))
+        response_data = response.json
+
+        # This is what the deidentified note *should* look like (based on how
+        # we know the annotators will annotate)
+        expected_deidentified_text = "____ __________ came back from *******"\
+                                     " yesterday, -- -------- ----. Her email"\
+                                     " is &&&&&&&&&&&&&&&&&&&&&&&&&, and her"\
+                                     " SSN is ###########."
         self.assertEqual(response_data['deidentifiedNote']['text'],
                          expected_deidentified_text)
 
