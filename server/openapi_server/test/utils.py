@@ -1,6 +1,6 @@
-from datanode.model.note import Note
-from datanode.model.note_id import NoteId
-from datanode.model.patient_id import PatientId
+from nlpsandboxsdk.model.note import Note
+from nlpsandboxsdk.model.note_id import NoteId
+from nlpsandboxsdk.model.patient_id import PatientId
 
 from openapi_server.models import Tool, License
 
@@ -18,13 +18,13 @@ def client_note_to_request_dict(note: Note):
 
 
 ANNOTATOR_TYPE_MAP = {
-    'nlpsandbox:physical-address-annotator': (
+    'nlpsandbox:physical-address-nlpsandboxsdk': (
         'text_physical_address', 'textPhysicalAddressAnnotations'),
-    'nlpsandbox:person-name-annotator': (
+    'nlpsandbox:person-name-nlpsandboxsdk': (
         'text_person_name', 'textPersonNameAnnotations'),
-    'nlpsandbox:date-annotator': ('text_date', 'textDateAnnotations'),
-    'nlpsandbox:contact-annotator': ('text_contact', 'textContactAnnotations'),
-    'nlpsandbox:id-annotator': ('text_id', 'textIdAnnotations'),
+    'nlpsandbox:date-nlpsandboxsdk': ('text_date', 'textDateAnnotations'),
+    'nlpsandbox:contact-nlpsandboxsdk': ('text_contact', 'textContactAnnotations'),
+    'nlpsandbox:id-nlpsandboxsdk': ('text_id', 'textIdAnnotations'),
 }
 
 

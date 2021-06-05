@@ -1,6 +1,6 @@
 import connexion
-from datanode.model.note_id import NoteId
-from datanode.model.patient_id import PatientId
+from nlpsandboxsdk.model.note_id import NoteId
+from nlpsandboxsdk.model.patient_id import PatientId
 
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
 from openapi_server.models import DeidentificationStep, DeidentifyResponse, \
@@ -48,30 +48,31 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
         if 'text_date' in all_annotation_types:
             annotations['text_date'] = client.annotate_note(
                 host=config.date_annotator_api_url,
-                note=client_note, tool_type='nlpsandbox:date-annotator')[
+                note=client_note, tool_type='nlpsandbox:date-nlpsandboxsdk')[
                 'textDateAnnotations']
         if 'text_person_name' in all_annotation_types:
             annotations['text_person_name'] = client.annotate_note(
                 host=config.person_name_annotator_api_url,
-                note=client_note, tool_type='nlpsandbox:person-name-annotator')[
+                note=client_note,
+                tool_type='nlpsandbox:person-name-nlpsandboxsdk')[
                 'textPersonNameAnnotations']
         if 'text_physical_address' in all_annotation_types:
             annotations['text_physical_address'] = client.annotate_note(
                 host=config.physical_address_annotator_api_url,
                 note=client_note,
-                tool_type='nlpsandbox:physical-address-annotator')[
+                tool_type='nlpsandbox:physical-address-nlpsandboxsdk')[
                 'textPhysicalAddressAnnotations']
         if 'text_contact' in all_annotation_types:
             annotations['text_contact'] = client.annotate_note(
                 host=config.contact_annotator_api_url,
                 note=client_note,
-                tool_type='nlpsandbox:contact-annotator')[
+                tool_type='nlpsandbox:contact-nlpsandboxsdk')[
                 'textContactAnnotations']
         if 'text_id' in all_annotation_types:
             annotations['text_id'] = client.annotate_note(
                 host=config.id_annotator_api_url,
                 note=client_note,
-                tool_type='nlpsandbox:id-annotator')[
+                tool_type='nlpsandbox:id-nlpsandboxsdk')[
                 'textIdAnnotations']
 
         # De-identify note
