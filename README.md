@@ -17,7 +17,7 @@ and industry professionals are invited to browse the available tasks and
 participate by developing and submitting an NLP Sandbox tool.
 
 This repository provides an example implementation of the [NLP Sandbox PHI
-Deidentifier Annotator API] written in Python-Flask. An NLP Sandbox PHI
+Deidentifier API] written in Python-Flask. An NLP Sandbox PHI
 deidentifier takes as input a clinical note (text) and outputs a list of
 predicted Protected Health Information (PHI) annotations and the clinical note
 where PHI elements are anonymized using one of the strategy selected (masking
