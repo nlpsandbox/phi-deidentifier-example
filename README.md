@@ -33,6 +33,13 @@ a Docker image of this tool to Synapse Docker Registry. This image of this
 example tool can be submitted as-is on [NLPSandbox.io] to benchmark its
 performance -- just don't expect a high performance!
 
+## Preview
+
+Preview this NLP Sandbox tool at https://phi-deidentifier.nlpsandbox.io.
+
+See [nlpsandbox/phi-deidentifier-app] for instruction on how to deploy the NLP
+Sandbox PHI Deidentifier example, including its React web client.
+
 
 ## Contents
 
@@ -369,3 +376,4 @@ Thinking about contributing to this project? Get started by reading our
 [NLP Sandbox Physical Address Annotator]: https://www.synapse.org/#!Synapse:syn22277123/wiki/609134
 [NLP Sandbox Contact Annotator]: https://www.synapse.org/#!Synapse:syn22277123/wiki/609134
 [NLP Sandbox ID Annotator]: https://www.synapse.org/#!Synapse:syn22277123/wiki/609134
+[nlpsandbox/phi-deidentifier-app]: https://github.com/nlpsandbox/phi-deidentifier-app
