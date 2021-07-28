@@ -37,7 +37,7 @@ services:
       - nlpsandbox-internal
 
   phi-deidentifier:
-    image: docker.synapse.org/syn22277123/phi-deidentifier-example:1.1.0
+    image: docker.synapse.org/syn22277123/phi-deidentifier-example:1.2.0
     build:
       context: server
       dockerfile: Dockerfile
