@@ -154,7 +154,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
 
         # Redaction should reduce all annotation lengths to 0
         for annotation_type in (
-                'textPersonNameAnnotations', 'textPhysicalAddressAnnotations',
+                'textPersonNameAnnotations', 'textLocationAnnotations',
                 'textDateAnnotations'
         ):
             for annotation in response_data['deidentifiedAnnotations'][
@@ -164,7 +164,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
 
         all_starts = set()
         for annotation_type in ('textPersonNameAnnotations',
-                                'textPhysicalAddressAnnotations',
+                                'textLocationAnnotations',
                                 'textDateAnnotations'):
             for annotation in \
                     response_data['deidentifiedAnnotations'][annotation_type]:
