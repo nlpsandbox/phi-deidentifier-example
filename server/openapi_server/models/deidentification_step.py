@@ -123,7 +123,7 @@ class DeidentificationStep(Model):
     def annotation_type_mask_config(self):
         """Gets the annotation_type_mask_config of this DeidentificationStep.
 
-        Configuration for the \"annotation type\" strategy. E.g. \"John Smith lives at 123 Main St\" -> \"[PERSON_NAME] lives at [PHYSICAL_ADDRESS]\".  # noqa: E501
+        Configuration for the \"annotation type\" strategy. E.g. \"John Smith lives at 123 Main St\" -> \"[PERSON_NAME] lives at [LOCATION]\".  # noqa: E501
 
         :return: The annotation_type_mask_config of this DeidentificationStep.
         :rtype: object
@@ -134,7 +134,7 @@ class DeidentificationStep(Model):
     def annotation_type_mask_config(self, annotation_type_mask_config):
         """Sets the annotation_type_mask_config of this DeidentificationStep.
 
-        Configuration for the \"annotation type\" strategy. E.g. \"John Smith lives at 123 Main St\" -> \"[PERSON_NAME] lives at [PHYSICAL_ADDRESS]\".  # noqa: E501
+        Configuration for the \"annotation type\" strategy. E.g. \"John Smith lives at 123 Main St\" -> \"[PERSON_NAME] lives at [LOCATION]\".  # noqa: E501
 
         :param annotation_type_mask_config: The annotation_type_mask_config of this DeidentificationStep.
         :type annotation_type_mask_config: object
@@ -206,7 +206,7 @@ class DeidentificationStep(Model):
         :param annotation_types: The annotation_types of this DeidentificationStep.
         :type annotation_types: List[str]
         """
-        allowed_values = ["text_date", "text_person_name", "text_physical_address", "text_id", "text_contact"]  # noqa: E501
+        allowed_values = ["text_date", "text_person_name", "text_location", "text_id", "text_contact"]  # noqa: E501
         if not set(annotation_types).issubset(set(allowed_values)):
             raise ValueError(
                 "Invalid values for `annotation_types` [{0}], must be a subset of [{1}]"  # noqa: E501

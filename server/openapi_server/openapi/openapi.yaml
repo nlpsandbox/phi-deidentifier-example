@@ -9,14 +9,14 @@ info:
     This NLP tool takes as input a clinical note and returned a de-identified version of the note.
     This design of this API is a work in progress.
     # Examples
-    - [NLP Sandbox PHI Deidentifier](https://github.com/nlpsandbox/phi-deidentifier)
+    - [NLP Sandbox PHI Deidentifier Example](https://github.com/nlpsandbox/phi-deidentifier-example)
   license:
     name: Apache 2.0
-    url: https://github.com/nlpsandbox/nlpsandbox-schemas/blob/develop/LICENSE
+    url: https://github.com/nlpsandbox/nlpsandbox-schemas/blob/main/LICENSE
   title: NLP Sandbox PHI Deidentifier API
-  version: 1.1.2
+  version: 1.2.0
   x-logo:
-    url: https://nlpsandbox.github.io/nlpsandbox-schemas/logo.png
+    url: https://github.com/nlpsandbox/nlpsandbox-schemas/raw/main/docs/logo.png
 servers:
 - url: http://example.com/api/v1
 - url: https://example.com/api/v1
@@ -213,6 +213,7 @@ components:
       - patientId
       - text
       - type
+      title: Note
       type: object
     MaskingCharConfig:
       description: Configuration for the masking char strategy. E.g. "John Smith lives
@@ -223,15 +224,19 @@ components:
           description: Character used to mask sensitive information
           maxLength: 1
           minLength: 1
+          title: maskingChar
           type: string
+      title: MaskingCharConfig
       type: object
     AnnotationTypeMaskConfig:
       description: Configuration for the "annotation type" strategy. E.g. "John Smith
-        lives at 123 Main St" -> "[PERSON_NAME] lives at [PHYSICAL_ADDRESS]".
+        lives at 123 Main St" -> "[PERSON_NAME] lives at [LOCATION]".
+      title: annotationTypeMaskConfig
       type: object
     RedactConfig:
       description: Configuration for the redaction strategy. E.g. "John Smith lives
         at 123 Main St" -> "lives at".
+      title: redactConfig
       type: object
     DateOffsetConfig:
       description: Configuration for the "date offset" strategy. E.g. "John Smith
@@ -240,9 +245,11 @@ components:
       properties:
         offsetDays:
           description: Number of days by which to offset annotated dates.
+          title: offsetDays
           type: integer
       required:
       - offsetDays
+      title: DateOffsetConfig
       type: object
     DeidentificationStep:
       description: The configuration of a deidentification step
@@ -254,16 +261,19 @@ components:
           format: float
           maximum: 100
           minimum: 0
+          title: confidenceThreshold
           type: number
         maskingCharConfig:
           $ref: '#/components/schemas/MaskingCharConfig'
         annotationTypeMaskConfig:
           description: Configuration for the "annotation type" strategy. E.g. "John
-            Smith lives at 123 Main St" -> "[PERSON_NAME] lives at [PHYSICAL_ADDRESS]".
+            Smith lives at 123 Main St" -> "[PERSON_NAME] lives at [LOCATION]".
+          title: annotationTypeMaskConfig
           type: object
         redactConfig:
           description: Configuration for the redaction strategy. E.g. "John Smith
             lives at 123 Main St" -> "lives at".
+          title: redactConfig
           type: object
         dateOffsetConfig:
           $ref: '#/components/schemas/DateOffsetConfig'
@@ -274,13 +284,15 @@ components:
             enum:
             - text_date
             - text_person_name
-            - text_physical_address
+            - text_location
             - text_id
             - text_contact
             type: string
+          title: annotationTypes
           type: array
       required:
       - annotationTypes
+      title: DeidentificationStep
       type: object
     DeidentifyRequest:
       description: A request to de-identify a clinical note
@@ -299,7 +311,7 @@ components:
         - confidenceThreshold: 20
           annotationTypeMaskConfig: {}
           annotationTypes:
-          - text_physical_address
+          - text_location
         note:
           identifier: awesome-note
           text: On 12/26/2020, Ms. Chloe Price met with Dr. Prescott in Seattle.
@@ -357,6 +369,7 @@ components:
         text: 10/26/2020
         dateFormat: MM/DD/YYYY
         confidence: 95.5
+      title: TextDateAnnotation
       type: object
     TextPersonNameAnnotation:
       allOf:
@@ -367,18 +380,20 @@ components:
         length: 11
         text: Chloe Price
         confidence: 95.5
+      title: TextPersonNameAnnotation
       type: object
-    TextPhysicalAddressAnnotation:
+    TextLocationAnnotation:
       allOf:
       - $ref: '#/components/schemas/TextAnnotation'
-      - $ref: '#/components/schemas/TextPhysicalAddressAnnotation_allOf'
-      description: A physical address annotation in a text
+      - $ref: '#/components/schemas/TextLocationAnnotation_allOf'
+      description: A location annotation in a text
       example:
         start: 42
         length: 7
         text: Seattle
-        addressType: city
+        locationType: city
         confidence: 95.5
+      title: TextLocationAnnotation
       type: object
     TextIdAnnotation:
       allOf:
@@ -391,6 +406,7 @@ components:
         text: 203-11-4535
         idType: ssn
         confidence: 95.5
+      title: TextIdAnnotation
       type: object
     TextContactAnnotation:
       allOf:
@@ -403,6 +419,7 @@ components:
         text: dave@uw.edu
         contactType: email
         confidence: 95.5
+      title: TextContactAnnotation
       type: object
     AnnotationSet:
       description: Set of annotations of all types for a text
@@ -427,16 +444,16 @@ components:
           length: 11
           text: Chloe Price
           confidence: 95.5
-        textPhysicalAddressAnnotations:
+        textLocationAnnotations:
         - start: 42
           length: 7
           text: Seattle
-          addressType: city
+          locationType: city
           confidence: 95.5
         - start: 42
           length: 7
           text: Seattle
-          addressType: city
+          locationType: city
           confidence: 95.5
         textIdAnnotations:
         - start: 42
@@ -465,33 +482,39 @@ components:
           description: Date annotations in a text
           items:
             $ref: '#/components/schemas/TextDateAnnotation'
+          title: textDateAnnotations
           type: array
         textPersonNameAnnotations:
           description: Person name annotations in a text
           items:
             $ref: '#/components/schemas/TextPersonNameAnnotation'
+          title: textPersonNameAnnotations
           type: array
-        textPhysicalAddressAnnotations:
-          description: Physical address annotations in a text
+        textLocationAnnotations:
+          description: Location annotations in a text
           items:
-            $ref: '#/components/schemas/TextPhysicalAddressAnnotation'
+            $ref: '#/components/schemas/TextLocationAnnotation'
+          title: textLocationAnnotations
           type: array
         textIdAnnotations:
           description: ID annotations in a text
           items:
             $ref: '#/components/schemas/TextIdAnnotation'
+          title: textIdAnnotations
           type: array
         textContactAnnotations:
           description: Contact annotations in a text
           items:
             $ref: '#/components/schemas/TextContactAnnotation'
+          title: textContactAnnotations
           type: array
       required:
       - textContactAnnotations
       - textDateAnnotations
       - textIdAnnotations
+      - textLocationAnnotations
       - textPersonNameAnnotations
-      - textPhysicalAddressAnnotations
+      title: AnnotationSet
       type: object
     DeidentifyResponse:
       description: The response to a deidentification request
@@ -517,16 +540,16 @@ components:
             length: 11
             text: Chloe Price
             confidence: 95.5
-          textPhysicalAddressAnnotations:
+          textLocationAnnotations:
           - start: 42
             length: 7
             text: Seattle
-            addressType: city
+            locationType: city
             confidence: 95.5
           - start: 42
             length: 7
             text: Seattle
-            addressType: city
+            locationType: city
             confidence: 95.5
           textIdAnnotations:
           - start: 42
@@ -576,16 +599,16 @@ components:
             length: 11
             text: Chloe Price
             confidence: 95.5
-          textPhysicalAddressAnnotations:
+          textLocationAnnotations:
           - start: 42
             length: 7
             text: Seattle
-            addressType: city
+            locationType: city
             confidence: 95.5
           - start: 42
             length: 7
             text: Seattle
-            addressType: city
+            locationType: city
             confidence: 95.5
           textIdAnnotations:
           - start: 42
@@ -616,26 +639,32 @@ components:
           $ref: '#/components/schemas/AnnotationSet'
         deidentifiedNote:
           $ref: '#/components/schemas/Note'
+      title: DeidentifyResponse
       type: object
     Error:
       description: Problem details (tools.ietf.org/html/rfc7807)
       properties:
         title:
           description: A human readable documentation for the problem type
+          title: title
           type: string
         status:
           description: The HTTP status code
+          title: status
           type: integer
         detail:
           description: A human readable explanation specific to this occurrence of
             the problem
+          title: detail
           type: string
         type:
           description: An absolute URI that identifies the problem type
+          title: type
           type: string
       required:
       - status
       - title
+      title: Error
       type: object
     HealthCheck:
       description: Represents the health of a service
@@ -648,9 +677,11 @@ components:
           - pass
           - fail
           - warn
+          title: status
           type: string
       required:
       - status
+      title: HealthCheck
       type: object
     License:
       description: The license (license keyword used by GitHub)
@@ -691,13 +722,22 @@ components:
       - zlib
       - none
       example: apache-2.0
+      title: License
       type: string
     ToolType:
       description: The type of this tool
+      enum:
+      - nlpsandbox:contact-annotator
+      - nlpsandbox:covid-symptom-annotator
+      - nlpsandbox:data-node
+      - nlpsandbox:date-annotator
+      - nlpsandbox:id-annotator
+      - nlpsandbox:location-annotator
+      - nlpsandbox:person-name-annotator
+      - nlpsandbox:phi-annotator
+      - nlpsandbox:phi-deidentifier
       example: nlpsandbox:date-annotator
-      maxLength: 60
-      minLength: 3
-      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*(:)[a-z0-9]+(?:-[a-z0-9]+)*$
+      title: ToolType
       type: string
     Tool:
       description: Information about an NLP tool
@@ -711,7 +751,7 @@ components:
         authorEmail: author@example.com
         url: https://example.com
         type: nlpsandbox:date-annotator
-        apiVersion: 1.1.2
+        apiVersion: 1.2.0
       properties:
         name:
           description: The tool name
@@ -731,7 +771,7 @@ components:
           type: string
         description:
           description: A short, one-sentence summary of the tool
-          maxLength: 100
+          maxLength: 280
           type: string
         author:
           description: The author of the tool
@@ -745,12 +785,7 @@ components:
           format: uri
           type: string
         type:
-          description: The type of this tool
-          example: nlpsandbox:date-annotator
-          maxLength: 60
-          minLength: 3
-          pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*(:)[a-z0-9]+(?:-[a-z0-9]+)*$
-          type: string
+          $ref: '#/components/schemas/ToolType'
         apiVersion:
           description: The version of the tool OpenAPI specification
           minLength: 1
@@ -767,6 +802,7 @@ components:
       - type
       - url
       - version
+      title: Tool
       type: object
     ToolDependencies:
       description: A list of tool dependencies
@@ -781,7 +817,7 @@ components:
           authorEmail: author@example.com
           url: https://example.com
           type: nlpsandbox:date-annotator
-          apiVersion: 1.1.2
+          apiVersion: 1.2.0
         - name: awesome-nlp-tool
           version: 1.0.6
           license: apache-2.0
@@ -791,15 +827,17 @@ components:
           authorEmail: author@example.com
           url: https://example.com
           type: nlpsandbox:date-annotator
-          apiVersion: 1.1.2
+          apiVersion: 1.2.0
       properties:
         tools:
           description: A list of tools
           items:
             $ref: '#/components/schemas/Tool'
+          title: tools
           type: array
       required:
       - tools
+      title: ToolDependencies
       type: object
     TextDateAnnotation_allOf:
       properties:
@@ -808,10 +846,10 @@ components:
           example: MM/DD/YYYY
           type: string
       type: object
-    TextPhysicalAddressAnnotation_allOf:
+    TextLocationAnnotation_allOf:
       properties:
-        addressType:
-          description: Type of address information
+        locationType:
+          description: Type of location
           enum:
           - city
           - country
@@ -825,7 +863,7 @@ components:
           - zip
           type: string
       required:
-      - addressType
+      - locationType
       type: object
     TextIdAnnotation_allOf:
       properties:

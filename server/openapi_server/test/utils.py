@@ -18,8 +18,8 @@ def client_note_to_request_dict(note: Note):
 
 
 ANNOTATOR_TYPE_MAP = {
-    'nlpsandbox:physical-address-annotator': (
-        'text_physical_address', 'textPhysicalAddressAnnotations'),
+    'nlpsandbox:location-annotator': (
+        'text_location', 'textLocationAnnotations'),
     'nlpsandbox:person-name-annotator': (
         'text_person_name', 'textPersonNameAnnotations'),
     'nlpsandbox:date-annotator': ('text_date', 'textDateAnnotations'),
@@ -51,7 +51,7 @@ SAMPLE_NOTE_ANNOTATIONS = {
         {'confidence': 95, 'length': 10,
          'start': 5, 'text': 'Williamson'}
     ],
-    'text_physical_address': [
+    'text_location': [
         {'addressType': 'city', 'confidence': 95,
          'length': 7, 'start': 31, 'text': 'Seattle'}
     ]
@@ -81,7 +81,7 @@ EXTENDED_NOTE_ANNOTATIONS = {
         {'confidence': 95, 'length': 10,
          'start': 5, 'text': 'Williamson'}
     ],
-    'text_physical_address': [
+    'text_location': [
         {'addressType': 'city', 'confidence': 95,
          'length': 7, 'start': 31, 'text': 'Seattle'}
     ],
@@ -124,7 +124,7 @@ OVERLAPPING_ANNOTATIONS = {
         {'confidence': 60, 'length': 6,
          'start': 30, 'text': 'Austin'}
     ],
-    'text_physical_address': [
+    'text_location': [
         {'addressType': 'city', 'confidence': 30,
          'length': 6, 'start': 30, 'text': 'Austin'},
         {'addressType': 'state', 'confidence': 95,
@@ -151,7 +151,7 @@ CONFLICTING_ANNOTATIONS = {
         {'confidence': 97, 'length': 4,
          'start': 0, 'text': 'ABCD'}
     ],
-    'text_physical_address': [
+    'text_location': [
         {'addressType': 'state', 'confidence': 97,
          'length': 5, 'start': 0, 'text': 'ABCDE'}
     ]
@@ -175,7 +175,7 @@ PARTIAL_OVERLAP_ANNOTATIONS = {
         {'confidence': 97, 'length': 4,
          'start': 1, 'text': 'UVWX'}
     ],
-    'text_physical_address': [
+    'text_location': [
         {'addressType': 'state', 'confidence': 97,
          'length': 3, 'start': 4, 'text': 'XYZ'}
     ]
@@ -207,8 +207,8 @@ def mock_get_tool(host):
     """
     if 'person-name' in host:
         tool_type = 'nlpsandbox:person-name-annotator'
-    elif 'physical-address' in host:
-        tool_type = 'nlpsandbox:physical-address-annotator'
+    elif 'location' in host:
+        tool_type = 'nlpsandbox:location-annotator'
     elif 'date' in host:
         tool_type = 'nlpsandbox:date-annotator'
     else:
