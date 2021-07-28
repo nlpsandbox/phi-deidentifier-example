@@ -28,7 +28,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {"maskingChar": "*"},
-                    "annotationTypes": ["text_physical_address"]
+                    "annotationTypes": ["text_location"]
                 },
                 {
                     "maskingCharConfig": {"maskingChar": "_"},
@@ -75,7 +75,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {"maskingChar": "*"},
-                    "annotationTypes": ["text_physical_address"]
+                    "annotationTypes": ["text_location"]
                 },
                 {
                     "maskingCharConfig": {"maskingChar": "_"},
@@ -130,7 +130,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [{
                 "redactConfig": {},
-                "annotationTypes": ["text_physical_address",
+                "annotationTypes": ["text_location",
                                     "text_person_name", "text_date"]
             }]
         }
@@ -186,7 +186,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [{
                 "annotationTypeMaskConfig": {},
-                "annotationTypes": ["text_physical_address",
+                "annotationTypes": ["text_location",
                                     "text_person_name", "text_date"]
             }]
         }
@@ -241,7 +241,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         no_method_request = {
             "note": client_note_to_request_dict(SAMPLE_NOTE),
             "deidentificationSteps": [{
-                "annotationTypes": ["text_physical_address",
+                "annotationTypes": ["text_location",
                                     "text_person_name", "text_date"]
             }]
         }
@@ -267,13 +267,13 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "redactConfig": {},
-                    "annotationTypes": ["text_physical_address"]
+                    "annotationTypes": ["text_location"]
                 },
                 {
                     "maskingCharConfig": {
                         "maskingChar": "*"
                     },
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"]
                 },
                 {
@@ -317,13 +317,13 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {},  # should default to "*"
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 10.0
                 },
                 {
                     "annotationTypeMaskConfig": {},
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
                 }
@@ -358,13 +358,13 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "redactConfig": {},
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 10.0
                 },
                 {
                     "maskingCharConfig": {},
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
                 }
@@ -394,7 +394,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "redactConfig": {},
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
                 },
@@ -443,7 +443,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                     "maskingCharConfig": {
                         "maskingChar": "_"
                     },
-                    "annotationTypes": ["text_physical_address"],
+                    "annotationTypes": ["text_location"],
                     "confidenceThreshold": 90.0
                 },
             ]
@@ -475,7 +475,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                     "maskingCharConfig": {
                         "maskingChar": "_"
                     },
-                    "annotationTypes": ["text_physical_address"],
+                    "annotationTypes": ["text_location"],
                     "confidenceThreshold": 90.0
                 },
                 {
@@ -518,7 +518,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                 {
                     "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_date", "text_person_name",
-                                        "text_physical_address"],
+                                        "text_location"],
                     "confidenceThreshold": 90.0
                 },
             ]
@@ -546,7 +546,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "annotationTypeMaskConfig": {},
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"],
                     "confidenceThreshold": 90.0
                 },
@@ -576,7 +576,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "maskingCharConfig": {"maskingChar": "*"},
-                    "annotationTypes": ["text_physical_address"]
+                    "annotationTypes": ["text_location"]
                 },
                 {
                     "maskingCharConfig": {"maskingChar": "_"},
@@ -619,7 +619,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                 },
                 {
                     "maskingCharConfig": {"maskingChar": "*"},
-                    "annotationTypes": ["text_physical_address"]
+                    "annotationTypes": ["text_location"]
                 }
             ]
         }
@@ -649,7 +649,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
             "deidentificationSteps": [
                 {
                     "annotationTypeMaskConfig": {},
-                    "annotationTypes": ["text_physical_address",
+                    "annotationTypes": ["text_location",
                                         "text_person_name", "text_date"]
                 }
             ]
@@ -679,7 +679,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                 {
                     "annotationTypeMaskConfig": {},
                     "annotationTypes": ["text_date", "text_person_name",
-                                        "text_physical_address"]
+                                        "text_location"]
                 }
             ]
         }
