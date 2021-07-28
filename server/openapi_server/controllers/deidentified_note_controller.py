@@ -57,10 +57,10 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
                 'textPersonNameAnnotations']
         if 'text_location' in all_annotation_types:
             annotations['text_location'] = client.annotate_note(
-                host=config.physical_address_annotator_api_url,
+                host=config.location_annotator_api_url,
                 note=client_note,
                 tool_type='nlpsandbox:location-annotator')[
-                'textPhysicalAddressAnnotations']
+                'textLocationAnnotations']
         if 'text_contact' in all_annotation_types:
             annotations['text_contact'] = client.annotate_note(
                 host=config.contact_annotator_api_url,
