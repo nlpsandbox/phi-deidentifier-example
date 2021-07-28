@@ -2,14 +2,14 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: docker.synapse.org/syn22277123/date-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/date-annotator-example:1.2.0
     container_name: date-annotator
     restart: always
     networks:
       - nlpsandbox-internal
 
   person-name-annotator:
-    image: docker.synapse.org/syn22277123/person-name-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/person-name-annotator-example:1.2.0
     container_name: person-name-annotator
     restart: always
     networks:
@@ -23,14 +23,14 @@ services:
       - nlpsandbox-internal
 
   contact-annotator:
-    image: docker.synapse.org/syn22277123/contact-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/contact-annotator-example:1.2.0
     container_name: contact-annotator
     restart: always
     networks:
       - nlpsandbox-internal
 
   id-annotator:
-    image: docker.synapse.org/syn22277123/id-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/id-annotator-example:1.2.0
     container_name: id-annotator
     restart: always
     networks:
