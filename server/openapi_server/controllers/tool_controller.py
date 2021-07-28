@@ -2,7 +2,7 @@ from nlpsandboxclient import client
 
 from openapi_server.models.tool import Tool  # noqa: E501
 from ..config import Config
-from ..models import License, ToolDependencies
+from ..models import License, ToolDependencies, ToolType
 
 
 def get_tool():  # noqa: E501
@@ -22,7 +22,7 @@ def get_tool():  # noqa: E501
         author="NLP Sandbox Team",
         author_email="team@nlpsandbox.io",
         url="https://github.com/nlpsandbox/phi-deidentifier",
-        type="nlpsandbox:phi-deidentifier",
+        type=ToolType.PHI_DEIDENTIFIER,
         api_version="1.2.0"
     )
     return tool, 200
