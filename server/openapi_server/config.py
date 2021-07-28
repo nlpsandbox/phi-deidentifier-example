@@ -11,9 +11,9 @@ defaultValues = {
     "PERSON_NAME_ANNOTATOR_PROTOCOL": "http://",
     "PERSON_NAME_ANNOTATOR_HOST": "localhost",
     "PERSON_NAME_ANNOTATOR_PORT": "9001",
-    "PHYSICAL_ADDRESS_ANNOTATOR_PROTOCOL": "http://",
-    "PHYSICAL_ADDRESS_ANNOTATOR_HOST": "localhost",
-    "PHYSICAL_ADDRESS_ANNOTATOR_PORT": "9002",
+    "LOCATION_ANNOTATOR_PROTOCOL": "http://",
+    "LOCATION_ANNOTATOR_HOST": "localhost",
+    "LOCATION_ANNOTATOR_PORT": "9002",
     "CONTACT_ANNOTATOR_PROTOCOL": "http://",
     "CONTACT_ANNOTATOR_HOST": "localhost",
     "CONTACT_ANNOTATOR_PORT": "9003",
@@ -91,11 +91,11 @@ class Config(AbstractConfig):
         )
 
     @property
-    def physical_address_annotator_api_url(self):
+    def location_annotator_api_url(self):
         return '{protocol}{host}:{port}{base_path}'.format(
-            protocol=self.get_property('PHYSICAL_ADDRESS_ANNOTATOR_PROTOCOL'),
-            host=self.get_property('PHYSICAL_ADDRESS_ANNOTATOR_HOST'),
-            port=self.get_property('PHYSICAL_ADDRESS_ANNOTATOR_PORT'),
+            protocol=self.get_property('LOCATION_ANNOTATOR_PROTOCOL'),
+            host=self.get_property('LOCATION_ANNOTATOR_HOST'),
+            port=self.get_property('LOCATION_ANNOTATOR_PORT'),
             base_path='/api/v1'
         )
 
