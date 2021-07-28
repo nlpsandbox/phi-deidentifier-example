@@ -41,7 +41,7 @@ def get_tool_dependencies():  # noqa: E501
     for hostname in (
             config.date_annotator_api_url,
             config.person_name_annotator_api_url,
-            config.physical_address_annotator_api_url,
+            config.location_annotator_api_url,
             config.contact_annotator_api_url,
             config.id_annotator_api_url,
     ):
