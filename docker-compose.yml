@@ -15,9 +15,9 @@ services:
     networks:
       - nlpsandbox-internal
 
-  physical-address-annotator:
+  location-annotator:
     image: docker.synapse.org/syn22277123/location-annotator-example:1.2.0
-    container_name: physical-address-annotator
+    container_name: location-annotator
     restart: always
     networks:
       - nlpsandbox-internal
@@ -50,7 +50,7 @@ services:
       - DATE_ANNOTATOR_PORT=8080
       - PERSON_NAME_ANNOTATOR_HOST=person-name-annotator
       - PERSON_NAME_ANNOTATOR_PORT=8080
-      - PHYSICAL_ADDRESS_ANNOTATOR_HOST=physical-address-annotator
+      - PHYSICAL_ADDRESS_ANNOTATOR_HOST=location-annotator
       - PHYSICAL_ADDRESS_ANNOTATOR_PORT=8080
       - CONTACT_ANNOTATOR_HOST=contact-annotator
       - CONTACT_ANNOTATOR_PORT=8080
@@ -61,7 +61,7 @@ services:
     depends_on:
       - date-annotator
       - person-name-annotator
-      - physical-address-annotator
+      - location-annotator
       - contact-annotator
       - id-annotator
 
