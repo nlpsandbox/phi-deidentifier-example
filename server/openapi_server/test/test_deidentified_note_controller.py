@@ -204,7 +204,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         # Manually written based on known behavior of annotators
         expected_deidentified_text = \
             "[TEXT_PERSON_NAME] [TEXT_PERSON_NAME] came back from [" \
-            "TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [" \
+            "TEXT_LOCATION] yesterday, [TEXT_DATE] [TEXT_DATE] [" \
             "TEXT_DATE]."
         self.assertEqual(response_data['deidentifiedNote']['text'],
                          expected_deidentified_text)
@@ -342,7 +342,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
 
         expected_deidentified_text = \
             "*** [TEXT_PERSON_NAME] came back from ******, " \
-            "[TEXT_PHYSICAL_ADDRESS] yesterday, [TEXT_DATE] [TEXT_DATE] [" \
+            "[TEXT_LOCATION] yesterday, [TEXT_DATE] [TEXT_DATE] [" \
             "TEXT_DATE]."
         self.assertEqual(response_data['deidentifiedNote']['text'],
                          expected_deidentified_text)
@@ -534,7 +534,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
                           'Response body:' + response.data.decode('utf-8'))
         response_data = response.json
 
-        expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS]FG"
+        expected_deidentified_text = "[TEXT_LOCATION]FG"
         self.assertEqual(response_data['deidentifiedNote']['text'],
                          expected_deidentified_text)
 
@@ -564,7 +564,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         response_data = response.json
 
         expected_deidentified_text = \
-            "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]FG"
+            "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_LOCATION]FG"
         self.assertEqual(response_data['deidentifiedNote']['text'],
                          expected_deidentified_text)
 
@@ -666,7 +666,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         response_data = response.json
 
         expected_deidentified_text = \
-            "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_PHYSICAL_ADDRESS]"
+            "[TEXT_DATE][TEXT_PERSON_NAME][TEXT_LOCATION]"
         self.assertEqual(response_data['deidentifiedNote']['text'],
                          expected_deidentified_text)
 
@@ -697,7 +697,7 @@ class TestDeidentifiedNoteController(BaseTestCase):
         # FIXME: This is another (arguable, see FIXME in
         #        test_partial_overlap_mask_reverse) bug from handling
         #        partially-overlapping annotations.
-        expected_deidentified_text = "[TEXT_PHYSICAL_ADDRESS]"
+        expected_deidentified_text = "[TEXT_LOCATION]"
         self.assertEqual(
             response_data['deidentifiedNote']['text'],
             expected_deidentified_text
