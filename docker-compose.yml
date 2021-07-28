@@ -50,8 +50,8 @@ services:
       - DATE_ANNOTATOR_PORT=8080
       - PERSON_NAME_ANNOTATOR_HOST=person-name-annotator
       - PERSON_NAME_ANNOTATOR_PORT=8080
-      - PHYSICAL_ADDRESS_ANNOTATOR_HOST=location-annotator
-      - PHYSICAL_ADDRESS_ANNOTATOR_PORT=8080
+      - LOCATION_ANNOTATOR_HOST=location-annotator
+      - LOCATION_ANNOTATOR_PORT=8080
       - CONTACT_ANNOTATOR_HOST=contact-annotator
       - CONTACT_ANNOTATOR_PORT=8080
       - ID_ANNOTATOR_HOST=id-annotator
