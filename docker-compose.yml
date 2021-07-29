@@ -2,42 +2,42 @@ version: "3.8"
 
 services:
   date-annotator:
-    image: docker.synapse.org/syn22277123/date-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/date-annotator-example:1.2.0
     container_name: date-annotator
     restart: always
     networks:
       - nlpsandbox-internal
 
   person-name-annotator:
-    image: docker.synapse.org/syn22277123/person-name-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/person-name-annotator-example:1.2.0
     container_name: person-name-annotator
     restart: always
     networks:
       - nlpsandbox-internal
 
-  physical-address-annotator:
-    image: docker.synapse.org/syn22277123/physical-address-annotator-example:1.1.2
-    container_name: physical-address-annotator
+  location-annotator:
+    image: docker.synapse.org/syn22277123/location-annotator-example:1.2.0
+    container_name: location-annotator
     restart: always
     networks:
       - nlpsandbox-internal
 
   contact-annotator:
-    image: docker.synapse.org/syn22277123/contact-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/contact-annotator-example:1.2.0
     container_name: contact-annotator
     restart: always
     networks:
       - nlpsandbox-internal
 
   id-annotator:
-    image: docker.synapse.org/syn22277123/id-annotator-example:1.1.2
+    image: docker.synapse.org/syn22277123/id-annotator-example:1.2.0
     container_name: id-annotator
     restart: always
     networks:
       - nlpsandbox-internal
 
   phi-deidentifier:
-    image: docker.synapse.org/syn22277123/phi-deidentifier-example:1.1.0
+    image: docker.synapse.org/syn22277123/phi-deidentifier-example:1.2.0
     build:
       context: server
       dockerfile: Dockerfile
@@ -50,8 +50,8 @@ services:
       - DATE_ANNOTATOR_PORT=8080
       - PERSON_NAME_ANNOTATOR_HOST=person-name-annotator
       - PERSON_NAME_ANNOTATOR_PORT=8080
-      - PHYSICAL_ADDRESS_ANNOTATOR_HOST=physical-address-annotator
-      - PHYSICAL_ADDRESS_ANNOTATOR_PORT=8080
+      - LOCATION_ANNOTATOR_HOST=location-annotator
+      - LOCATION_ANNOTATOR_PORT=8080
       - CONTACT_ANNOTATOR_HOST=contact-annotator
       - CONTACT_ANNOTATOR_PORT=8080
       - ID_ANNOTATOR_HOST=id-annotator
@@ -61,7 +61,7 @@ services:
     depends_on:
       - date-annotator
       - person-name-annotator
-      - physical-address-annotator
+      - location-annotator
       - contact-annotator
       - id-annotator
 

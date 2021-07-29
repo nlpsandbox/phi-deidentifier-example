@@ -37,7 +37,7 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
         config = Config()
         # Annotations is a dict[key: list[str]]
         annotations = {'text_date': [], 'text_person_name': [],
-                       'text_physical_address': [], 'text_contact': [],
+                       'text_location': [], 'text_contact': [],
                        'text_id': []}
 
         # Convert to NLPSandboxClient's Note object
@@ -55,12 +55,12 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
                 host=config.person_name_annotator_api_url,
                 note=client_note, tool_type='nlpsandbox:person-name-annotator')[
                 'textPersonNameAnnotations']
-        if 'text_physical_address' in all_annotation_types:
-            annotations['text_physical_address'] = client.annotate_note(
-                host=config.physical_address_annotator_api_url,
+        if 'text_location' in all_annotation_types:
+            annotations['text_location'] = client.annotate_note(
+                host=config.location_annotator_api_url,
                 note=client_note,
-                tool_type='nlpsandbox:physical-address-annotator')[
-                'textPhysicalAddressAnnotations']
+                tool_type='nlpsandbox:location-annotator')[
+                'textLocationAnnotations']
         if 'text_contact' in all_annotation_types:
             annotations['text_contact'] = client.annotate_note(
                 host=config.contact_annotator_api_url,
@@ -121,8 +121,7 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
             original_annotations=AnnotationSet(
                 text_date_annotations=annotations['text_date'],
                 text_person_name_annotations=annotations['text_person_name'],
-                text_physical_address_annotations=annotations[
-                    'text_physical_address'],
+                text_location_annotations=annotations['text_location'],
                 text_contact_annotations=annotations[
                     'text_contact'],
                 text_id_annotations=annotations['text_id'],
@@ -131,8 +130,8 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
                 text_date_annotations=deidentified_annotations['text_date'],
                 text_person_name_annotations=deidentified_annotations[
                     'text_person_name'],
-                text_physical_address_annotations=deidentified_annotations[
-                    'text_physical_address'],
+                text_location_annotations=deidentified_annotations[
+                    'text_location'],
                 text_contact_annotations=deidentified_annotations[
                     'text_contact'],
                 text_id_annotations=deidentified_annotations['text_id'],
