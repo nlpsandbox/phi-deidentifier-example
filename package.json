@@ -1,11 +1,13 @@
 {
     "devDependencies": {
-        "@openapitools/openapi-generator-cli": "2.4.13"
+        "@openapitools/openapi-generator-cli": "2.4.13",
+        "release-it": "^14.10.0"
     },
     "scripts": {
         "generate:server": "openapi-generator-cli generate -g python-flask -o server -i $npm_config_spec",
         "generate:server:latest": "openapi-generator-cli generate -g python-flask -o server -i https://nlpsandbox.github.io/nlpsandbox-schemas/phi-deidentifier/latest/openapi.json",
         "lint": "cd server && flake8",
-        "test": "cd server && tox"
+        "test": "cd server && tox",
+        "release": "release-it"
     }
 }

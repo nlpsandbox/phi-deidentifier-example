@@ -280,6 +280,33 @@ For Python-Flask tools:
 - The configuration of the unit and integration tests lives in
   [server/tox.ini](server/tox.ini).
 
+## Release Procedure
+
+Maintainers are required to follow the procedure below when creating a new
+release. Releases are created with the npm package [release-it].
+
+1. [Identify whether the release is a major, minor or patch release.]
+2. Bump the project version in the files listed below but not in `package.json`
+   (updated automatically by `release-it`).
+   - `README.md`
+   - `docker-compose.yml`
+   - `server/openapi_server/controllers/tool_controller.py`
+3. Obtain a [personal access token] (release-it only needs "repo" access; no
+   "admin" or other scopes).
+4. Make sure the token is [available as an environment variable].
+5. Preview the release information using one of the commands listed below. These
+   commands will not modify any local or remote files.
+    - `npm run release -- major --ci --no-npm --dry-run`
+    - `npm run release -- minor --ci --no-npm --dry-run`
+    - `npm run release -- patch --ci --no-npm --dry-run`
+6. Create the release using one of the commands listed below.
+    - `npm run release -- major --ci --no-npm`
+    - `npm run release -- minor --ci --no-npm`
+    - `npm run release -- patch --ci --no-npm`
+7. Check that the release has been successfully created on GitHub along with any
+   release artifacts that may have been created (GitHub Pages, Docker image
+   pushed to Docker registry, Python package published to PyPi, etc.).
+
 ### Preventing an NLP Sandbox tool from connecting to remote servers
 
 The NLP Sandbox promotes the development of tools that are re-usable,
