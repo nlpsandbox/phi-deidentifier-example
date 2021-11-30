@@ -14,7 +14,7 @@ def get_tool():  # noqa: E501
     """
     tool = Tool(
         name="phi-deidentifier",
-        version="1.2.0",
+        version="1.3.0",
         license=License.APACHE_2_0,
         repository="github:nlpsandbox/phi-deidentifier",
         description="Example implementation of the NLP Sandbox PHI "

@@ -70,8 +70,8 @@ Sandbox PHI Deidentifier example, including its React web client.
 
 ## Specification
 
-- NLP Sandbox schemas version: 1.1.2
-- NLP Sandbox tool version: 1.1.2
+- NLP Sandbox schemas version: 1.2.0
+- NLP Sandbox tool version: 1.3.0
 - Docker image: [docker.synapse.org/syn22277123/phi-deidentifier-example]
 - Tool dependencies:
   - [NLP Sandbox Date Annotator]
