@@ -9,7 +9,7 @@ jobs:
     name: Check and update to the latest NLP Sandbox version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Get latest NLP Sandbox schemas version
         uses: octokit/request-action@v2.x
