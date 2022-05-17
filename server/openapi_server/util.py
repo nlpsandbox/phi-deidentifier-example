@@ -1,6 +1,7 @@
 import datetime
 
 import six
+import typing
 from openapi_server import typing_utils
 
 
@@ -66,6 +67,9 @@ def deserialize_date(string):
     :return: date.
     :rtype: date
     """
+    if string is None:
+      return None
+    
     try:
         from dateutil.parser import parse
         return parse(string).date()
@@ -83,6 +87,9 @@ def deserialize_datetime(string):
     :return: datetime.
     :rtype: datetime
     """
+    if string is None:
+      return None
+    
     try:
         from dateutil.parser import parse
         return parse(string)
