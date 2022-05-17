@@ -1,8 +1,10 @@
+from typing import List
+
 from nlpsandboxclient import client
 
 from openapi_server.models.tool import Tool  # noqa: E501
 from ..config import Config
-from ..models import License, ToolDependencies, ToolType
+from ..models import License, ToolDependencies, ToolType, ToolDependency
 
 
 def get_tool():  # noqa: E501
@@ -37,17 +39,21 @@ def get_tool_dependencies():  # noqa: E501
     :rtype: ToolDependencies
     """
     config = Config()
-    tool_dependencies = []
-    for hostname in (
-            config.date_annotator_api_url,
-            config.person_name_annotator_api_url,
-            config.location_annotator_api_url,
-            config.contact_annotator_api_url,
-            config.id_annotator_api_url,
+    tool_dependencies: List[ToolDependency] = []
+    for functional_type, hostname in (
+            (ToolType.DATE_ANNOTATOR, config.date_annotator_api_url),
+            (ToolType.PERSON_NAME_ANNOTATOR,
+             config.person_name_annotator_api_url),
+            (ToolType.LOCATION_ANNOTATOR, config.location_annotator_api_url),
+            (ToolType.CONTACT_ANNOTATOR, config.contact_annotator_api_url),
+            (ToolType.ID_ANNOTATOR, config.id_annotator_api_url),
     ):
         client_tool = client.get_tool(host=hostname)
         tool = Tool.from_dict({client_tool.attribute_map[key]: value
                                for key, value in
                                client_tool.to_dict().items()})
-        tool_dependencies.append(tool)
-    return ToolDependencies(tools=tool_dependencies)
+        tool_dependency = ToolDependency(
+            tool=tool, functional_type=functional_type)
+        tool_dependencies.append(tool_dependency)
+        print('ASDFEHASWEJ')
+    return ToolDependencies(tool_dependencies=tool_dependencies)
