@@ -328,6 +328,7 @@ components:
       required:
       - deidentificationSteps
       - note
+      title: DeidentifyRequest
       type: object
     TextAnnotation:
       description: An annotation in a text
@@ -357,6 +358,7 @@ components:
       - length
       - start
       - text
+      title: TextAnnotation
       type: object
     TextDateAnnotation:
       allOf:
@@ -739,6 +741,67 @@ components:
       example: nlpsandbox:date-annotator
       title: ToolType
       type: string
+    ProgrammingLanguage:
+      description: A programming language
+      enum:
+      - APL
+      - ASP
+      - Ada
+      - Assembly
+      - Awk
+      - Basic
+      - C
+      - C#
+      - C++
+      - Clojure
+      - Cython
+      - Dart
+      - Delphi/Kylix
+      - Emacs-Lisp
+      - Erlang
+      - Euler
+      - Forth
+      - Fortran
+      - Go
+      - Groovy
+      - Haskell
+      - Java
+      - JavaScript
+      - Julia
+      - Kotlin
+      - Lisp
+      - Logo
+      - MATLAB
+      - ML
+      - OCaml
+      - Object Pascal
+      - Objective C
+      - Other
+      - Other Scripting Engines
+      - PHP
+      - PL/SQL
+      - Pascal
+      - Perl
+      - Pike
+      - Prolog
+      - Python
+      - R
+      - REBOL
+      - Rexx
+      - Ruby
+      - Rust
+      - Scala
+      - Scheme
+      - SQL
+      - Tcl
+      - TypeScript
+      - Unix Shell
+      - Visual Basic
+      - YACC
+      - Zope
+      example: Python
+      title: ProgrammingLanguage
+      type: string
     Tool:
       description: Information about an NLP tool
       example:
@@ -752,6 +815,9 @@ components:
         url: https://example.com
         type: nlpsandbox:date-annotator
         apiVersion: 1.2.0
+        programmingLanguages:
+        - Python
+        - Scala
       properties:
         name:
           description: The tool name
@@ -791,6 +857,13 @@ components:
           minLength: 1
           pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
           type: string
+        programmingLanguages:
+          description: The programming languages used to develop this tool
+          items:
+            $ref: '#/components/schemas/ProgrammingLanguage'
+          minItems: 0
+          type: array
+          uniqueItems: true
       required:
       - apiVersion
       - author
@@ -804,39 +877,68 @@ components:
       - version
       title: Tool
       type: object
+    ToolDependency:
+      description: Information about an NLP tool within the context of its use
+      example:
+        tool:
+          name: awesome-nlp-tool
+          version: 1.0.6
+          license: apache-2.0
+          repository: github:awesome-org/awesome-nlp-tool
+          description: An awesome NLP Tool that takes as input X and outputs Y.
+          author: Awesome Team
+          authorEmail: author@example.com
+          url: https://example.com
+          type: nlpsandbox:phi-annotator
+          apiVersion: 1.2.0
+        functionalType: nlpsandbox:date-annotator
+      properties:
+        tool:
+          $ref: '#/components/schemas/Tool'
+        functionalType:
+          $ref: '#/components/schemas/ToolType'
+      required:
+      - functionalType
+      - tool
+      title: ToolDependency
+      type: object
     ToolDependencies:
       description: A list of tool dependencies
       example:
-        tools:
-        - name: awesome-nlp-tool
-          version: 1.0.6
-          license: apache-2.0
-          repository: github:awesome-org/awesome-nlp-tool
-          description: An awesome NLP Tool that takes as input X and outputs Y.
-          author: Awesome Team
-          authorEmail: author@example.com
-          url: https://example.com
-          type: nlpsandbox:date-annotator
-          apiVersion: 1.2.0
-        - name: awesome-nlp-tool
-          version: 1.0.6
-          license: apache-2.0
-          repository: github:awesome-org/awesome-nlp-tool
-          description: An awesome NLP Tool that takes as input X and outputs Y.
-          author: Awesome Team
-          authorEmail: author@example.com
-          url: https://example.com
-          type: nlpsandbox:date-annotator
-          apiVersion: 1.2.0
+        toolDependencies:
+        - tool:
+            name: awesome-nlp-tool
+            version: 1.0.6
+            license: apache-2.0
+            repository: github:awesome-org/awesome-nlp-tool
+            description: An awesome NLP Tool that takes as input X and outputs Y.
+            author: Awesome Team
+            authorEmail: author@example.com
+            url: https://example.com
+            type: nlpsandbox:phi-annotator
+            apiVersion: 1.2.0
+          functionalType: nlpsandbox:date-annotator
+        - tool:
+            name: awesome-nlp-tool
+            version: 1.0.6
+            license: apache-2.0
+            repository: github:awesome-org/awesome-nlp-tool
+            description: An awesome NLP Tool that takes as input X and outputs Y.
+            author: Awesome Team
+            authorEmail: author@example.com
+            url: https://example.com
+            type: nlpsandbox:phi-annotator
+            apiVersion: 1.2.0
+          functionalType: nlpsandbox:date-annotator
       properties:
-        tools:
-          description: A list of tools
+        toolDependencies:
+          description: A list of tool dependencies
           items:
-            $ref: '#/components/schemas/Tool'
-          title: tools
+            $ref: '#/components/schemas/ToolDependency'
+          title: toolDependencies
           type: array
       required:
-      - tools
+      - toolDependencies
       title: ToolDependencies
       type: object
     TextDateAnnotation_allOf:
@@ -844,7 +946,9 @@ components:
         dateFormat:
           description: Date format (ISO 8601)
           example: MM/DD/YYYY
+          title: dateFormat
           type: string
+      title: TextDateAnnotation_allOf
       type: object
     TextLocationAnnotation_allOf:
       properties:
@@ -861,9 +965,11 @@ components:
           - state
           - street
           - zip
+          title: locationType
           type: string
       required:
       - locationType
+      title: TextLocationAnnotation_allOf
       type: object
     TextIdAnnotation_allOf:
       properties:
@@ -880,9 +986,11 @@ components:
           - ssn
           - vehicle
           - other
+          title: idType
           type: string
       required:
       - idType
+      title: TextIdAnnotation_allOf
       type: object
     TextContactAnnotation_allOf:
       properties:
@@ -895,7 +1003,9 @@ components:
           - phone
           - url
           - other
+          title: contactType
           type: string
       required:
       - contactType
+      title: TextContactAnnotation_allOf
       type: object

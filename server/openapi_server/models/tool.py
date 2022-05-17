@@ -7,11 +7,13 @@ from typing import List, Dict  # noqa: F401
 
 from openapi_server.models.base_model_ import Model
 from openapi_server.models.license import License
+from openapi_server.models.programming_language import ProgrammingLanguage
 from openapi_server.models.tool_type import ToolType
 import re
 from openapi_server import util
 
 from openapi_server.models.license import License  # noqa: E501
+from openapi_server.models.programming_language import ProgrammingLanguage  # noqa: E501
 from openapi_server.models.tool_type import ToolType  # noqa: E501
 import re  # noqa: E501
 
@@ -21,7 +23,7 @@ class Tool(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, name=None, version=None, license=None, repository=None, description=None, author=None, author_email=None, url=None, type=None, api_version=None):  # noqa: E501
+    def __init__(self, name=None, version=None, license=None, repository=None, description=None, author=None, author_email=None, url=None, type=None, api_version=None, programming_languages=None):  # noqa: E501
         """Tool - a model defined in OpenAPI
 
         :param name: The name of this Tool.  # noqa: E501
@@ -44,6 +46,8 @@ class Tool(Model):
         :type type: ToolType
         :param api_version: The api_version of this Tool.  # noqa: E501
         :type api_version: str
+        :param programming_languages: The programming_languages of this Tool.  # noqa: E501
+        :type programming_languages: list[ProgrammingLanguage]
         """
         self.openapi_types = {
             'name': str,
@@ -55,7 +59,8 @@ class Tool(Model):
             'author_email': str,
             'url': str,
             'type': ToolType,
-            'api_version': str
+            'api_version': str,
+            'programming_languages': list[ProgrammingLanguage]
         }
 
         self.attribute_map = {
@@ -68,7 +73,8 @@ class Tool(Model):
             'author_email': 'authorEmail',
             'url': 'url',
             'type': 'type',
-            'api_version': 'apiVersion'
+            'api_version': 'apiVersion',
+            'programming_languages': 'programmingLanguages'
         }
 
         self._name = name
@@ -81,6 +87,7 @@ class Tool(Model):
         self._url = url
         self._type = type
         self._api_version = api_version
+        self._programming_languages = programming_languages
 
     @classmethod
     def from_dict(cls, dikt) -> 'Tool':
@@ -354,3 +361,28 @@ class Tool(Model):
             raise ValueError("Invalid value for `api_version`, must be a follow pattern or equal to `/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/`")  # noqa: E501
 
         self._api_version = api_version
+
+    @property
+    def programming_languages(self):
+        """Gets the programming_languages of this Tool.
+
+        The programming languages used to develop this tool  # noqa: E501
+
+        :return: The programming_languages of this Tool.
+        :rtype: list[ProgrammingLanguage]
+        """
+        return self._programming_languages
+
+    @programming_languages.setter
+    def programming_languages(self, programming_languages):
+        """Sets the programming_languages of this Tool.
+
+        The programming languages used to develop this tool  # noqa: E501
+
+        :param programming_languages: The programming_languages of this Tool.
+        :type programming_languages: list[ProgrammingLanguage]
+        """
+        if programming_languages is not None and len(programming_languages) < 0:
+            raise ValueError("Invalid value for `programming_languages`, number of items must be greater than or equal to `0`")  # noqa: E501
+
+        self._programming_languages = programming_languages

@@ -1,14 +1,10 @@
 import connexion
-from nlpsandbox.model.note_id import NoteId
-from nlpsandbox.model.patient_id import PatientId
+import six
 
 from openapi_server.models.deidentify_request import DeidentifyRequest  # noqa: E501
-from openapi_server.models import DeidentificationStep, DeidentifyResponse, \
-    AnnotationSet, Note
-from openapi_server.phi_deidentifier.deidentifiers import apply_masking_char, \
-    apply_redaction, apply_annotation_type
-from openapi_server.config import Config
-from nlpsandboxclient import client
+from openapi_server.models.deidentify_response import DeidentifyResponse  # noqa: E501
+from openapi_server.models.error import Error  # noqa: E501
+from openapi_server import util
 
 
 def create_deidentified_notes(deidentify_request=None):  # noqa: E501
@@ -16,7 +12,7 @@ def create_deidentified_notes(deidentify_request=None):  # noqa: E501
 
     Returns the deidentified note # noqa: E501
 
-    :param deidentify_request:
+    :param deidentify_request: 
     :type deidentify_request: dict | bytes
 
     :rtype: DeidentifyResponse
